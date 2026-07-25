@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "parakeet-ai"
+version = "0.1.0"
+description = "Parakeet.ai — on-screen AI agent: hotkey/voice + screenshot + tool-using agent on a transparent overlay"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "PySide6>=6.6",
+    "pynput>=1.7",
+    "mss>=9.0",
+    "sounddevice>=0.4.6",
+    "soundcard>=0.4.3",
+    "numpy>=1.26",
+    "faster-whisper>=1.0",
+    "platformdirs>=4.0",
+    "langgraph>=0.3",
+    "langchain-core>=0.3",
+    "langchain-groq>=0.3",
+    "langchain-openai>=0.3",
+    "langchain-anthropic>=0.3",
+    "langchain-tavily>=0.2",
+    "ddgs>=6.0",
+    "AppOpener>=1.7; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+browser = ["playwright>=1.45"]
+
+[project.scripts]
+parakeet = "parakeet.app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["parakeet"]

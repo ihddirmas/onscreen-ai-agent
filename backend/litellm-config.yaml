@@ -1,0 +1,45 @@
+# LiteLLM proxy config — the "hosted mode" backend for Parakeet.
+#
+# The exe never contains provider keys. It calls THIS proxy with a per-user
+# virtual key; the proxy holds our real keys (env vars on the host) and maps
+# the "parakeet-default" alias to whichever provider we want in production.
+#
+# Deploy (Railway/Render/Fly or any Docker host):
+#   docker run -p 4000:4000 \
+#     -e GROQ_API_KEY=... -e ANTHROPIC_API_KEY=... -e OPENAI_API_KEY=... \
+#     -e LITELLM_MASTER_KEY=sk-master-... -e DATABASE_URL=postgres://... \
+#     -v $(pwd)/litellm-config.yaml:/app/config.yaml \
+#     ghcr.io/berriai/litellm:main-latest --config /app/config.yaml
+#
+# Issue a user license key (this is what users paste into Parakeet Settings):
+#   curl -X POST https://api.yourdomain.com/key/generate \
+#     -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
+#     -H "Content-Type: application/json" \
+#     -d '{"models": ["parakeet-default"], "max_budget": 5, "duration": "30d"}'
+#
+# Switching every shipped app from Groq to Claude/GPT = edit this file and
+# redeploy. No app update needed.
+
+model_list:
+  # --- current default: Groq free/cheap tier (vision + tools) ---
+  - model_name: parakeet-default
+    litellm_params:
+      model: groq/qwen/qwen3.6-27b
+      api_key: os.environ/GROQ_API_KEY
+
+  # --- production candidates: uncomment ONE to switch all users ---
+  # - model_name: parakeet-default
+  #   litellm_params:
+  #     model: anthropic/claude-opus-4-8
+  #     api_key: os.environ/ANTHROPIC_API_KEY
+  # - model_name: parakeet-default
+  #   litellm_params:
+  #     model: openai/gpt-4o
+  #     api_key: os.environ/OPENAI_API_KEY
+
+litellm_settings:
+  drop_params: true          # ignore params a given provider doesn't support
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL   # Postgres — required for virtual keys

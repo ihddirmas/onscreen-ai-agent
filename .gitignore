@@ -1,0 +1,44 @@
+# ---- Secrets (NEVER commit) ----
+.env
+.env.*
+config.env
+# keep example templates tracked
+!.env.example
+!**/.env.example
+!**/.env.local.example
+
+# ---- Python (desktop app) ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# ---- PyInstaller build output ----
+build/
+dist/
+*.manifest
+
+# ---- Node / Next.js (website) ----
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.vercel/
+
+# ---- Supabase local ----
+.branches/
+.temp/
+supabase/.temp/
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
