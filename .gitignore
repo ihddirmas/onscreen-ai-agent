@@ -36,6 +36,9 @@ next-env.d.ts
 .temp/
 supabase/.temp/
 
+# ---- Superpowers brainstorming companion ----
+.superpowers/
+
 # ---- OS / editor ----
 .DS_Store
 Thumbs.db
