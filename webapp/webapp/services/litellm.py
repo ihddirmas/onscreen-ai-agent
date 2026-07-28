@@ -8,6 +8,14 @@ import httpx
 
 TIER_BUDGET = {"free": 1.0, "pro": 15.0}
 
+# Hosted model aliases exposed to each tier. These are the Wave 2 aliases
+# (backend/litellm-config.yaml doesn't define them yet — that's tracked
+# separately and does not block minting/updating keys against them here).
+TIER_MODELS = {
+    "free": ["parakeet-groq"],
+    "pro": ["parakeet-groq", "parakeet-claude", "parakeet-gpt", "parakeet-gemini"],
+}
+
 
 def _base_url() -> str:
     url = os.environ.get("LITELLM_URL")
@@ -29,7 +37,7 @@ def mint_key(user_id: str, tier: str) -> str:
         f"{_base_url()}/key/generate",
         headers=_headers(),
         json={
-            "models": ["parakeet-default"],
+            "models": TIER_MODELS.get(tier, TIER_MODELS["free"]),
             "max_budget": TIER_BUDGET.get(tier, TIER_BUDGET["free"]),
             "budget_duration": "30d",
             "metadata": {"user_id": user_id},
@@ -39,6 +47,24 @@ def mint_key(user_id: str, tier: str) -> str:
     if response.status_code >= 400:
         raise RuntimeError(f"LiteLLM key/generate failed: {response.status_code}")
     return response.json()["key"]
+
+
+def update_key_budget(key: str, tier: str) -> None:
+    """Change max_budget (and the model allowlist) for an *existing* key
+    without reissuing it. Used on subscription upgrade/downgrade so the key
+    already saved in the user's desktop config.env keeps working."""
+    response = httpx.post(
+        f"{_base_url()}/key/update",
+        headers=_headers(),
+        json={
+            "key": key,
+            "models": TIER_MODELS.get(tier, TIER_MODELS["free"]),
+            "max_budget": TIER_BUDGET.get(tier, TIER_BUDGET["free"]),
+        },
+        timeout=15.0,
+    )
+    if response.status_code >= 400:
+        raise RuntimeError(f"LiteLLM key/update failed: {response.status_code}")
 
 
 def get_spend(key: str) -> tuple[float, float]:

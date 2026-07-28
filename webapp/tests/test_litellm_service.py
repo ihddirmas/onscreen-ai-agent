@@ -38,6 +38,84 @@ def test_mint_key_returns_key_on_success(monkeypatch):
     assert captured["json"]["metadata"] == {"user_id": "user-1"}
 
 
+def test_mint_key_free_tier_gets_only_groq_model(monkeypatch):
+    monkeypatch.setenv("LITELLM_URL", "https://litellm.example.com")
+    monkeypatch.setenv("LITELLM_MASTER_KEY", "sk-master-test")
+    captured = {}
+    monkeypatch.setattr(
+        httpx, "post",
+        lambda url, headers, json, timeout: captured.update(json=json) or _FakeResponse(200, {"key": "sk-x"}),
+    )
+    litellm_service.mint_key("user-1", "free")
+    assert captured["json"]["models"] == ["parakeet-groq"]
+
+
+def test_mint_key_pro_tier_gets_all_hosted_models(monkeypatch):
+    monkeypatch.setenv("LITELLM_URL", "https://litellm.example.com")
+    monkeypatch.setenv("LITELLM_MASTER_KEY", "sk-master-test")
+    captured = {}
+    monkeypatch.setattr(
+        httpx, "post",
+        lambda url, headers, json, timeout: captured.update(json=json) or _FakeResponse(200, {"key": "sk-x"}),
+    )
+    litellm_service.mint_key("user-1", "pro")
+    assert captured["json"]["models"] == [
+        "parakeet-groq",
+        "parakeet-claude",
+        "parakeet-gpt",
+        "parakeet-gemini",
+    ]
+
+
+def test_mint_key_unknown_tier_defaults_to_free_models(monkeypatch):
+    monkeypatch.setenv("LITELLM_URL", "https://litellm.example.com")
+    monkeypatch.setenv("LITELLM_MASTER_KEY", "sk-master-test")
+    captured = {}
+    monkeypatch.setattr(
+        httpx, "post",
+        lambda url, headers, json, timeout: captured.update(json=json) or _FakeResponse(200, {"key": "sk-x"}),
+    )
+    litellm_service.mint_key("user-1", "unknown-tier")
+    assert captured["json"]["models"] == ["parakeet-groq"]
+
+
+def test_update_key_budget_raises_without_litellm_url(monkeypatch):
+    monkeypatch.delenv("LITELLM_URL", raising=False)
+    with pytest.raises(RuntimeError, match="LITELLM_URL"):
+        litellm_service.update_key_budget("sk-user-abc", "pro")
+
+
+def test_update_key_budget_posts_to_key_update(monkeypatch):
+    monkeypatch.setenv("LITELLM_URL", "https://litellm.example.com")
+    monkeypatch.setenv("LITELLM_MASTER_KEY", "sk-master-test")
+    captured = {}
+
+    def fake_post(url, headers, json, timeout):
+        captured["url"] = url
+        captured["json"] = json
+        return _FakeResponse(200, {})
+
+    monkeypatch.setattr(httpx, "post", fake_post)
+    litellm_service.update_key_budget("sk-user-abc", "pro")
+    assert captured["url"] == "https://litellm.example.com/key/update"
+    assert captured["json"]["key"] == "sk-user-abc"
+    assert captured["json"]["max_budget"] == 15.0
+    assert captured["json"]["models"] == [
+        "parakeet-groq",
+        "parakeet-claude",
+        "parakeet-gpt",
+        "parakeet-gemini",
+    ]
+
+
+def test_update_key_budget_raises_on_error_status(monkeypatch):
+    monkeypatch.setenv("LITELLM_URL", "https://litellm.example.com")
+    monkeypatch.setenv("LITELLM_MASTER_KEY", "sk-master-test")
+    monkeypatch.setattr(httpx, "post", lambda *a, **kw: _FakeResponse(500, {}))
+    with pytest.raises(RuntimeError, match="key/update failed"):
+        litellm_service.update_key_budget("sk-user-abc", "free")
+
+
 def test_mint_key_defaults_unknown_tier_to_free_budget(monkeypatch):
     monkeypatch.setenv("LITELLM_URL", "https://litellm.example.com")
     monkeypatch.setenv("LITELLM_MASTER_KEY", "sk-master-test")
