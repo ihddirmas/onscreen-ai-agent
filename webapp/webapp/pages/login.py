@@ -1,6 +1,6 @@
 import reflex as rx
 
-from webapp.states.auth_state import AuthState
+from webapp.states.login_state import LoginState
 from webapp.styles import tokens
 
 
@@ -19,56 +19,62 @@ def login_page() -> rx.Component:
         rx.vstack(
             rx.text(f"🦜 {tokens.BRAND_NAME}", weight="bold", size="5"),
             rx.box(
-                rx.heading("Log in or create your account", size="4", margin_bottom="16px"),
-                # Two independent forms rather than one form with two submit
-                # targets — this installed Reflex version (0.9.7) has no
+                rx.heading(
+                    rx.cond(LoginState.mode == "in", "Log in", "Create your account"),
+                    size="4",
+                    margin_bottom="16px",
+                ),
+                # One form, mode toggled via LoginState.mode — mirrors
+                # website/app/login/page.tsx's single-form + mode-switch
+                # pattern. The installed Reflex version (0.9.7) has no
                 # rx.form_data() to read a form's fields outside its own
-                # on_submit, so a "Sign up" button living inside the sign-in
-                # form has no way to grab that form's values on click. Each
-                # button submits its own form via on_submit instead.
+                # on_submit, so LoginState.submit() dispatches to sign_in/
+                # sign_up based on the current mode rather than needing two
+                # separate forms (which rendered as visibly duplicated
+                # email/password fields — confusing, not the intent).
                 rx.form(
                     _field("Email", "email", "email"),
                     _field("Password", "password", "password"),
                     rx.button(
-                        rx.cond(AuthState.busy, "…", "Log in"),
+                        rx.cond(
+                            LoginState.busy,
+                            "…",
+                            rx.cond(LoginState.mode == "in", "Log in", "Sign up"),
+                        ),
                         type="submit",
-                        disabled=AuthState.busy,
+                        disabled=LoginState.busy,
                         background=tokens.COLOR["accent"],
                         color="white",
                         border_radius=tokens.RADIUS["pill"],
                         margin_top="12px",
                         width="100%",
                     ),
-                    on_submit=AuthState.sign_in,
+                    on_submit=LoginState.submit,
                     width="100%",
-                ),
-                rx.form(
-                    _field("Email", "email", "email"),
-                    _field("Password", "password", "password"),
-                    rx.button(
-                        rx.cond(AuthState.busy, "…", "Sign up"),
-                        type="submit",
-                        disabled=AuthState.busy,
-                        variant="outline",
-                        border_radius=tokens.RADIUS["pill"],
-                        margin_top="12px",
-                        width="100%",
-                    ),
-                    on_submit=AuthState.sign_up,
-                    width="100%",
-                    margin_top="8px",
                 ),
                 rx.button(
                     "Continue with Google",
-                    on_click=AuthState.sign_in_with_google,
+                    on_click=LoginState.sign_in_with_google,
                     variant="outline",
                     width="100%",
                     margin_top="12px",
                     border_radius=tokens.RADIUS["pill"],
                 ),
                 rx.cond(
-                    AuthState.error != "",
-                    rx.text(AuthState.error, color=tokens.COLOR["error"], size="2", margin_top="10px"),
+                    LoginState.error != "",
+                    rx.text(LoginState.error, color=tokens.COLOR["error"], size="2", margin_top="10px"),
+                ),
+                rx.hstack(
+                    rx.text(
+                        rx.cond(LoginState.mode == "in", "No account?", "Already have one?"),
+                        color=tokens.COLOR["text_muted"], size="2",
+                    ),
+                    rx.link(
+                        rx.cond(LoginState.mode == "in", "Sign up", "Log in"),
+                        on_click=LoginState.toggle_mode,
+                        cursor="pointer", size="2",
+                    ),
+                    spacing="1", margin_top="12px", justify="center",
                 ),
                 background=tokens.COLOR["surface"],
                 border=f"1px solid {tokens.COLOR['border']}",

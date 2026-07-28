@@ -801,7 +801,7 @@ git commit -m "feat(webapp): add AuthState (sign up/in/out, Google OAuth)"
 
 - [x] **Step 1: Write the page**
 
-> Executed with one deviation from Step 1's own code: this installed Reflex version (0.9.7) has no `rx.form_data()`, exactly as the note below anticipated — split into two independent `rx.form` blocks (sign-in, sign-up), each submitting its own fields via `on_submit`, instead of one form with a second button trying to read its data out-of-band. Brand string uses `tokens.BRAND_NAME`, not a literal name.
+> Executed with a deviation from Step 1's own code: this installed Reflex version (0.9.7) has no `rx.form_data()`, exactly as the note below anticipated. First attempt split into two independent `rx.form` blocks (sign-in, sign-up) — this rendered as two full, visibly duplicated email/password field sets stacked on the page, confusing rather than clean. Fixed properly during manual browser verification (see Step 3): a single form with a `LoginState(AuthState).mode` toggle (`webapp/webapp/states/login_state.py`), mirroring `website/app/login/page.tsx`'s existing mode-toggle pattern — one form, heading/button text and the "No account? Sign up" / "Already have one? Log in" link all switch on `mode`. Verified interactively: clicking the toggle correctly switches the heading, button label, and link text. Brand string uses `tokens.BRAND_NAME`, not a literal name.
 
 `webapp/webapp/pages/__init__.py`: (empty)
 
@@ -891,7 +891,7 @@ def login_page() -> rx.Component:
 
 - [x] **Step 3: Manually verify sign up, sign in, and error states in a real browser** — *partial*
 
-> No real/disposable Supabase project credentials are available in this environment (`webapp/.env` is unpopulated), so the full live sign-up/sign-in/error walkthrough described here has NOT been run. What was verified instead: `python -m py_compile`, direct invocation of `login_page()` confirming the component tree builds without error, and a full `reflex compile` success. This is real code compiled to real Reflex output, but the actual Supabase auth round-trip is unverified — flag this explicitly before considering Task 6 fully done, and run the walkthrough above once test credentials exist.
+> No real/disposable Supabase project credentials are available in this environment, so the actual sign-up/sign-in/error round-trip against Supabase has NOT been run — that part of this step remains outstanding. What WAS verified with a real running `reflex run` server and Playwright: the page renders correctly (`/login` screenshot matches the design), and the mode toggle actually works end-to-end in the browser — clicking "Sign up" switches the heading to "Create your account", the button label to "Sign up", and the link to "Already have one? Log in" (and back). This caught and fixed a real bug: the original two-form implementation rendered as visibly duplicated email/password fields, which no static check (`py_compile`, component-tree construction, `reflex compile`) would have surfaced — only an actual browser render did. Run the live Supabase walkthrough once test credentials exist before considering this step fully closed.
 
 - [x] **Step 4: Commit**
 ```
