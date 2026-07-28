@@ -10,13 +10,15 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QWidget
 
-_STYLE = """
-QFrame#pill {
-    background-color: rgba(18, 18, 24, 235);
-    border: 1px solid rgba(120, 200, 120, 120);
-    border-radius: 16px;
-}
-QLabel { color: #f0f0f0; font-size: 13px; }
+from parakeet.ui.theme import COLOR, RADIUS
+
+_STYLE = f"""
+QFrame#pill {{
+    background-color: {COLOR['panel_bg']};
+    border: 1px solid {COLOR['accent_border']};
+    border-radius: {RADIUS['pill']};
+}}
+QLabel {{ color: {COLOR['text']}; font-size: 13px; }}
 """
 
 

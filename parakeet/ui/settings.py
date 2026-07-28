@@ -36,7 +36,7 @@ class SettingsDialog(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Parakeet Settings")
+        self.setWindowTitle("OnCUE Settings")
         self.setMinimumWidth(460)
         cfg = get_config()
 
@@ -56,21 +56,36 @@ class SettingsDialog(QDialog):
         self.groq_key = self._secret(cfg.groq_api_key)
         self.anthropic_key = self._secret(cfg.anthropic_api_key)
         self.openai_key = self._secret(cfg.openai_api_key)
+        self.gemini_key = self._secret(cfg.gemini_api_key)
         self.tavily_key = self._secret(cfg.tavily_api_key)
         keys.addRow("Groq (free — console.groq.com)", self.groq_key)
         keys.addRow("Anthropic", self.anthropic_key)
         keys.addRow("OpenAI", self.openai_key)
+        keys.addRow("Gemini (Google AI Studio)", self.gemini_key)
         keys.addRow("Tavily (web search)", self.tavily_key)
         root.addWidget(keys_box)
 
         # hosted mode
-        hosted_box = QGroupBox("Parakeet hosted (no provider keys needed)")
+        hosted_box = QGroupBox("OnCUE hosted (no provider keys needed)")
         hosted = QFormLayout(hosted_box)
         self.backend_url = QLineEdit(cfg.backend_url)
         self.backend_url.setPlaceholderText("https://api.yourdomain.com/v1")
         self.token = self._secret(cfg.parakeet_token)
+        self.hosted_model = QComboBox()
+        self.hosted_model.setEditable(True)  # a licensed alias not in this list still works
+        self.hosted_model.addItems(
+            ["parakeet-default", "parakeet-groq", "parakeet-claude", "parakeet-gpt", "parakeet-gemini"]
+        )
+        self.hosted_model.setCurrentText(cfg.hosted_model)
         hosted.addRow("Backend URL", self.backend_url)
         hosted.addRow("License key", self.token)
+        hosted.addRow("Hosted model", self.hosted_model)
+        hosted_note = QLabel(
+            "Free-tier keys are only allowed \"parakeet-groq\" server-side —\n"
+            "picking another alias here does nothing without a Pro key."
+        )
+        hosted_note.setStyleSheet("color: #8a8a8a; font-size: 11px;")
+        hosted.addRow("", hosted_note)
         root.addWidget(hosted_box)
 
         # speech
@@ -159,13 +174,15 @@ class SettingsDialog(QDialog):
             groq_api_key=self.groq_key.text().strip(),
             anthropic_api_key=self.anthropic_key.text().strip(),
             openai_api_key=self.openai_key.text().strip(),
+            gemini_api_key=self.gemini_key.text().strip(),
             tavily_api_key=self.tavily_key.text().strip(),
             groq_model=old.groq_model,
             claude_model=old.claude_model,
             gpt_model=old.gpt_model,
+            gemini_model=old.gemini_model,
             backend_url=self.backend_url.text().strip(),
             parakeet_token=self.token.text().strip(),
-            hosted_model=old.hosted_model,
+            hosted_model=self.hosted_model.currentText().strip() or old.hosted_model,
             capture_hotkey=self.capture_hotkey.text().strip() or old.capture_hotkey,
             voice_hotkey=self.voice_hotkey.text().strip() or old.voice_hotkey,
             dictate_hotkey=self.dictate_hotkey.text().strip() or old.dictate_hotkey,

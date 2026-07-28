@@ -1,12 +1,21 @@
 # LiteLLM proxy config — the "hosted mode" backend for Parakeet.
 #
 # The exe never contains provider keys. It calls THIS proxy with a per-user
-# virtual key; the proxy holds our real keys (env vars on the host) and maps
-# the "parakeet-default" alias to whichever provider we want in production.
+# virtual key; the proxy holds our real keys (env vars on the host).
+#
+# Multi-provider hosted parity: each provider has its own always-on alias
+# (parakeet-groq/claude/gpt/gemini) rather than one alias that gets swapped
+# by commenting/uncommenting — free-tier keys are minted with only
+# ["parakeet-groq"] in their `models` allowlist (see
+# webapp/webapp/services/litellm.py:mint_key), pro-tier keys get all four,
+# so "pro = real provider choice" is enforced server-side by LiteLLM itself,
+# not just a client-side dropdown a free user could also click.
+# `parakeet-default` stays as an always-safe/cheap alias for callers that
+# don't care which underlying provider they get.
 #
 # Deploy (Railway/Render/Fly or any Docker host):
 #   docker run -p 4000:4000 \
-#     -e GROQ_API_KEY=... -e ANTHROPIC_API_KEY=... -e OPENAI_API_KEY=... \
+#     -e GROQ_API_KEY=... -e ANTHROPIC_API_KEY=... -e OPENAI_API_KEY=... -e GOOGLE_API_KEY=... \
 #     -e LITELLM_MASTER_KEY=sk-master-... -e DATABASE_URL=postgres://... \
 #     -v $(pwd)/litellm-config.yaml:/app/config.yaml \
 #     ghcr.io/berriai/litellm:main-latest --config /app/config.yaml
@@ -15,27 +24,34 @@
 #   curl -X POST https://api.yourdomain.com/key/generate \
 #     -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
 #     -H "Content-Type: application/json" \
-#     -d '{"models": ["parakeet-default"], "max_budget": 5, "duration": "30d"}'
-#
-# Switching every shipped app from Groq to Claude/GPT = edit this file and
-# redeploy. No app update needed.
+#     -d '{"models": ["parakeet-groq"], "max_budget": 5, "duration": "30d"}'
 
 model_list:
-  # --- current default: Groq free/cheap tier (vision + tools) ---
   - model_name: parakeet-default
     litellm_params:
       model: groq/qwen/qwen3.6-27b
       api_key: os.environ/GROQ_API_KEY
-
-  # --- production candidates: uncomment ONE to switch all users ---
-  # - model_name: parakeet-default
-  #   litellm_params:
-  #     model: anthropic/claude-opus-4-8
-  #     api_key: os.environ/ANTHROPIC_API_KEY
-  # - model_name: parakeet-default
-  #   litellm_params:
-  #     model: openai/gpt-4o
-  #     api_key: os.environ/OPENAI_API_KEY
+  - model_name: parakeet-groq
+    litellm_params:
+      model: groq/qwen/qwen3.6-27b
+      api_key: os.environ/GROQ_API_KEY
+  - model_name: parakeet-claude
+    litellm_params:
+      model: anthropic/claude-opus-4-8
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: parakeet-gpt
+    litellm_params:
+      model: openai/gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+  - model_name: parakeet-gemini
+    litellm_params:
+      # NOTE: verify this prefix against LiteLLM's current supported-models
+      # docs at deploy time — Google AI Studio models use a `gemini/` prefix,
+      # Vertex AI models use `vertex_ai/`. Getting this wrong silently breaks
+      # LiteLLM's cost tracking (which the margin view in webapp's payments
+      # service depends on), even if the chat call itself still works.
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GOOGLE_API_KEY
 
 litellm_settings:
   drop_params: true          # ignore params a given provider doesn't support

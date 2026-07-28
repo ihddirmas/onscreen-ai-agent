@@ -21,15 +21,16 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from parakeet.ui.theme import COLOR, FONT, RADIUS
 
 _CODE_STYLE = (
-    "background:#0b0b12; border:1px solid rgba(120,200,120,90); "
-    "border-radius:8px; padding:8px; color:#cde6cd; white-space:pre-wrap; "
-    "font-family:Consolas,'Courier New',monospace; font-size:12px;"
+    f"background:{COLOR['code_block_bg']}; border:1px solid {COLOR['accent_border']}; "
+    f"border-radius:{RADIUS['code']}; padding:8px; color:{COLOR['code_block_text']}; "
+    f"white-space:pre-wrap; font-family:{FONT['mono']}; font-size:12px;"
 )
 _INLINE_STYLE = (
-    "background:rgba(255,255,255,28); border-radius:3px; padding:1px 4px; "
-    "font-family:Consolas,'Courier New',monospace;"
+    f"background:{COLOR['inline_code_bg']}; border-radius:3px; padding:1px 4px; "
+    f"font-family:{FONT['mono']};"
 )
 
 
@@ -72,44 +73,44 @@ def _parse_geometry(s: str) -> QRect | None:
         return None
     return QRect(x, y, w, h)
 
-_STYLE = """
-QFrame#panel {
-    background-color: rgba(18, 18, 24, 235);
-    border: 1px solid rgba(120, 200, 120, 90);
-    border-radius: 12px;
-}
-QLineEdit {
-    background: rgba(255, 255, 255, 18);
-    border: 1px solid rgba(255, 255, 255, 40);
-    border-radius: 6px;
-    color: #f0f0f0;
+_STYLE = f"""
+QFrame#panel {{
+    background-color: {COLOR['panel_bg']};
+    border: 1px solid {COLOR['accent_border']};
+    border-radius: {RADIUS['panel']};
+}}
+QLineEdit {{
+    background: {COLOR['input_bg']};
+    border: 1px solid {COLOR['input_border']};
+    border-radius: {RADIUS['control']};
+    color: {COLOR['text']};
     padding: 6px 8px;
     font-size: 13px;
-}
-QLabel#status { color: #8fd48f; font-size: 12px; }
-QLabel#question {
-    color: #c9c9e0; font-size: 13px; font-style: italic;
-    border-left: 2px solid rgba(120, 200, 120, 120); padding-left: 8px;
-}
-QLabel#confirm { color: #ffd479; font-size: 13px; }
-QTextBrowser {
+}}
+QLabel#status {{ color: {COLOR['status_green']}; font-size: 12px; }}
+QLabel#question {{
+    color: {COLOR['question_purple']}; font-size: 13px; font-style: italic;
+    border-left: 2px solid {COLOR['accent_border']}; padding-left: 8px;
+}}
+QLabel#confirm {{ color: {COLOR['confirm_yellow']}; font-size: 13px; }}
+QTextBrowser {{
     background: transparent;
     border: none;
-    color: #f0f0f0;
+    color: {COLOR['text']};
     font-size: 13px;
-}
-QPushButton {
-    background: rgba(255, 255, 255, 25);
-    border: 1px solid rgba(255, 255, 255, 50);
-    border-radius: 6px;
-    color: #f0f0f0;
+}}
+QPushButton {{
+    background: {COLOR['button_bg']};
+    border: 1px solid {COLOR['button_border']};
+    border-radius: {RADIUS['control']};
+    color: {COLOR['text']};
     padding: 4px 14px;
-}
-QPushButton:hover { background: rgba(255, 255, 255, 45); }
-QPushButton#allow { border-color: #8fd48f; }
-QPushButton#deny  { border-color: #d48f8f; }
-QCheckBox { color: rgba(255,255,255,150); font-size: 10px; }
-QCheckBox::indicator { width: 12px; height: 12px; }
+}}
+QPushButton:hover {{ background: {COLOR['button_bg_hover']}; }}
+QPushButton#allow {{ border-color: {COLOR['allow_border']}; }}
+QPushButton#deny  {{ border-color: {COLOR['deny_border']}; }}
+QCheckBox {{ color: {COLOR['text_muted_strong']}; font-size: 10px; }}
+QCheckBox::indicator {{ width: 12px; height: 12px; }}
 """
 
 
@@ -171,8 +172,8 @@ class Overlay(QWidget):
         lay.setContentsMargins(14, 12, 14, 12)
         lay.setSpacing(8)
 
-        title = QLabel("🦜 Parakeet — drag to move · Enter to ask · Esc to hide")
-        title.setStyleSheet("color: rgba(255,255,255,120); font-size: 11px;")
+        title = QLabel("OnCUE — drag to move · Enter to ask · Esc to hide")
+        title.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
         lay.addWidget(title)
 
         self.input = QLineEdit(placeholderText="Ask about your screen…")
@@ -220,14 +221,14 @@ class Overlay(QWidget):
         self.system_checkbox = QCheckBox("System actions (apps · files · browser)")
         self.system_checkbox.setChecked(self._system_enabled)
         self.system_checkbox.setToolTip(
-            "When off, Parakeet only answers — it can't open apps, files, or the "
+            "When off, OnCUE only answers — it can't open apps, files, or the "
             "browser, or read your local files."
         )
         self.system_checkbox.toggled.connect(self.system_toggled.emit)
         grip_row.addWidget(self.system_checkbox)
         grip_row.addStretch(1)
         hint = QLabel("◢ resize")
-        hint.setStyleSheet("color: rgba(255,255,255,70); font-size: 10px;")
+        hint.setStyleSheet(f"color: {COLOR['text_muted_faint']}; font-size: 10px;")
         grip_row.addWidget(hint)
         grip = QSizeGrip(panel)
         grip.setFixedSize(18, 18)
@@ -235,7 +236,7 @@ class Overlay(QWidget):
         lay.addLayout(grip_row)
 
         self.setMinimumSize(280, 120)
-        self.setFont(QFont("Segoe UI", 10))
+        self.setFont(QFont(FONT["family"], 10))
         self._set_size(430, 140)
 
     def _set_size(self, w: int, h: int) -> None:
@@ -256,7 +257,7 @@ class Overlay(QWidget):
     def show_for_input(self, chat: bool = False) -> None:
         self._reset()
         self.input.setPlaceholderText(
-            "Chat with Parakeet (no screenshot)…" if chat else "Ask about your screen…"
+            "Chat with OnCUE (no screenshot)…" if chat else "Ask about your screen…"
         )
         self.show()
         self.raise_()

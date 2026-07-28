@@ -1,4 +1,4 @@
-"""Parakeet app: tray icon + global hotkeys + overlay + agent, one process.
+"""OnCUE app: tray icon + global hotkeys + overlay + agent, one process.
 
 Flow:
   capture hotkey -> screenshot frozen -> overlay input -> Enter -> agent streams
@@ -11,6 +11,7 @@ import sys
 import threading
 import uuid
 
+from langgraph.checkpoint.memory import MemorySaver
 from PySide6.QtCore import QObject, QThread, Signal
 from PySide6.QtGui import QAction, QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
@@ -18,8 +19,9 @@ from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from parakeet.agent.router import build_message
 from parakeet.agent.worker import AgentWorker
 from parakeet.capture import screenshot_png
-from parakeet.config import get_config
+from parakeet.config import CONFIG_FILE, get_config
 from parakeet.hotkeys import HotkeyManager
+from parakeet.ui.onboarding import OnboardingDialog
 from parakeet.ui.overlay import Overlay
 from parakeet.ui.settings import SettingsDialog
 
@@ -96,6 +98,12 @@ class ParakeetApp(QObject):
         self._pending_png: bytes | None = None
         self._recording_meeting = False
         self._thread_id = str(uuid.uuid4())
+        # One checkpointer for the whole process lifetime: the agent graph
+        # gets rebuilt on settings changes, system-tools toggles, and
+        # protocol-URL handling, but conversation memory should survive
+        # those rebuilds — a fresh MemorySaver has no history even if the
+        # thread_id is unchanged.
+        self._checkpointer = MemorySaver()
 
         cfg = get_config()
         cfg.apply_env()
@@ -126,11 +134,23 @@ class ParakeetApp(QObject):
         # prime the audio stack so the first meeting capture isn't a cold start
         threading.Thread(target=warmup_system_audio, daemon=True).start()
 
+        self._maybe_show_onboarding()
+
+    def _maybe_show_onboarding(self) -> None:
+        """First launch only (detected by the config file not existing yet) —
+        offer the free hosted trial before silently falling back to an
+        unconfigured BYOK provider."""
+        if CONFIG_FILE.exists():
+            return
+        dialog = OnboardingDialog()
+        dialog.open_settings.connect(self._open_settings)
+        dialog.exec()
+
     # --- tray ---------------------------------------------------------------
 
     def _build_tray(self) -> None:
         self.tray = QSystemTrayIcon(_tray_icon())
-        self.tray.setToolTip("Parakeet — on-screen AI agent")
+        self.tray.setToolTip("OnCUE — on-screen AI agent")
         menu = QMenu()
         ask = QAction("Ask about my screen", menu)
         ask.triggered.connect(self._on_capture)
@@ -320,7 +340,8 @@ class ParakeetApp(QObject):
             from parakeet.agent.agent import build_agent
 
             self._agent = build_agent(
-                allow_system=get_config().system_tools_enabled
+                allow_system=get_config().system_tools_enabled,
+                checkpointer=self._checkpointer,
             )
             return True
         except Exception as e:
@@ -435,7 +456,9 @@ class ParakeetApp(QObject):
 
     def _on_settings_saved(self) -> None:
         self._agent = None            # rebuilt lazily with the new provider
-        self._thread_id = str(uuid.uuid4())
+        # thread_id and self._checkpointer are intentionally left alone so
+        # conversation memory survives a settings change instead of silently
+        # resetting.
         self._restart_hotkeys()
         cfg = get_config()
         # re-apply toggles that other UI (tray) mirrors
@@ -456,7 +479,7 @@ def main() -> None:
 
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
-    app.setApplicationName("Parakeet")
+    app.setApplicationName("OnCUE")
 
     # Single instance: if one is already running, forward any parakeet:// URL to
     # it and exit — so clicking "Open app" twice doesn't spawn a duplicate.

@@ -4,6 +4,7 @@ Providers:
   groq   — free tier for dev/testing (Llama 4 Scout: vision + tool calling)
   claude — production option (BYO ANTHROPIC_API_KEY)
   gpt    — production option (BYO OPENAI_API_KEY)
+  gemini — production option (BYO GOOGLE_API_KEY)
   hosted — production default for end users: an OpenAI-compatible endpoint on
            OUR LiteLLM proxy, which holds the real provider keys server-side.
 """
@@ -18,7 +19,7 @@ from langchain_core.messages import HumanMessage
 
 from parakeet.config import get_config
 
-PROVIDERS = ("groq", "claude", "gpt", "hosted")
+PROVIDERS = ("groq", "claude", "gpt", "gemini", "hosted")
 
 
 def get_model(name: str | None = None) -> BaseChatModel:
@@ -43,6 +44,13 @@ def get_model(name: str | None = None) -> BaseChatModel:
         from langchain_openai import ChatOpenAI
 
         return ChatOpenAI(model=cfg.gpt_model)
+    if name == "gemini":
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
+        # Pass the key explicitly rather than via apply_env()/os.environ: the
+        # SDK looks for GOOGLE_API_KEY by convention, and passing it directly
+        # sidesteps any env-var-name mismatch.
+        return ChatGoogleGenerativeAI(model=cfg.gemini_model, google_api_key=cfg.gemini_api_key)
     if name == "hosted":
         from langchain_openai import ChatOpenAI
 

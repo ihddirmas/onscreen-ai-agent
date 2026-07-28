@@ -21,10 +21,12 @@ _ENV_MAP = {
     "groq_api_key": "GROQ_API_KEY",
     "anthropic_api_key": "ANTHROPIC_API_KEY",
     "openai_api_key": "OPENAI_API_KEY",
+    "gemini_api_key": "GOOGLE_API_KEY",
     "tavily_api_key": "TAVILY_API_KEY",
     "groq_model": "GROQ_MODEL",
     "claude_model": "CLAUDE_MODEL",
     "gpt_model": "GPT_MODEL",
+    "gemini_model": "GEMINI_MODEL",
     "backend_url": "PARAKEET_BACKEND_URL",
     "parakeet_token": "PARAKEET_TOKEN",
     "hosted_model": "HOSTED_MODEL",
@@ -58,14 +60,20 @@ _BOOL_FIELDS = {
 
 @dataclass
 class Config:
-    provider: str = "groq"
+    # "hosted" so a fresh install with no key configured hits the router's
+    # clean, actionable ValueError ("open Settings and sign in...") instead of
+    # a raw ChatGroq validation error — the onboarding dialog is the primary
+    # path, this default is defense-in-depth if it's dismissed/skipped.
+    provider: str = "hosted"
     groq_api_key: str = ""
     anthropic_api_key: str = ""
     openai_api_key: str = ""
+    gemini_api_key: str = ""
     tavily_api_key: str = ""
     groq_model: str = "qwen/qwen3.6-27b"  # vision-capable on Groq's free tier
     claude_model: str = "claude-opus-4-8"
     gpt_model: str = "gpt-4o"
+    gemini_model: str = "gemini-2.5-flash"
     backend_url: str = ""
     parakeet_token: str = ""
     hosted_model: str = "parakeet-default"

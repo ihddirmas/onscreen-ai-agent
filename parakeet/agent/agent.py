@@ -103,14 +103,25 @@ def _user_profile() -> str:
     return "".join(parts)
 
 
-def build_agent(provider: str | None = None, allow_system: bool = True):
+def build_agent(
+    provider: str | None = None,
+    allow_system: bool = True,
+    checkpointer: MemorySaver | None = None,
+):
     """Build (or rebuild) the ReAct agent. When allow_system is False the agent
     gets only information tools — it can't open apps/files/browser or read
-    local files (the overlay's System-actions toggle)."""
+    local files (the overlay's System-actions toggle).
+
+    Pass the SAME `checkpointer` instance across rebuilds within one process
+    (e.g. after a settings change) to keep conversation memory intact — a
+    freshly constructed MemorySaver has no history, so rebuilding the agent
+    with a new one silently wipes the conversation even if the thread_id is
+    unchanged. Callers that don't care about persisting memory across
+    rebuilds (e.g. one-off smoke tests) can omit it."""
     return create_react_agent(
         get_model(provider),
         tools=tools_for(allow_system),
-        checkpointer=MemorySaver(),
+        checkpointer=checkpointer or MemorySaver(),
         prompt=SYSTEM + _user_profile(),
         pre_model_hook=_strip_old_images,
     )
