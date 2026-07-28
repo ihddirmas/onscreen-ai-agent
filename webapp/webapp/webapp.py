@@ -4,9 +4,11 @@ from fastapi import FastAPI
 from webapp.api.webhooks import router as webhooks_router
 from webapp.pages.download import download_page
 from webapp.pages.landing import landing_page
+from webapp.pages.login import login_page
 
 app = rx.App()
 app.add_page(landing_page, route="/")
+app.add_page(login_page, route="/login")
 app.add_page(download_page, route="/download")
 
 # Webhook escape hatch. Reflex's backend ASGI app (`app._api`) is a plain

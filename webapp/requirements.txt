@@ -10,3 +10,7 @@ razorpay>=1.4.0
 # installed version) — FastAPI is used only for the webhook routes, mounted
 # as a sub-app onto Reflex's escape hatch. See webapp/webapp/webapp.py.
 fastapi>=0.110.0
+
+# Dev/test only — several service/state tests use @pytest.mark.asyncio.
+pytest>=8.0.0
+pytest-asyncio>=0.24.0

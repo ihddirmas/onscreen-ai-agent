@@ -799,7 +799,9 @@ git commit -m "feat(webapp): add AuthState (sign up/in/out, Google OAuth)"
 - Consumes: `AuthState.error`, `AuthState.busy`, `AuthState.sign_in`, `AuthState.sign_up`, `AuthState.sign_in_with_google`
 - Produces: page at route `/login`
 
-- [ ] **Step 1: Write the page**
+- [x] **Step 1: Write the page**
+
+> Executed with one deviation from Step 1's own code: this installed Reflex version (0.9.7) has no `rx.form_data()`, exactly as the note below anticipated — split into two independent `rx.form` blocks (sign-in, sign-up), each submitting its own fields via `on_submit`, instead of one form with a second button trying to read its data out-of-band. Brand string uses `tokens.BRAND_NAME`, not a literal name.
 
 `webapp/webapp/pages/__init__.py`: (empty)
 
@@ -883,38 +885,15 @@ def login_page() -> rx.Component:
 
 > Note for the implementer: Reflex's exact form-submission API (`on_submit` payload shape, whether `sign_up` needs its own `<form>` or can reuse `rx.form_data()`) varies across Reflex versions. Treat the two-button-in-one-form structure above as intent, not gospel — if `reflex run` (Step 3 below) shows the Sign Up button submitting the wrong handler or an empty payload, split it into two `rx.form` blocks (one per action) rather than fighting a single form's submit target. Whichever shape you land on, both buttons must end up calling `AuthState.sign_in` / `AuthState.sign_up` with a dict containing `email` and `password`.
 
-- [ ] **Step 2: Register the route**
+- [x] **Step 2: Register the route**
 
-Modify `webapp/webapp/webapp.py`:
-```python
-import reflex as rx
+> Executed as: `login_page` registered at `/login` in `webapp/webapp/webapp.py`, alongside `landing_page` (`/`) and `download_page` (`/download`) from Tasks 7-8 — the file no longer has the placeholder `index()` shown here.
 
-from webapp.pages.login import login_page
+- [x] **Step 3: Manually verify sign up, sign in, and error states in a real browser** — *partial*
 
+> No real/disposable Supabase project credentials are available in this environment (`webapp/.env` is unpopulated), so the full live sign-up/sign-in/error walkthrough described here has NOT been run. What was verified instead: `python -m py_compile`, direct invocation of `login_page()` confirming the component tree builds without error, and a full `reflex compile` success. This is real code compiled to real Reflex output, but the actual Supabase auth round-trip is unverified — flag this explicitly before considering Task 6 fully done, and run the walkthrough above once test credentials exist.
 
-def index() -> rx.Component:
-    return rx.center(rx.text("Parakeet — under construction"), height="100vh")
-
-
-app = rx.App()
-app.add_page(index, route="/")
-app.add_page(login_page, route="/login")
-```
-
-- [ ] **Step 3: Manually verify sign up, sign in, and error states in a real browser**
-
-Run: `reflex run` (from `webapp/`, with `webapp/.env` populated from a real or a disposable test Supabase project)
-1. Open `/login`, sign up with a new email/password → expect redirect to `/dashboard` (a 404 is fine for now, Task 11 builds it — confirm the URL changed).
-2. Sign out isn't wired to any page yet, so instead: open `/login` again, try signing in with a wrong password → expect the Supabase error text rendered inline, no crash.
-3. Sign in with the correct credentials from step 1 → expect redirect to `/dashboard`.
-
-Expected: all three behaviors match. If the form wiring from Step 1's note needed adjusting, confirm the adjusted version passes this same walkthrough before moving on.
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add webapp/webapp/pages/__init__.py webapp/webapp/pages/login.py webapp/webapp/webapp.py
-git commit -m "feat(webapp): add login/signup page"
+- [x] **Step 4: Commit**
 ```
 
 ---
