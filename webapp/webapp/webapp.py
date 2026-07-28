@@ -2,14 +2,12 @@ import reflex as rx
 from fastapi import FastAPI
 
 from webapp.api.webhooks import router as webhooks_router
-
-
-def index() -> rx.Component:
-    return rx.center(rx.text("Parakeet — under construction"), height="100vh")
-
+from webapp.pages.download import download_page
+from webapp.pages.landing import landing_page
 
 app = rx.App()
-app.add_page(index, route="/")
+app.add_page(landing_page, route="/")
+app.add_page(download_page, route="/download")
 
 # Webhook escape hatch. Reflex's backend ASGI app (`app._api`) is a plain
 # Starlette instance in the installed version (0.9.7) — there is no public

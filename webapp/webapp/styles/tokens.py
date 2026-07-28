@@ -2,6 +2,10 @@
 mockup comparison, see docs/superpowers/specs/2026-07-27-reflex-website-redesign-design.md).
 Every component pulls colors/fonts/radius/shadow from here — no ad hoc values."""
 
+# Single source of truth for the product name — every page renders this
+# constant, never a literal name string, so a rename is a one-line change.
+BRAND_NAME = "OnCUE"
+
 COLOR = {
     "bg": "#fbfaf8",
     "surface": "#ffffff",
