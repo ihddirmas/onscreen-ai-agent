@@ -17,6 +17,24 @@ export default function DownloadPage() {
           <Link href="/dashboard">← Back to dashboard</Link>
         </p>
       </div>
+
+      <div className="card" style={{ marginTop: 16 }}>
+        <span className="tier-badge">Hosted cohort</span>
+        <h2 style={{ marginTop: 10 }}>Want the meeting copilot without your own API key?</h2>
+        <p className="muted">
+          Log in and Parakeet mints a free license key for you automatically —
+          no provider key, no separate signup. Paste it into Settings and
+          pick &quot;hosted&quot; as your provider.
+        </p>
+        <p className="muted">
+          Priority models and a larger usage budget (Pro) are opening to a
+          limited first cohort as we finish billing — log in now and you&apos;ll
+          be first in line when it&apos;s ready.
+        </p>
+        <Link className="btn" href="/login" style={{ marginTop: 8 }}>
+          Log in to get your free key
+        </Link>
+      </div>
     </div>
   );
 }
