@@ -1299,7 +1299,7 @@ git commit -m "feat(webapp): add download page"
 - Consumes: `AuthState` (inherits it), `services.supabase.admin_client`, `services.litellm.mint_key/get_spend`
 - Produces: `DashboardState.tier/parakeet_key/spend/max_budget/persona/preferences/docs`, computed vars `credit_pct`, `has_ready_doc`, `checklist_complete`, methods `load_dashboard()`, `mark_downloaded()`, `mark_opened_app()`, `save_preferences(form_data)` — `UploadState` (Task 10) and the dashboard page (Task 11) both depend on these exact names.
 
-- [ ] **Step 1: Write the state**
+- [x] **Step 1: Write the state**
 
 `webapp/webapp/states/dashboard_state.py`:
 ```python
@@ -1393,11 +1393,11 @@ class DashboardState(AuthState):
         ).execute()
 ```
 
-- [ ] **Step 2: Manually verify (deferred to Task 11)**
+- [x] **Step 2: Manually verify (deferred to Task 11)**
 
 Same rationale as Task 5: this state is verified by actually running the dashboard page against it, done at the end of Task 11 once the page exists to drive it.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add webapp/webapp/states/dashboard_state.py
@@ -1415,7 +1415,7 @@ git commit -m "feat(webapp): add DashboardState (key, credits, docs, checklist)"
 - Consumes: `DashboardState` (inherits it), `services.documents.chunk/extract_text/embed`, `services.supabase.admin_client`
 - Produces: `UploadState.uploading: bool`, `UploadState.upload_error: str`, `handle_upload(files)`, `retry_document(document_id)` — the dashboard page (Task 11) depends on these exact names.
 
-- [ ] **Step 1: Write the state**
+- [x] **Step 1: Write the state**
 
 `webapp/webapp/states/upload_state.py`:
 ```python
@@ -1511,11 +1511,11 @@ class UploadState(DashboardState):
         admin.table("documents").update({"status": "ready"}).eq("id", document_id).execute()
 ```
 
-- [ ] **Step 2: Manually verify (deferred to Task 11)**
+- [x] **Step 2: Manually verify (deferred to Task 11)**
 
 Same rationale as Tasks 5 and 9 — verified against the real dashboard page in Task 11's manual pass, including one deliberately broken upload (empty `.txt` file) to confirm the `error` status + retry path.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add webapp/webapp/states/upload_state.py
