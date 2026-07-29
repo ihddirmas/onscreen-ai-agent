@@ -7,8 +7,15 @@ from webapp.styles import tokens
 def nav() -> rx.Component:
     return rx.hstack(
         rx.link(
-            f"🦜 {tokens.BRAND_NAME}", href="/", weight="bold", size="4",
-            color=tokens.COLOR["text"], text_decoration="none",
+            rx.hstack(
+                rx.box(
+                    width="9px", height="9px", border_radius="999px",
+                    background=tokens.BAND["mint_tag_text"],
+                ),
+                rx.text(tokens.BRAND_NAME, weight="bold", size="4", color=tokens.COLOR["text"]),
+                spacing="2", align="center",
+            ),
+            href="/", text_decoration="none",
         ),
         rx.spacer(),
         rx.cond(

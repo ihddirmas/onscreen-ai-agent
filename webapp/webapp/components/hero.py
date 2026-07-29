@@ -1,5 +1,6 @@
 import reflex as rx
 
+from webapp.components.overlay_mockup import overlay_mockup
 from webapp.styles import tokens
 
 # Copy is reused verbatim from the copy-reviewed GTM deck
@@ -11,54 +12,62 @@ from webapp.styles import tokens
 
 
 def hero() -> rx.Component:
-    return rx.vstack(
-        rx.heading(
-            "Speak Hinglish. Ask your screen. Skip the alt-tab entirely.",
-            size="9", text_align="center", max_width="680px",
-            font_family=tokens.FONT["sans"],
-        ),
-        rx.text(
-            "Hold one key and dictate in Hinglish straight into WhatsApp, ChatGPT, "
-            "or any text box. Press another and get an instant answer about whatever's "
-            "on your screen — no typing, no translating your thoughts into English first.",
-            color=tokens.COLOR["text_muted"], text_align="center",
-            max_width="520px", size="4",
-        ),
-        rx.hstack(
-            rx.link(
-                "Get started free", href="/login",
-                background=tokens.COLOR["accent"], color="white",
-                padding="12px 22px", border_radius=tokens.RADIUS["pill"],
-                text_decoration="none", font_weight="600",
+    return rx.box(
+        rx.vstack(
+            rx.badge(
+                "ON-SCREEN AI COPILOT", color_scheme="grass", variant="soft",
+                size="2", radius="full",
             ),
-            rx.link(
-                "See how it works", href="#how-it-works",
-                color=tokens.COLOR["text"], padding="12px 4px",
-                text_decoration="underline",
+            rx.heading(
+                "Speak Hinglish. Ask your screen. Skip the alt-tab entirely.",
+                size="9", text_align="center", max_width="720px",
+                font_family=tokens.FONT["serif"], line_height="1.1",
+                margin_top="20px",
             ),
-            spacing="4", margin_top="8px",
-        ),
-        rx.text(
-            "No API key needed — hosted access starts the moment you sign up.",
-            color=tokens.COLOR["text_muted"], size="2",
-        ),
-        # No demo video exists yet (webapp/webapp/assets/ is a placeholder) —
-        # don't reference a broken asset; this box is a stand-in until a real
-        # demo is recorded, matching the "no fabricated content" rule already
-        # applied to social_proof.py.
-        rx.box(
-            rx.center(
-                rx.text(
-                    "Demo video coming soon",
-                    color=tokens.COLOR["text_muted"], size="3",
+            rx.text(
+                "Hold one key and dictate in Hinglish straight into WhatsApp, ChatGPT, "
+                "or any text box. Press another and get an instant answer about whatever's "
+                "on your screen — no typing, no translating your thoughts into English first.",
+                color=tokens.COLOR["text_muted"], text_align="center",
+                max_width="520px", size="4", margin_top="18px",
+            ),
+            rx.hstack(
+                rx.link(
+                    "Get started free", href="/login",
+                    background=tokens.COLOR["accent"], color="white",
+                    padding="12px 22px", border_radius=tokens.RADIUS["pill"],
+                    text_decoration="none", font_weight="600",
                 ),
-                height="360px",
+                rx.link(
+                    "See how it works", href="#how-it-works",
+                    color=tokens.COLOR["text"], padding="12px 4px",
+                    text_decoration="underline",
+                ),
+                spacing="4", margin_top="12px",
             ),
-            background=tokens.COLOR["surface"],
-            border=f"1px solid {tokens.COLOR['border']}",
-            border_radius=tokens.RADIUS["md"],
-            box_shadow=tokens.SHADOW_CARD,
-            padding="10px", max_width="720px", width="100%", margin_top="32px",
+            rx.text(
+                "No API key needed — hosted access starts the moment you sign up.",
+                color=tokens.COLOR["text_muted"], size="2",
+            ),
+            # A real (if CSS-stylized) likeness of the actual overlay, not a
+            # "demo video coming soon" placeholder or an unrelated stock
+            # screenshot — no demo video exists yet, and this is more honest
+            # than implying one does.
+            rx.box(
+                overlay_mockup(
+                    question="what's on my screen?",
+                    answer=(
+                        "This is a React error boundary crash — the stack trace points "
+                        "to a null ref in useEffect. Add a guard before accessing .current."
+                    ),
+                    width="440px",
+                ),
+                margin_top="40px",
+            ),
+            spacing="2", align="center", padding="72px 24px 56px",
+            position="relative", z_index="1",
         ),
-        spacing="5", align="center", padding="64px 24px 32px",
+        background=tokens.HERO_GRADIENT,
+        width="100%",
+        style={"filter": "saturate(1.1)"},
     )

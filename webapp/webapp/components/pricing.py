@@ -18,10 +18,13 @@ _PRO_FEATURES = [
 ]
 
 
-def _tier_card(*, badge: str, name: str, price: str, features: list[str], cta: rx.Component) -> rx.Component:
+def _tier_card(
+    *, badge: str, name: str, price: str, features: list[str], cta: rx.Component,
+    highlight: bool = False,
+) -> rx.Component:
     return rx.vstack(
-        rx.badge(badge, color_scheme="gray"),
-        rx.heading(name, size="5"),
+        rx.badge(badge, color_scheme="iris" if highlight else "gray"),
+        rx.heading(name, size="5", font_family=tokens.FONT["serif"]),
         rx.hstack(
             rx.text(price, size="8", weight="bold"),
             rx.text("/ mo", color=tokens.COLOR["text_muted"], size="2"),
@@ -30,15 +33,21 @@ def _tier_card(*, badge: str, name: str, price: str, features: list[str], cta: r
         *[rx.text(f"· {f}", size="2", color=tokens.COLOR["text_muted"]) for f in features],
         cta,
         background=tokens.COLOR["surface"],
-        border=f"1px solid {tokens.COLOR['border']}",
-        border_radius=tokens.RADIUS["md"], box_shadow=tokens.SHADOW_CARD,
+        border=(
+            f"2px solid {tokens.BAND['violet_tag_text']}" if highlight
+            else f"1px solid {tokens.COLOR['border']}"
+        ),
+        border_radius=tokens.RADIUS["md"],
+        box_shadow=tokens.SHADOW_FLOAT if highlight else tokens.SHADOW_CARD,
         padding="24px", width="260px", align="start", spacing="2",
+        transition="transform 0.15s ease",
+        _hover={"transform": "translateY(-4px)"},
     )
 
 
 def pricing() -> rx.Component:
     return rx.vstack(
-        rx.heading("Pricing", size="6", text_align="center"),
+        rx.heading("Pricing", size="6", text_align="center", font_family=tokens.FONT["serif"]),
         rx.text(
             "Credits are metered by actual model usage. No API key needed — "
             "hosted access starts the moment you sign up.",
@@ -62,6 +71,7 @@ def pricing() -> rx.Component:
                 name="Pro",
                 price="$9",
                 features=_PRO_FEATURES,
+                highlight=True,
                 cta=rx.vstack(
                     rx.button(
                         "Subscribe to Pro",
