@@ -6,7 +6,7 @@ everything in the **same cloud region** for low latency.
 Components:
 - **Supabase** — database, auth, document storage, free embeddings (edge fn)
 - **LiteLLM** on Render — model gateway (holds provider keys, per-user keys, spend)
-- **Webapp** on Render — Reflex app: accounts, pricing, dashboard, uploads, payments
+- **Webapp** on Railway — Reflex app: accounts, pricing, dashboard, uploads, payments
 - **Desktop app** — the client users install
 
 ---
@@ -77,20 +77,39 @@ or upload an image.
 
 ---
 
-## 3. Webapp on Render
+## 3. Webapp on Railway
 
 The webapp is a Reflex app wrapped in a single Docker container with Caddy
-(reverse proxy for the static frontend) + redis (production state backend).
-The Stripe and Razorpay webhook routes live at `/api/webhooks/stripe` and
-`/api/webhooks/razorpay` respectively.
+(reverse proxy for the static frontend). Railway auto-detects the Dockerfile
+and builds it on every push. The Stripe and Razorpay webhook routes live at
+`/api/webhooks/stripe` and `/api/webhooks/razorpay` respectively.
 
-1. **Create a Render Blueprint:**
-   - Render → **New + → Blueprint** → connect this repo.
-   - It reads `webapp/render.yaml` and creates the `oncue-webapp` service.
-   - (Or: **New Web Service** → repo → root dir `webapp`, runtime **Docker**.)
+**Why Railway instead of Render:** better cold-start performance (critical for
+webhook delivery — Stripe won't wait 20s for a container to wake up), managed
+Redis add-on (no fragile in-container redis-server), and a Mumbai region
+datacenter that matches your Hinglish-first India audience.
 
-2. **Set the 14 environment variables** in the Render dashboard (all `sync: false`,
-   filled manually — never commit secrets):
+1. **Create a Railway project and deploy:**
+   - [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**.
+   - Select this repo, set **Root Directory** to `webapp`, **Build Command** is
+     auto-detected from `webapp/Dockerfile` + `webapp/railway.json`.
+   - Railway injects `PORT` automatically — the Dockerfile and Caddyfile both
+     use `$PORT`, so no port configuration is needed.
+
+2. **Add a managed Redis add-on** (optional but recommended):
+   - In the Railway project → **New** → **Database** → **Redis**.
+   - Railway creates a Redis instance and injects `REDIS_URL` into the webapp.
+   - In the webapp's **Variables** tab, add:
+     ```
+     REFLEX_REDIS_URL = ${{Redis.REDIS_URL}}
+     ```
+   - This skips the in-container redis-server (the Dockerfile checks for this
+     env var and only starts redis-server when REFLEX_REDIS_URL is not set).
+   - **Without managed Redis** the app still works — it runs redis-server in
+     the same container as a fallback.
+
+3. **Set the 14 environment variables** in the webapp's **Variables** tab
+   (never commit secrets):
 
    `SUPABASE_URL` · `SUPABASE_ANON_KEY` · `SUPABASE_SERVICE_ROLE_KEY` ·
    `SUPABASE_FUNCTIONS_URL` · `EMBED_SECRET` · `LITELLM_URL` ·
@@ -101,10 +120,18 @@ The Stripe and Razorpay webhook routes live at `/api/webhooks/stripe` and
    > **Tip:** Start with Stripe in test mode so you can verify the full
    > checkout flow without real charges. Same for Razorpay test mode.
 
-3. Deploy. **Collect:** the service URL (e.g. `https://oncue-webapp.onrender.com`).
+   `LITELLM_URL` should point to where your LiteLLM instance runs. If it's on
+   Render (see §2 above), use its Render URL. If you move LiteLLM to Railway
+   too in the same project, use the private reference:
+   ```
+   LITELLM_URL = ${{litellm.RAILWAY_PRIVATE_DOMAIN}}:4000
+   ```
 
-4. **Register webhooks** — this is the step most deployments miss. Both Stripe
-   and Razorpay must send events to your live Render URL:
+4. **Generate a public domain** → **Networking** tab → **Generate Domain**.
+   **Collect:** the Railway-provided URL (e.g. `https://oncue-webapp.up.railway.app`).
+
+5. **Register webhooks** — both Stripe and Razorpay must send events to your
+   live Railway URL:
 
    **Stripe Dashboard → Developers → Webhooks → Add endpoint:**
    - Endpoint URL: `https://<your-url>/api/webhooks/stripe`
@@ -112,16 +139,16 @@ The Stripe and Razorpay webhook routes live at `/api/webhooks/stripe` and
      - `checkout.session.completed`
      - `customer.subscription.updated`
      - `customer.subscription.deleted`
-   - After creation, Reveal the **Signing secret** → paste into Render's
-     `STRIPE_WEBHOOK_SECRET` env var and redeploy.
+   - After creation, Reveal the **Signing secret** → paste into Railway's
+     `STRIPE_WEBHOOK_SECRET` variable and redeploy.
 
    **Razorpay Dashboard → Settings → Webhooks → Add webhook:**
    - URL: `https://<your-url>/api/webhooks/razorpay`
    - Events: `subscription.activated` + `subscription.cancelled`
-   - After creation, copy the **Webhook Secret** → paste into Render's
-     `RAZORPAY_WEBHOOK_SECRET` env var and redeploy.
+   - After creation, copy the **Webhook Secret** → paste into Railway's
+     `RAZORPAY_WEBHOOK_SECRET` variable and redeploy.
 
-5. Verify webhooks work:
+6. Verify webhooks work:
    ```
    # Stripe test — should return 400 (bad signature), NOT 404
    curl -X POST https://<your-url>/api/webhooks/stripe
@@ -132,14 +159,13 @@ The Stripe and Razorpay webhook routes live at `/api/webhooks/stripe` and
    feature to fire real events and confirm they produce a `200` + a new row
    in `payment_events`.
 
-6. **Supabase Auth redirect:** In Supabase → Auth → URL Configuration, add
+7. **Supabase Auth redirect:** In Supabase → Auth → URL Configuration, add
    `https://<your-url>` to the redirect allow-list (or the full path
    `https://<your-url>/login`).
 
-> **Known tradeoff:** Render's free/starter plan cold-starts containers when
-> idle. Acceptable for the hackathon submission window — add a keep-warm ping
-> (e.g. a scheduled Supabase pg_cron job or a simple Uptime Robot monitor)
-> in production.
+> **Mumbai region:** Railway supports Mumbai (ap-south-1) for deployment
+> regions — select it in your project's settings to minimize latency for
+> India-based users and LiteLLM proximity.
 
 ---
 
@@ -155,8 +181,8 @@ Add a Supabase scheduled job (pg_cron or a scheduled function) that pings the
 - **For users:** they sign up on the site and click **"Open Parakeet app"** — the
   `parakeet://` link injects their key + your URLs automatically (hosted mode).
 - **For your own testing:** in the app's Settings set provider `hosted`,
-  `PARAKEET_BACKEND_URL` = LiteLLM Render URL,
-  `PARAKEET_WEB_URL` = webapp Render URL,
+  `PARAKEET_BACKEND_URL` = LiteLLM URL (Render or Railway),
+  `PARAKEET_WEB_URL` = webapp Railway URL,
   `PARAKEET_RAG_URL` = `<supabase-url>/functions/v1/rag`, and paste a key.
 - **Build the installer:** `pip install pyinstaller && pyinstaller packaging/parakeet.spec`
   → `dist/Parakeet.exe`. Host it (GitHub Releases / Supabase Storage) and point the

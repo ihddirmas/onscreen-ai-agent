@@ -1,7 +1,9 @@
-# Single-container Reflex deployment for Render / Railway / Heroku.
+# Single-container Reflex deployment for Railway / Render / Heroku.
 # Adapted from reflex-dev/reflex's official production-one-port/Dockerfile.
 # Builder stage: install deps, compile frontend.
-# Runner stage: Python + Caddy + redis on one exposed port.
+# Runner stage: Python + Caddy + optional redis on one exposed port.
+# On Railway: add a managed Redis add-on and set REFLEX_REDIS_URL=${{Redis.REDIS_URL}}
+# to skip the in-container redis-server (recommended for production).
 ARG PORT=8080
 ARG API_URL
 
@@ -45,5 +47,7 @@ EXPOSE $PORT
 
 CMD [ -d alembic ] && reflex db migrate; \
     caddy start && \
-    redis-server --daemonize yes && \
+    if [ -z "$REFLEX_REDIS_URL" ] || [ "$REFLEX_REDIS_URL" = "redis://localhost" ]; then \
+      redis-server --daemonize yes; \
+    fi && \
     exec reflex run --env prod --backend-only
