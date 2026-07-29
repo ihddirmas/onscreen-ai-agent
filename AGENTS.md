@@ -75,3 +75,4 @@ Optional for full hosted E2E. Requires Docker and external Postgres (`DATABASE_U
 - `pip install -e .` on bare Ubuntu fails without `python3.12-venv` and `python3-dev` (for `evdev` / `pynput`).
 - PySide6 screenshot downscaling needs `libegl1` on Linux; use `xvfb-run` when no real display is available.
 - Do not commit `.env` or `website/.env.local` (gitignored).
+- Do **not** `source .env` in bash — hotkey values like `<ctrl>+<shift>+<space>` break shell parsing. Parakeet reads `.env` via its own parser; export only the vars you need (e.g. `export GROQ_API_KEY=...`).
