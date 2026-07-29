@@ -6,7 +6,7 @@ everything in the **same cloud region** for low latency.
 Components:
 - **Supabase** — database, auth, document storage, free embeddings (edge fn)
 - **LiteLLM** on Render — model gateway (holds provider keys, per-user keys, spend)
-- **Website** on Vercel — accounts, pricing, dashboard, uploads
+- **Webapp** on Render — Reflex app: accounts, pricing, dashboard, uploads, payments
 - **Desktop app** — the client users install
 
 ---
@@ -17,7 +17,9 @@ Components:
 2. **SQL Editor → New query →** paste all of `website/supabase/schema.sql` → Run.
    (Creates tables, pgvector, the `match_doc_chunks` function, RLS, and the
    `documents` storage bucket.)
-3. **Deploy the `rag` edge function** (free `gte-small` embeddings + search).
+3. **Run the payments schema** — `webapp/supabase/schema_payments.sql` in the same
+   SQL editor (adds billing columns to `profiles` + the `payment_events` table).
+4. **Deploy the `rag` edge function** (free `gte-small` embeddings + search).
    Pick ONE:
 
    **Option A — Dashboard, no CLI (easiest):**
@@ -39,8 +41,8 @@ Components:
    npx supabase secrets set EMBED_SECRET=<random> SUPABASE_SERVICE_ROLE_KEY=<service-role>
    ```
 
-4. **Enable Google login (optional):** Auth → Providers → Google.
-5. **Collect (Settings → API / General / Database):**
+5. **Enable Google login (optional):** Auth → Providers → Google.
+6. **Collect (Settings → API / General / Database):**
    - `Project URL`  ·  `anon` key  ·  `service_role` key
    - `Reference ID` (the `<ref>`)  ·  Postgres **Connection string** (for LiteLLM)
 
@@ -75,21 +77,69 @@ or upload an image.
 
 ---
 
-## 3. Website on Vercel
+## 3. Webapp on Render
 
-1. Import the repo into Vercel → **root directory `website`** (same region as Supabase).
-2. Environment variables:
+The webapp is a Reflex app wrapped in a single Docker container with Caddy
+(reverse proxy for the static frontend) + redis (production state backend).
+The Stripe and Razorpay webhook routes live at `/api/webhooks/stripe` and
+`/api/webhooks/razorpay` respectively.
+
+1. **Create a Render Blueprint:**
+   - Render → **New + → Blueprint** → connect this repo.
+   - It reads `webapp/render.yaml` and creates the `oncue-webapp` service.
+   - (Or: **New Web Service** → repo → root dir `webapp`, runtime **Docker**.)
+
+2. **Set the 14 environment variables** in the Render dashboard (all `sync: false`,
+   filled manually — never commit secrets):
+
+   `SUPABASE_URL` · `SUPABASE_ANON_KEY` · `SUPABASE_SERVICE_ROLE_KEY` ·
+   `SUPABASE_FUNCTIONS_URL` · `EMBED_SECRET` · `LITELLM_URL` ·
+   `LITELLM_MASTER_KEY` · `STRIPE_SECRET_KEY` · `STRIPE_WEBHOOK_SECRET` ·
+   `STRIPE_PRICE_ID_PRO` · `RAZORPAY_KEY_ID` · `RAZORPAY_KEY_SECRET` ·
+   `RAZORPAY_WEBHOOK_SECRET` · `RAZORPAY_PLAN_ID_PRO`
+
+   > **Tip:** Start with Stripe in test mode so you can verify the full
+   > checkout flow without real charges. Same for Razorpay test mode.
+
+3. Deploy. **Collect:** the service URL (e.g. `https://oncue-webapp.onrender.com`).
+
+4. **Register webhooks** — this is the step most deployments miss. Both Stripe
+   and Razorpay must send events to your live Render URL:
+
+   **Stripe Dashboard → Developers → Webhooks → Add endpoint:**
+   - Endpoint URL: `https://<your-url>/api/webhooks/stripe`
+   - Events to listen for:
+     - `checkout.session.completed`
+     - `customer.subscription.updated`
+     - `customer.subscription.deleted`
+   - After creation, Reveal the **Signing secret** → paste into Render's
+     `STRIPE_WEBHOOK_SECRET` env var and redeploy.
+
+   **Razorpay Dashboard → Settings → Webhooks → Add webhook:**
+   - URL: `https://<your-url>/api/webhooks/razorpay`
+   - Events: `subscription.activated` + `subscription.cancelled`
+   - After creation, copy the **Webhook Secret** → paste into Render's
+     `RAZORPAY_WEBHOOK_SECRET` env var and redeploy.
+
+5. Verify webhooks work:
    ```
-   NEXT_PUBLIC_SUPABASE_URL       = Supabase Project URL
-   NEXT_PUBLIC_SUPABASE_ANON_KEY  = Supabase anon key
-   SUPABASE_SERVICE_ROLE_KEY      = Supabase service_role key
-   EMBED_SECRET                   = same string as the Supabase secret
-   LITELLM_URL                    = the Render URL
-   LITELLM_MASTER_KEY             = from step 2
-   NEXT_PUBLIC_SITE_URL           = your Vercel URL (e.g. https://parakeet.vercel.app)
+   # Stripe test — should return 400 (bad signature), NOT 404
+   curl -X POST https://<your-url>/api/webhooks/stripe
+   # Razorpay test — should return 400
+   curl -X POST https://<your-url>/api/webhooks/razorpay
    ```
-3. Deploy. **Collect:** the live site URL.
-4. Supabase → **Auth → URL Configuration** → add the site URL to the redirect allow-list.
+   Then use Stripe's Dashboard "Send test webhook" and Razorpay's "Send test"
+   feature to fire real events and confirm they produce a `200` + a new row
+   in `payment_events`.
+
+6. **Supabase Auth redirect:** In Supabase → Auth → URL Configuration, add
+   `https://<your-url>` to the redirect allow-list (or the full path
+   `https://<your-url>/login`).
+
+> **Known tradeoff:** Render's free/starter plan cold-starts containers when
+> idle. Acceptable for the hackathon submission window — add a keep-warm ping
+> (e.g. a scheduled Supabase pg_cron job or a simple Uptime Robot monitor)
+> in production.
 
 ---
 
@@ -105,7 +155,8 @@ Add a Supabase scheduled job (pg_cron or a scheduled function) that pings the
 - **For users:** they sign up on the site and click **"Open Parakeet app"** — the
   `parakeet://` link injects their key + your URLs automatically (hosted mode).
 - **For your own testing:** in the app's Settings set provider `hosted`,
-  `PARAKEET_BACKEND_URL` = Render URL, `PARAKEET_WEB_URL` = site URL,
+  `PARAKEET_BACKEND_URL` = LiteLLM Render URL,
+  `PARAKEET_WEB_URL` = webapp Render URL,
   `PARAKEET_RAG_URL` = `<supabase-url>/functions/v1/rag`, and paste a key.
 - **Build the installer:** `pip install pyinstaller && pyinstaller packaging/parakeet.spec`
   → `dist/Parakeet.exe`. Host it (GitHub Releases / Supabase Storage) and point the
@@ -118,4 +169,5 @@ Add a Supabase scheduled job (pg_cron or a scheduled function) that pings the
 Sign up → dashboard shows a minted key + 0% credit meter → upload a resume (goes
 `ready`) → click "Open Parakeet app" → ask a question → answer streams on the
 overlay, the credit meter ticks up, and "search my documents" grounds answers in
-your upload.
+your upload. Subscribe to Pro → checkout completes → tier flips in the dashboard
+→ provider choice unlocks — all without leaving the app.
