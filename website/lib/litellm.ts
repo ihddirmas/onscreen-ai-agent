@@ -4,8 +4,16 @@
 const BASE = process.env.LITELLM_URL!;
 const MASTER = process.env.LITELLM_MASTER_KEY!;
 
+// Free-tier model allowlist now includes parakeet-default (which chains
+// through Groq → Cerebras → Cloudflare → OpenRouter free tiers) so
+// hosted users get working inference at zero cost to us.
+const TIER_MODELS: Record<string, string[]> = {
+  free: ["parakeet-groq", "parakeet-default"],
+  pro: ["parakeet-groq", "parakeet-claude", "parakeet-gpt", "parakeet-gemini", "parakeet-default"],
+};
+
 const TIER_BUDGET: Record<string, number> = {
-  free: 1, // USD/month
+  free: 1, // USD/month — generous since free-tier APIs cost us $0
   pro: 15,
 };
 
@@ -22,7 +30,7 @@ export async function mintKey(userId: string, tier: string): Promise<string> {
     method: "POST",
     headers: headers(),
     body: JSON.stringify({
-      models: ["parakeet-default"],
+      models: TIER_MODELS[tier] ?? TIER_MODELS.free,
       max_budget: TIER_BUDGET[tier] ?? TIER_BUDGET.free,
       budget_duration: "30d",
       metadata: { user_id: userId },

@@ -26,6 +26,8 @@ dependencies = [
     "langchain-tavily>=0.2",
     "ddgs>=6.0",
     "AppOpener>=1.7; sys_platform == 'win32'",
+    "edge-tts>=6.0",
+    "pygame>=2.5",
 ]
 
 [project.optional-dependencies]

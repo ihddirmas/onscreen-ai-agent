@@ -31,7 +31,7 @@ class OnboardingDialog(QDialog):
         root.addWidget(title)
 
         body = QLabel(
-            "Try it free instantly with a hosted trial — no API key needed — "
+            "Try it free for one session — no API key needed — "
             "or bring your own key from Groq, Claude, GPT, or Gemini if you'd "
             "rather manage that yourself."
         )

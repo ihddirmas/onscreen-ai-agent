@@ -68,7 +68,14 @@ SYSTEM = (
     "more personal answer — silently. Do NOT say 'according to your document' or "
     "cite the source; just answer well. "
     "Never claim you performed an action a tool didn't confirm. Keep answers "
-    "concise — they render on a small overlay."
+    "concise — they render on a small overlay. "
+    "POINTING: When you refer to a specific UI element on screen, include its "
+    "screen coordinates as [POINT:x,y]. For example: 'Click the [POINT:400,250] "
+    "Save button in the top-right.' The image you see is 1280px wide — use "
+    "coordinates relative to that image space; they will be scaled to the "
+    "user's actual screen resolution. Do NOT use [POINT] tags for every "
+    "sentence — only to pinpoint a specific element when the user needs to "
+    "find it."
 )
 
 

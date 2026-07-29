@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from parakeet.ui.pointer import strip_point_tags
 from parakeet.ui.theme import COLOR, FONT, RADIUS
 
 _CODE_STYLE = (
@@ -141,6 +142,7 @@ class Overlay(QWidget):
         self._adjusting = False        # True during programmatic move/resize
         self._custom_geometry = False  # True once the user placed/sized it
         self._answer_buffer = ""       # raw streamed markdown, re-rendered per token
+        self._answer_displayed = ""    # answer text with [POINT] tags stripped
         self._system_enabled = system_enabled
         self._content_protection = content_protection
         self.setMouseTracking(True)
@@ -288,7 +290,10 @@ class Overlay(QWidget):
 
     def append_token(self, text: str) -> None:
         self._answer_buffer += text
-        self.answer.setHtml(markdown_to_html(self._answer_buffer))
+        strip_result = strip_point_tags(self._answer_buffer)
+        if strip_result != self._answer_displayed:
+            self._answer_displayed = strip_result
+            self.answer.setHtml(markdown_to_html(strip_result))
         sb = self.answer.verticalScrollBar()
         sb.setValue(sb.maximum())  # keep the newest text in view while streaming
 

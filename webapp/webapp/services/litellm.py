@@ -11,9 +11,12 @@ TIER_BUDGET = {"free": 1.0, "pro": 15.0}
 # Hosted model aliases exposed to each tier. These are the Wave 2 aliases
 # (backend/litellm-config.yaml doesn't define them yet — that's tracked
 # separately and does not block minting/updating keys against them here).
+# Free-tier model allowlist now includes parakeet-default (which chains
+# through Groq → Cerebras → Cloudflare → OpenRouter free tiers) so
+# hosted users get working inference at zero cost to us.
 TIER_MODELS = {
-    "free": ["parakeet-groq"],
-    "pro": ["parakeet-groq", "parakeet-claude", "parakeet-gpt", "parakeet-gemini"],
+    "free": ["parakeet-groq", "parakeet-default"],
+    "pro": ["parakeet-groq", "parakeet-claude", "parakeet-gpt", "parakeet-gemini", "parakeet-default"],
 }
 
 

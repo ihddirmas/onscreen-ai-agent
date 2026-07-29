@@ -22,8 +22,10 @@ from parakeet.capture import screenshot_png
 from parakeet.config import CONFIG_FILE, get_config
 from parakeet.hotkeys import HotkeyManager
 from parakeet.ui.onboarding import OnboardingDialog
-from parakeet.ui.overlay import Overlay
+from parakeet.ui.pointer import PointingWidget, parse_point_tags
 from parakeet.ui.settings import SettingsDialog
+from parakeet.tts import TTSManager
+from parakeet.usage import check_session
 
 # Auto-analysis prompt for the screenshot hotkey — the user doesn't say what's
 # on screen; the agent figures out what to do.
@@ -98,6 +100,9 @@ class ParakeetApp(QObject):
         self._pending_png: bytes | None = None
         self._recording_meeting = False
         self._thread_id = str(uuid.uuid4())
+        self._tts_enabled = True
+        self._tts = TTSManager()
+        self._pointer = PointingWidget()
         # One checkpointer for the whole process lifetime: the agent graph
         # gets rebuilt on settings changes, system-tools toggles, and
         # protocol-URL handling, but conversation memory should survive
@@ -134,7 +139,20 @@ class ParakeetApp(QObject):
         # prime the audio stack so the first meeting capture isn't a cold start
         threading.Thread(target=warmup_system_audio, daemon=True).start()
 
+        self._maybe_check_trial()
         self._maybe_show_onboarding()
+
+    def _maybe_check_trial(self) -> None:
+        """Hosted mode only: check session cap on startup."""
+        cfg = get_config()
+        if cfg.provider != "hosted" or not cfg.web_url:
+            return
+        result = check_session()
+        if not result.get("can_start", True):
+            self.overlay.show_error(
+                "Your trial session has ended. Sign in at "
+                f"{cfg.web_url.rstrip('/')}/login to continue using Parakeet."
+            )
 
     def _maybe_show_onboarding(self) -> None:
         """First launch only (detected by the config file not existing yet) —
@@ -159,6 +177,12 @@ class ParakeetApp(QObject):
         reset_pos = QAction("Reset overlay position", menu)
         reset_pos.triggered.connect(lambda: self.overlay.reset_position())
 
+        # Speak answers toggle
+        self._tray_tts_action = QAction("Speak answers aloud", menu)
+        self._tray_tts_action.setCheckable(True)
+        self._tray_tts_action.setChecked(True)
+        self._tray_tts_action.toggled.connect(self._set_tts_enabled)
+
         # Hide-from-screen-sharing toggle
         self._tray_hide_action = QAction("Hide from screen sharing", menu)
         self._tray_hide_action.setCheckable(True)
@@ -182,6 +206,7 @@ class ParakeetApp(QObject):
         menu.addAction(settings)
         menu.addAction(reset_pos)
         menu.addSeparator()
+        menu.addAction(self._tray_tts_action)
         menu.addAction(self._tray_hide_action)
         menu.addAction(self._tray_system_action)
         menu.addMenu(pause_menu)
@@ -374,6 +399,10 @@ class ParakeetApp(QObject):
     def _on_token(self, text: str) -> None:
         self.overlay.set_status("")
         self.overlay.append_token(text)
+        # Check for [POINT:x,y] tags in the stream and show the pointing overlay
+        points = parse_point_tags(text)
+        for pt in points:
+            self._pointer.point_at(pt)
 
     def _on_confirmed(self, allowed: bool) -> None:
         if self._worker:
@@ -381,12 +410,26 @@ class ParakeetApp(QObject):
 
     def _on_done(self) -> None:
         self.overlay.finish()
+        # TTS: speak the complete answer (if enabled)
+        if self._tts_enabled:
+            from parakeet.ui.pointer import strip_point_tags
+
+            clean = strip_point_tags(self.overlay._answer_buffer).strip()
+            if clean:
+                self._tts.speak(clean)
 
     def _busy(self) -> bool:
         running = self._worker is not None and self._worker.isRunning()
         return running or self._recording_meeting or self._recorder.recording
 
     # --- settings ---------------------------------------------------------------
+
+    # --- TTS toggle ---------------------------------------------------------
+
+    def _set_tts_enabled(self, enabled: bool) -> None:
+        self._tts_enabled = enabled
+        if not enabled:
+            self._tts.stop()
 
     # --- hide from screen sharing -------------------------------------------
 
