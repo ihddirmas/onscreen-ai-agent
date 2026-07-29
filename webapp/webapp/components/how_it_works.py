@@ -66,7 +66,13 @@ def _band(num: int, tag: str, color: str, title: str, body: str, question: str, 
         rx.text(body, color=muted_color, size="3", margin_top="10px", max_width="380px"),
         align_items="start", spacing="1",
     )
-    mockup_col = rx.box(overlay_mockup(question=question, answer=answer))
+    # Alternate parallax direction per band so the mockups feel layered
+    # against each other while scrolling, not all drifting identically.
+    parallax_factor = "-0.04" if num % 2 == 1 else "0.04"
+    mockup_col = rx.box(
+        overlay_mockup(question=question, answer=answer),
+        custom_attrs={"data-parallax": parallax_factor},
+    )
 
     # Alternate text/mockup sides per step for the editorial, grid-breaking
     # composition the design-quality guardrail asks for, rather than every

@@ -17,7 +17,12 @@ this module is the single source of truth going forward.
 from __future__ import annotations
 
 COLOR = {
-    "panel_bg": "rgba(18, 18, 24, 235)",
+    # Lower alpha than a typical opaque panel — Windows now draws a real
+    # OS-level acrylic blur-behind under this window (parakeet/ui/blur.py),
+    # so the QSS-drawn panel only needs enough tint to stay legible and
+    # on-brand, not to hide the desktop. A near-opaque value here would sit
+    # on top of the blur and cancel out the frosted-glass look entirely.
+    "panel_bg": "rgba(18, 18, 24, 130)",
     # Shared accent border for every floating panel. 120 (the indicator's
     # previous value) was kept over the overlay's previous 90 — it reads more
     # clearly against busy/bright screen content.

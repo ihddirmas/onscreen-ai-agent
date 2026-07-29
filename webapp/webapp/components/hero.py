@@ -63,11 +63,20 @@ def hero() -> rx.Component:
                     width="440px",
                 ),
                 margin_top="40px",
+                # Subtle scroll parallax — see the script in landing.py.
+                # Negative factor: floats up slightly slower than the page
+                # scrolls past it, the classic layered-depth parallax cue.
+                custom_attrs={"data-parallax": "-0.06"},
             ),
             spacing="2", align="center", padding="72px 24px 56px",
             position="relative", z_index="1",
         ),
         background=tokens.HERO_GRADIENT,
+        # Fixed attachment = the gradient stays put while the page scrolls
+        # over it, a free zero-JS parallax layer (only visible while the
+        # hero is still in view, same effect used on the JS-driven mockup
+        # card below for the scrolled-past state).
+        background_attachment="fixed",
         width="100%",
         style={"filter": "saturate(1.1)"},
     )

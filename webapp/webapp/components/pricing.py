@@ -33,8 +33,12 @@ def _tier_card(
         *[rx.text(f"· {f}", size="2", color=tokens.COLOR["text_muted"]) for f in features],
         cta,
         background=tokens.COLOR["surface"],
+        # Green, not violet — the same accent family as the real desktop
+        # overlay's border (parakeet/ui/theme.py's accent_border), so the
+        # one place on the pricing section meant to draw the eye ties back
+        # to the actual product rather than an arbitrary decorative color.
         border=(
-            f"2px solid {tokens.BAND['violet_tag_text']}" if highlight
+            f"2px solid {tokens.BAND['mint_tag_text']}" if highlight
             else f"1px solid {tokens.COLOR['border']}"
         ),
         border_radius=tokens.RADIUS["md"],
