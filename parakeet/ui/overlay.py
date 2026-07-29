@@ -174,9 +174,9 @@ class Overlay(QWidget):
         lay.setContentsMargins(14, 12, 14, 12)
         lay.setSpacing(8)
 
-        title = QLabel("OnCUE — drag to move · Enter to ask · Esc to hide")
-        title.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
-        lay.addWidget(title)
+        self._title = QLabel("OnCUE — drag to move · Enter to ask · Esc to hide")
+        self._title.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
+        lay.addWidget(self._title)
 
         self.input = QLineEdit(placeholderText="Ask about your screen…")
         self.input.returnPressed.connect(self._on_return)
@@ -296,6 +296,16 @@ class Overlay(QWidget):
             self.answer.setHtml(markdown_to_html(strip_result))
         sb = self.answer.verticalScrollBar()
         sb.setValue(sb.maximum())  # keep the newest text in view while streaming
+
+    def set_trial_status(self, remaining: int) -> None:
+        """Show trial session count in the title bar."""
+        if remaining > 0:
+            self._title.setText(
+                f"OnCUE — trial: {remaining} session{'s' if remaining > 1 else ''} remaining"
+                " · Enter to ask · Esc to hide"
+            )
+        else:
+            self._title.setText("OnCUE — drag to move · Enter to ask · Esc to hide")
 
     def set_system_enabled(self, enabled: bool) -> None:
         """Sync the checkbox without re-emitting (tray/timer changed it)."""
