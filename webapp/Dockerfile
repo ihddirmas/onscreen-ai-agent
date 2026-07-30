@@ -7,7 +7,7 @@
 ARG PORT=8080
 ARG API_URL
 
-FROM python:3.13 as builder
+FROM python:3.13 AS builder
 
 RUN mkdir -p /app/.web
 RUN python -m venv /app/.venv
@@ -41,13 +41,10 @@ WORKDIR /app
 COPY --from=builder /app /app
 COPY --from=builder /srv /srv
 
+RUN chmod +x /app/docker-entrypoint.sh
+
 STOPSIGNAL SIGKILL
 
 EXPOSE $PORT
 
-CMD [ -d alembic ] && reflex db migrate; \
-    caddy start && \
-    if [ -z "$REFLEX_REDIS_URL" ] || [ "$REFLEX_REDIS_URL" = "redis://localhost" ]; then \
-      redis-server --daemonize yes; \
-    fi && \
-    exec reflex run --env prod --backend-only
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
