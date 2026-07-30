@@ -1,8 +1,8 @@
-# PyInstaller spec for Parakeet.
+# PyInstaller spec for OnCUE.
 # Build from the project root:
 #   pip install pyinstaller
-#   pyinstaller packaging/parakeet.spec
-# Output: dist/Parakeet.exe (windowed, single file).
+#   pyinstaller packaging/oncue.spec
+# Output: dist/OnCUE.exe (windowed, single file).
 #
 # Notes:
 # - The whisper model is NOT bundled; faster-whisper downloads it to the user
@@ -27,6 +27,7 @@ hiddenimports += [
     "langchain_groq",
     "langchain_openai",
     "langchain_anthropic",
+    "langchain_google_genai",
     "langchain_tavily",
     "sounddevice",
     "mss",
@@ -37,7 +38,7 @@ if sys.platform == "win32":
     hiddenimports += ["AppOpener"]
 
 a = Analysis(
-    ["../parakeet/__main__.py"],
+    ["../oncue/__main__.py"],
     pathex=[".."],
     binaries=binaries,
     datas=datas,
@@ -53,7 +54,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name="Parakeet",
+    name="OnCUE",
     console=False,
     upx=False,
 )
