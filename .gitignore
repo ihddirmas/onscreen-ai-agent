@@ -54,9 +54,9 @@ nul
 
 # ---- E2E testing ----
 .playwright-mcp/
-website/e2e/
 website/test-results/
-website/playwright.config.ts
+website/playwright-report/
+website/blob-report/
 
 # ---- Screenshot files (root level) ----
 *.png

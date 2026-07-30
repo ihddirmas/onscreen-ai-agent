@@ -47,7 +47,7 @@ def test_mint_key_free_tier_gets_only_groq_model(monkeypatch):
         lambda url, headers, json, timeout: captured.update(json=json) or _FakeResponse(200, {"key": "sk-x"}),
     )
     litellm_service.mint_key("user-1", "free")
-    assert captured["json"]["models"] == ["oncue-groq"]
+    assert captured["json"]["models"] == ["oncue-groq", "oncue-default"]
 
 
 def test_mint_key_pro_tier_gets_all_hosted_models(monkeypatch):
@@ -64,6 +64,7 @@ def test_mint_key_pro_tier_gets_all_hosted_models(monkeypatch):
         "oncue-claude",
         "oncue-gpt",
         "oncue-gemini",
+        "oncue-default",
     ]
 
 
@@ -76,7 +77,7 @@ def test_mint_key_unknown_tier_defaults_to_free_models(monkeypatch):
         lambda url, headers, json, timeout: captured.update(json=json) or _FakeResponse(200, {"key": "sk-x"}),
     )
     litellm_service.mint_key("user-1", "unknown-tier")
-    assert captured["json"]["models"] == ["oncue-groq"]
+    assert captured["json"]["models"] == ["oncue-groq", "oncue-default"]
 
 
 def test_update_key_budget_raises_without_litellm_url(monkeypatch):
@@ -105,6 +106,7 @@ def test_update_key_budget_posts_to_key_update(monkeypatch):
         "oncue-claude",
         "oncue-gpt",
         "oncue-gemini",
+        "oncue-default",
     ]
 
 
