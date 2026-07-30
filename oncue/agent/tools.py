@@ -93,6 +93,20 @@ def _allowed(p: Path) -> bool:
 
 # --- web + browser tools ---------------------------------------------------
 
+def _derive_web_url(cfg) -> str | None:
+    """Derive the website base URL from the backend URL.
+    Common subdomain prefixes like litellm. / api. / backend. are stripped."""
+    raw = cfg.backend_url or ""
+    if not raw:
+        return None
+    for prefix in ("litellm.", "api.", "backend.", "proxy."):
+        derived = raw.replace(f"https://{prefix}", "https://")
+        derived = derived.replace(f"http://{prefix}", "http://")
+        if derived != raw:
+            return derived
+    return None
+
+
 @tool
 def search_my_documents(query: str) -> str:
     """Search the user's OWN uploaded reference documents (their resume, notes,
@@ -100,18 +114,23 @@ def search_my_documents(query: str) -> str:
     own background, projects, or notes could improve the answer. Use the results
     silently to give a better, personalized answer — do not cite the document."""
     cfg = get_config()
-    if not cfg.oncue_token or not (cfg.rag_url or cfg.web_url):
+    if not cfg.oncue_token:
+        return "No API key configured. Sign in at the OnCUE website, then paste your key in Settings."
+
+    web_url = cfg.web_url or _derive_web_url(cfg)
+    if not cfg.rag_url and not web_url:
         return (
-            "No documents connected. Sign in and upload documents at the OnCUE "
-            "website, then paste your key in Settings."
+            "No search endpoint configured. To enable document search:\n"
+            "1. Open the OnCUE dashboard and click 'Open OnCUE app' — this "
+            "auto-configures your key and the search URLs.\n"
+            "2. Or manually set ONCUE_WEB_URL and ONCUE_RAG_URL in Settings."
         )
-    # Prefer the Supabase edge function directly (lowest latency: embed + vector
-    # match in one hop next to the DB); fall back to the website API.
+
     if cfg.rag_url:
         url = cfg.rag_url.rstrip("/")
         payload = {"action": "search", "query": query}
     else:
-        url = f"{cfg.web_url.rstrip('/')}/api/documents/search"
+        url = f"{web_url.rstrip('/')}/api/documents/search"
         payload = {"query": query}
     try:
         import urllib.request
