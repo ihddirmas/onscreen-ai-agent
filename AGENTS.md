@@ -58,6 +58,17 @@ npm run build    # production build + typecheck (no separate test suite)
 
 `npm run lint` prompts for ESLint setup on a fresh clone; `npm run build` already type-checks. Landing page (`/`) works with placeholder `.env.local`; login/dashboard need real Supabase credentials.
 
+### Webapp (Reflex on Railway)
+
+```bash
+cd webapp
+cp .env.example .env   # Supabase, LiteLLM, Stripe, Razorpay
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/pytest tests/ -q
+```
+
+Production deploy uses `webapp/Dockerfile` + `docker-entrypoint.sh` (waits for Redis before Reflex starts). Railway healthcheck: `GET /ping` → `"pong"`. Set `REFLEX_REDIS_URL=${{Redis.REDIS_URL}}` when using managed Redis.
+
 ### Backend (LiteLLM)
 
 Optional for full hosted E2E. Requires Docker and external Postgres (`DATABASE_URL`, often Supabase). See `DEPLOY.md` and `backend/Dockerfile`. Not needed for desktop-only dev with `DEFAULT_PROVIDER=groq`.
