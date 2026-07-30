@@ -46,6 +46,7 @@ skills-lock.json
 .claude/skills/
 .claude/worktrees/
 .claude/TDD-QUICKSTART.md
+.claude/plugins/
 
 # ---- Dev / analysis artifacts ----
 claudeanalysis.md
