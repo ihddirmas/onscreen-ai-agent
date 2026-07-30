@@ -25,7 +25,7 @@ from parakeet.ui.onboarding import OnboardingDialog
 from parakeet.ui.pointer import PointingWidget, parse_point_tags
 from parakeet.ui.settings import SettingsDialog
 from parakeet.tts import TTSManager
-from parakeet.usage import check_session
+from parakeet.usage import check_session, report_inference, report_session_start
 
 # Auto-analysis prompt for the screenshot hotkey — the user doesn't say what's
 # on screen; the agent figures out what to do.
@@ -46,7 +46,9 @@ class HotkeyBridge(QObject):
     dictate_pressed = Signal()
     dictate_released = Signal()
     chat_pressed = Signal()
-    meeting_pressed = Signal()   # "listen" (mic + system audio)
+    voice_pressed = Signal()     # screenshot + mic + system audio
+    voice_released = Signal()
+    meeting_pressed = Signal()   # "listen" (mic + system audio only)
     meeting_released = Signal()
 
 
@@ -98,8 +100,11 @@ class ParakeetApp(QObject):
         self._worker: AgentWorker | None = None
         self._stt_worker: TranscribeWorker | None = None
         self._pending_png: bytes | None = None
+        self._pending_png_gen = 0
+        self._capture_gen = 0
         self._recording_meeting = False
         self._thread_id = str(uuid.uuid4())
+        self._session_reported = False
         self._tts_enabled = True
         self._tts = TTSManager()
         self._pointer = PointingWidget()
@@ -122,6 +127,7 @@ class ParakeetApp(QObject):
         self.overlay.submitted.connect(self._on_question)
         self.overlay.confirmed.connect(self._on_confirmed)
         self.overlay.system_toggled.connect(self._set_system_enabled)
+        self.overlay.cancelled.connect(self._on_cancel)
         self._pause_timer: object | None = None
 
         from parakeet.ui.indicator import DictationIndicator
@@ -151,8 +157,12 @@ class ParakeetApp(QObject):
         if not result.get("can_start", True):
             self.overlay.show_error(
                 "Your trial session has ended. Sign in at "
-                f"{cfg.web_url.rstrip('/')}/login to continue using Parakeet."
+                f"{cfg.web_url.rstrip('/')}/login to continue using OnCUE."
             )
+        else:
+            remaining = result.get("trial_remaining", 0)
+            if remaining > 0:
+                self.overlay.set_trial_status(remaining)
 
     def _maybe_show_onboarding(self) -> None:
         """First launch only (detected by the config file not existing yet) —
@@ -223,20 +233,23 @@ class ParakeetApp(QObject):
         self._bridge.dictate_pressed.connect(self._on_dictate_press)
         self._bridge.dictate_released.connect(self._on_dictate_release)
         self._bridge.chat_pressed.connect(self._on_chat)
-        # "listen" = mic + all system/call audio at once, then answer
+        self._bridge.voice_pressed.connect(self._on_voice_press)
+        self._bridge.voice_released.connect(self._on_voice_release)
         self._bridge.meeting_pressed.connect(self._on_listen_press)
         self._bridge.meeting_released.connect(self._on_listen_release)
 
         self._hotkeys = HotkeyManager()
         self._hotkeys.register(cfg.capture_hotkey, self._bridge.capture_pressed.emit)
-        # Both the voice and meeting hotkeys do the same thing now: listen to
-        # your mic AND everything playing on the system, then answer.
-        for combo in (cfg.voice_hotkey, cfg.meeting_hotkey):
-            self._hotkeys.register(
-                combo,
-                self._bridge.meeting_pressed.emit,
-                self._bridge.meeting_released.emit,
-            )
+        self._hotkeys.register(
+            cfg.voice_hotkey,
+            self._bridge.voice_pressed.emit,
+            self._bridge.voice_released.emit,
+        )
+        self._hotkeys.register(
+            cfg.meeting_hotkey,
+            self._bridge.meeting_pressed.emit,
+            self._bridge.meeting_released.emit,
+        )
         self._hotkeys.register(
             cfg.dictate_hotkey,
             self._bridge.dictate_pressed.emit,
@@ -254,10 +267,8 @@ class ParakeetApp(QObject):
     def _on_capture(self) -> None:
         if self._busy():
             return
-        # Take the screenshot and immediately analyze it — the user doesn't
-        # need to type anything. Coding problem → solved, topic → explained.
-        # The screenshot stays in _pending_png so typed follow-ups still see it.
         self._pending_png = screenshot_png()
+        self._pending_png_gen = self._capture_gen
         self._ask(SCREEN_PROMPT, display="📸 What's on my screen?")
 
     def _on_chat(self) -> None:
@@ -271,8 +282,6 @@ class ParakeetApp(QObject):
         self.overlay.show_for_input(chat=True)
 
     def _on_question(self, question: str) -> None:
-        # Typed question or follow-up. If a screenshot is still attached (a
-        # capture session), it rides along so visual follow-ups work.
         if not question:
             return
         self._ask(question)
@@ -318,6 +327,44 @@ class ParakeetApp(QObject):
     def _on_dictation_error(self, message: str) -> None:
         self._dictating = False
         self.indicator.failed(message)
+
+    # --- voice flow: screenshot + mic/system audio, then answer ----------------
+    # Hold the voice hotkey, speak about what's on screen, release → transcribed
+    # and sent to the agent with the frozen screenshot.
+
+    def _on_voice_press(self) -> None:
+        if self._busy() or self._recording_meeting or self._recorder.recording:
+            return
+        self._pending_png = screenshot_png()
+        self._pending_png_gen = self._capture_gen
+        try:
+            self._meeting_recorder.start()
+        except Exception as e:
+            self.overlay.show_error(f"Audio capture error: {e}")
+            return
+        self._recording_meeting = True
+        self.overlay.begin_answer("🔴 Listening (screenshot + audio)… release to answer")
+
+    def _on_voice_release(self) -> None:
+        if not self._recording_meeting:
+            return
+        audio = self._meeting_recorder.stop()
+        self.overlay.set_status("Transcribing…")
+        cfg = get_config()
+        self._stt_worker = TranscribeWorker(
+            audio, cfg.whisper_model, cfg.stt_language, cfg.stt_backend
+        )
+        self._stt_worker.text.connect(self._on_voice_text)
+        self._stt_worker.error.connect(self.overlay.show_error)
+        self._stt_worker.start()
+
+    def _on_voice_text(self, text: str) -> None:
+        self._recording_meeting = False
+        if not text:
+            self.overlay.show_for_input()
+            self.overlay.set_status("Didn't catch any audio — type your question")
+            return
+        self._ask(text)
 
     # --- listen flow: mic + all system/call audio at once, then answer -------
 
@@ -376,30 +423,35 @@ class ParakeetApp(QObject):
             return False
 
     def _ask(self, question: str, display: str | None = None) -> None:
-        """Run the agent. `question` is what's sent to the model; `display` is
-        what's shown in the overlay (defaults to `question`, but the screen
-        auto-analysis passes a friendlier label). The screenshot in
-        `_pending_png` is kept so follow-ups in the same capture session still
-        see the screen; mode handlers reset it when appropriate."""
+        """Run the agent. A generation counter tags every turn so that
+        out-of-order / stale worker completions are silently discarded."""
         if not self._ensure_agent():
             return
+        self._capture_gen += 1
+        gen = self._capture_gen
+        cfg = get_config()
+        if not self._session_reported and cfg.provider == "hosted" and cfg.web_url:
+            report_session_start()
+            self._session_reported = True
         png = self._pending_png
         self.overlay.begin_answer("Thinking…")
         self.overlay.show_question(display or question)
         self._worker = AgentWorker(
             self._agent, build_message(question, png), self._thread_id
         )
+        self._worker._gen = gen
         self._worker.status.connect(self.overlay.set_status)
-        self._worker.token.connect(self._on_token)
+        self._worker.token.connect(lambda t, g=gen: self._on_token(t, g))
         self._worker.confirm_request.connect(self.overlay.show_confirm)
-        self._worker.done.connect(self._on_done)
-        self._worker.error.connect(self.overlay.show_error)
+        self._worker.done.connect(lambda g=gen: self._on_done(g))
+        self._worker.error.connect(lambda e, g=gen: self._on_error(e, g))
         self._worker.start()
 
-    def _on_token(self, text: str) -> None:
+    def _on_token(self, text: str, gen: int) -> None:
+        if gen != self._capture_gen:
+            return
         self.overlay.set_status("")
         self.overlay.append_token(text)
-        # Check for [POINT:x,y] tags in the stream and show the pointing overlay
         points = parse_point_tags(text)
         for pt in points:
             self._pointer.point_at(pt)
@@ -408,15 +460,37 @@ class ParakeetApp(QObject):
         if self._worker:
             self._worker.provide_confirmation(allowed)
 
-    def _on_done(self) -> None:
+    def _on_done(self, gen: int) -> None:
+        if gen != self._capture_gen:
+            return
+        self._pending_png = None
         self.overlay.finish()
-        # TTS: speak the complete answer (if enabled)
+        cfg = get_config()
+        if cfg.provider == "hosted" and cfg.web_url:
+            answer = self.overlay._answer_buffer or ""
+            report_inference(
+                model_used=cfg.hosted_model,
+                tokens_out=len(answer) // 4,
+            )
         if self._tts_enabled:
             from parakeet.ui.pointer import strip_point_tags
 
             clean = strip_point_tags(self.overlay._answer_buffer).strip()
             if clean:
-                self._tts.speak(clean)
+                self._tts.speak(clean, error_callback=self.overlay.show_error)
+
+    def _on_error(self, message: str, gen: int) -> None:
+        if gen != self._capture_gen:
+            return
+        self.overlay.show_error(message)
+
+    def _on_cancel(self) -> None:
+        """Cancel the in-flight agent turn (Esc pressed on overlay)."""
+        self._capture_gen += 1
+        if self._worker and self._worker.isRunning():
+            self._worker.cancel()
+        self._worker = None
+        self.overlay._reset()
 
     def _busy(self) -> bool:
         running = self._worker is not None and self._worker.isRunning()

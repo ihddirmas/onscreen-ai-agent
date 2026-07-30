@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serverClient, adminClient } from "@/lib/supabase";
+import { computeCost } from "@/lib/pricing";
 
 /**
  * POST /api/me/usage/report
- * Desktop app calls this to report a session start or inference event.
- * Body: { event_type: "session_start" | "inference", session_id: string, model_used?: string, tokens_in?: number, tokens_out?: number }
+ * Browser-authenticated usage reporting (session_start or inference).
+ * Body: { event_type: "session_start" | "inference", session_id, model_used?, tokens_in?, tokens_out? }
  *
- * Returns 403 with { error: "trial_limit_reached" } if a trial user hits the cap.
+ * Trial cap is enforced by the check_trial_session_limit DB trigger, not
+ * by a read-then-write check in this handler (avoids TOCTOU races).
  */
 export async function POST(req: NextRequest) {
   const supabase = serverClient();
@@ -21,10 +23,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "event_type and session_id required" }, { status: 400 });
   }
 
-  // Get current profile to determine tier
+  // Read profile for the row-level tier label only — NOT for a
+  // read-then-write session cap check (the DB trigger handles that
+  // atomically).
   const { data: profile } = await admin
     .from("profiles")
-    .select("tier, trial_used, session_count")
+    .select("tier, trial_used")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -33,10 +37,7 @@ export async function POST(req: NextRequest) {
     : true;
   const tier = isTrialUser ? "trial" : (profile?.tier ?? "free");
 
-  // Enforce trial cap server-side
-  if (event_type === "session_start" && isTrialUser && (profile?.session_count ?? 0) >= 1) {
-    return NextResponse.json({ error: "trial_limit_reached" }, { status: 403 });
-  }
+  const cost_usd = computeCost(model_used, tokens_in ?? 0, tokens_out ?? 0);
 
   try {
     const { error } = await admin.from("usage_ledger").insert({
@@ -47,21 +48,25 @@ export async function POST(req: NextRequest) {
       tokens_in: tokens_in ?? 0,
       tokens_out: tokens_out ?? 0,
       tier,
-      cost_usd: 0, // computed async via LiteLLM spend data
+      cost_usd,
     });
 
     if (error) throw error;
 
-    // On first session_start for a free user, flip trial_used
-    if (event_type === "session_start" && profile && !profile.trial_used && profile.tier === "free") {
-      await admin.from("profiles").update({
-        trial_used: true,
-        session_count: (profile.session_count ?? 0) + 1,
-      }).eq("id", user.id);
-    } else if (event_type === "session_start") {
-      await admin.from("profiles").update({
-        session_count: (profile?.session_count ?? 0) + 1,
-      }).eq("id", user.id);
+    // Increment session_count for non-trial users. Trial users' session_count
+    // is already managed atomically by the check_trial_session_limit trigger;
+    // updating it here too would double-count.
+    if (event_type === "session_start" && profile && profile.tier !== "trial") {
+      if (!profile.trial_used && profile.tier === "free") {
+        await admin.from("profiles").update({
+          trial_used: true,
+          session_count: (profile.session_count ?? 0) + 1,
+        }).eq("id", user.id);
+      } else {
+        await admin.from("profiles").update({
+          session_count: (profile.session_count ?? 0) + 1,
+        }).eq("id", user.id);
+      }
     }
 
     return NextResponse.json({ ok: true });

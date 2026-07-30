@@ -28,6 +28,16 @@ _PRIMARY_LINK_STYLE = {
 }
 
 
+_SECONDARY_LINK_STYLE = {
+    "color": tokens.COLOR["text"],
+    "padding": "10px 18px",
+    "border_radius": tokens.RADIUS["pill"],
+    "text_decoration": "none",
+    "font_family": tokens.FONT["sans"],
+    "border": f"1px solid {tokens.COLOR['border']}",
+}
+
+
 def _download_card() -> rx.Component:
     return rx.box(
         rx.heading(f"Download {tokens.BRAND_NAME}", size="5", color=tokens.COLOR["text"]),
@@ -37,14 +47,19 @@ def _download_card() -> rx.Component:
             color=tokens.COLOR["text_muted"],
             margin_bottom="16px",
         ),
-        rx.hstack(
-            rx.link("Windows (.exe)", href="#", **_PRIMARY_LINK_STYLE),
-            rx.text(
-                "macOS (soon)",
-                color=tokens.COLOR["text_muted"],
-                padding="10px 4px",
+        rx.vstack(
+            rx.hstack(
+                rx.link("Windows (.exe)", href="https://github.com/yashthenuia/onscreen-ai-agent/releases", **_PRIMARY_LINK_STYLE),
+                rx.link("macOS (open source)", href="https://github.com/yashthenuia/onscreen-ai-agent", **_SECONDARY_LINK_STYLE),
+                spacing="4",
             ),
-            spacing="4",
+            rx.text(
+                "Linux: pip install -e . after cloning the repo",
+                color=tokens.COLOR["text_muted"],
+                font_size="0.85em",
+            ),
+            spacing="2",
+            align="start",
         ),
         rx.link(
             "← Back to dashboard",

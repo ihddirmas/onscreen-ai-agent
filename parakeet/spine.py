@@ -15,27 +15,38 @@ import threading
 from parakeet.capture import screenshot_png
 from parakeet.config import get_config
 from parakeet.agent.router import build_message, get_model
+from parakeet.usage import report_inference, report_session_start
 
 DEFAULT_QUESTION = "Describe what's on my screen and answer anything it's asking. Be concise."
 
 
 def run_once(question: str) -> None:
     cfg = get_config()
-    print(f"[parakeet] provider={cfg.provider}  capturing screen...")
+    if cfg.provider == "hosted" and cfg.web_url:
+        report_session_start()
+    print(f"[OnCUE] provider={cfg.provider}  capturing screen...")
     png = screenshot_png()
     model = get_model()
-    print("[parakeet] streaming answer:\n")
+    print("[OnCUE] streaming answer:\n")
+    answer_parts: list[str] = []
     for chunk in model.stream([build_message(question, png)]):
         text = chunk.content
         if isinstance(text, list):  # anthropic-style content blocks
             text = "".join(b.get("text", "") for b in text if isinstance(b, dict))
         if text:
+            answer_parts.append(text)
             print(text, end="", flush=True)
     print("\n")
+    if cfg.provider == "hosted" and cfg.web_url:
+        full = "".join(answer_parts)
+        report_inference(
+            model_used=cfg.hosted_model,
+            tokens_out=len(full) // 4,
+        )
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Parakeet phase-0 spine")
+    parser = argparse.ArgumentParser(description="OnCUE phase-0 spine")
     parser.add_argument("--now", action="store_true", help="capture immediately, no hotkey")
     parser.add_argument("--question", default=DEFAULT_QUESTION)
     args = parser.parse_args()
@@ -60,7 +71,7 @@ def main() -> None:
     hk = HotkeyManager()
     hk.register(cfg.capture_hotkey, on_hotkey)
     hk.start()
-    print(f"[parakeet] press {cfg.capture_hotkey} to capture (Ctrl+C to quit)")
+    print(f"[OnCUE] press {cfg.capture_hotkey} to capture (Ctrl+C to quit)")
     try:
         done.wait()
     except KeyboardInterrupt:

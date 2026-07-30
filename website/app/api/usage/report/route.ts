@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminClient } from "@/lib/supabase";
+import { computeCost } from "@/lib/pricing";
 
 const LITELLM_URL = process.env.LITELLM_URL!;
 const LITELLM_MASTER_KEY = process.env.LITELLM_MASTER_KEY!;
@@ -8,7 +9,9 @@ const LITELLM_MASTER_KEY = process.env.LITELLM_MASTER_KEY!;
  * POST /api/usage/report
  * Desktop app calls this with { token: "sk-...", event_type: "session_start"|"inference", session_id: "..." }
  * to report usage. Resolves the LiteLLM key → user_id → writes to ledger.
- * Returns 403 if trial limit is reached.
+ *
+ * Trial cap is enforced by the check_trial_session_limit DB trigger, not by
+ * a read-then-write check in this handler (avoids TOCTOU races).
  */
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -39,10 +42,12 @@ export async function POST(req: NextRequest) {
 
   const admin = adminClient();
 
-  // Get current profile to determine tier
+  // Read profile for the row-level tier label only — NOT for a
+  // read-then-write session cap check (the DB trigger handles that
+  // atomically).
   const { data: profile } = await admin
     .from("profiles")
-    .select("tier, trial_used, session_count")
+    .select("tier, trial_used")
     .eq("id", userId)
     .maybeSingle();
 
@@ -51,10 +56,7 @@ export async function POST(req: NextRequest) {
     : true;
   const tier = isTrialUser ? "trial" : (profile?.tier ?? "free");
 
-  // Enforce trial cap server-side
-  if (event_type === "session_start" && isTrialUser && (profile?.session_count ?? 0) >= 1) {
-    return NextResponse.json({ error: "trial_limit_reached" }, { status: 403 });
-  }
+  const cost_usd = computeCost(model_used, tokens_in ?? 0, tokens_out ?? 0);
 
   try {
     const { error } = await admin.from("usage_ledger").insert({
@@ -65,21 +67,23 @@ export async function POST(req: NextRequest) {
       tokens_in: tokens_in ?? 0,
       tokens_out: tokens_out ?? 0,
       tier,
-      cost_usd: 0,
+      cost_usd,
     });
 
     if (error) throw error;
 
-    // On first session_start for a free user, flip trial_used and increment
-    if (event_type === "session_start") {
-      if (profile && !profile.trial_used && profile.tier === "free") {
+    // Increment session_count for non-trial users. Trial users' session_count
+    // is already managed atomically by the check_trial_session_limit trigger;
+    // updating it here too would double-count.
+    if (event_type === "session_start" && profile && profile.tier !== "trial") {
+      if (!profile.trial_used && profile.tier === "free") {
         await admin.from("profiles").update({
           trial_used: true,
           session_count: (profile.session_count ?? 0) + 1,
         }).eq("id", userId);
       } else {
         await admin.from("profiles").update({
-          session_count: (profile?.session_count ?? 0) + 1,
+          session_count: (profile.session_count ?? 0) + 1,
         }).eq("id", userId);
       }
     }

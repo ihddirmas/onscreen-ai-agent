@@ -125,3 +125,37 @@ def report_session_start(token: str, session_id: str) -> dict[str, Any]:
         return {"ok": True}
     except Exception:
         return {"ok": True}
+
+
+def report_inference(token: str, session_id: str,
+                     model_used: str | None = None,
+                     tokens_in: int = 0,
+                     tokens_out: int = 0) -> dict[str, Any]:
+    """Report an inference event (best-effort)."""
+    user_id = _resolve_user_from_key(token)
+    if not user_id:
+        return {"ok": True}
+
+    try:
+        supabase_headers = {
+            "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+            "Content-Type": "application/json",
+        }
+
+        httpx.post(
+            f"{SUPABASE_URL}/rest/v1/usage_ledger",
+            json={
+                "user_id": user_id,
+                "session_id": session_id,
+                "event_type": "inference",
+                "model_used": model_used,
+                "tokens_in": tokens_in,
+                "tokens_out": tokens_out,
+                "tier": "free",
+            },
+            headers=supabase_headers,
+            timeout=10,
+        )
+        return {"ok": True}
+    except Exception:
+        return {"ok": True}
