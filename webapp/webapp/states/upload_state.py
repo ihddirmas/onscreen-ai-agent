@@ -7,7 +7,7 @@ import uuid
 
 import reflex as rx
 
-from webapp.services.documents import chunk, embed, extract_text
+from webapp.services.documents import ALLOWED_EXTENSIONS, MAX_FILE_SIZE, chunk, embed, extract_text
 from webapp.services.supabase import admin_client
 from webapp.states.dashboard_state import DashboardState
 
@@ -23,7 +23,16 @@ class UploadState(DashboardState):
         self.upload_error = ""
         yield
         file = files[0]
+        ext = "." + file.name.rsplit(".", 1)[-1].lower() if "." in file.name else ""
+        if ext not in ALLOWED_EXTENSIONS:
+            self.upload_error = f"Unsupported file type: {ext}. Allowed: pdf, docx, txt, md, csv, json"
+            self.uploading = False
+            return
         data = await file.read()
+        if len(data) > MAX_FILE_SIZE:
+            self.upload_error = f"File too large (max {MAX_FILE_SIZE // 1024 // 1024} MB)"
+            self.uploading = False
+            return
         admin = admin_client()
         # Server-generated object key, not the user-supplied filename — a
         # filename containing "/", "..", or similar could otherwise escape

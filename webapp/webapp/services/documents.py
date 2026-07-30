@@ -12,19 +12,24 @@ import httpx
 EMBED_DIM = 384
 
 
-def chunk(text: str, size: int = 500, overlap: int = 60) -> list[str]:
-    """Split text into ~size-word chunks with a small overlap for context."""
+ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md", ".csv", ".json"}
+MAX_FILE_SIZE = 25 * 1024 * 1024
+
+
+def chunk(text: str, size: int = 500, overlap: int = 100) -> list[str]:
+    """Split text into ~size-word chunks with overlap for context continuity."""
     words = text.split()
     if not words:
         return []
     chunks: list[str] = []
     i = 0
+    step = max(1, size - overlap)
     while True:
         piece = words[i : i + size]
         chunks.append(" ".join(piece))
         if i + size >= len(words):
             break
-        i += size - overlap
+        i += step
     return chunks
 
 
