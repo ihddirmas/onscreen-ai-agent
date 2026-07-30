@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/api/webhooks/stripe")
+@router.post("/webhooks/stripe")
 async def stripe_webhook(request: Request) -> Response:
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature", "")
@@ -52,7 +52,7 @@ async def stripe_webhook(request: Request) -> Response:
     return Response(status_code=200)
 
 
-@router.post("/api/webhooks/razorpay")
+@router.post("/webhooks/razorpay")
 async def razorpay_webhook(request: Request) -> Response:
     payload = await request.body()
     signature = request.headers.get("x-razorpay-signature", "")

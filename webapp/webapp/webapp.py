@@ -25,4 +25,4 @@ app.add_page(download_page, route="/download")
 # (verified: FastAPI apps are valid ASGI sub-apps for Starlette's `.mount`).
 _webhooks_app = FastAPI()
 _webhooks_app.include_router(webhooks_router)
-app._api.mount("/", _webhooks_app)  # noqa: SLF001 - documented escape hatch, see above
+app._api.mount("/api", _webhooks_app)  # noqa: SLF001 - documented escape hatch, see above
