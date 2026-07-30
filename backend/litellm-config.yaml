@@ -1,4 +1,4 @@
-# LiteLLM proxy config — the "hosted mode" backend for Parakeet.
+# LiteLLM proxy config — the "hosted mode" backend for OnCUE.
 #
 # The exe never contains provider keys. It calls THIS proxy with a per-user
 # virtual key; the proxy holds our real keys (env vars on the host).

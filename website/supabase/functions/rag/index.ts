@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
     return json({ embeddings });
   }
 
-  // --- search: desktop hot path (auth by Parakeet key) ---------------------
+  // --- search: desktop hot path (auth by OnCUE key) ---------------------
   if (body.action === "search") {
     const key = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
     if (!key) return json({ error: "unauthorized" }, 401);

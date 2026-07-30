@@ -1,4 +1,4 @@
-# Parakeet — Deployment runbook
+# OnCUE — Deployment runbook
 
 Deploy in this order. Each step produces a value the next one needs. Put
 everything in the **same cloud region** for low latency.
@@ -54,24 +54,24 @@ Render **builds the Docker image from `backend/Dockerfile`** — you do not buil
 or upload an image.
 
 1. Render → **New + → Blueprint** → connect this repo. It reads
-   `backend/render.yaml` and creates the `parakeet-litellm` web service.
+   `backend/render.yaml` and creates the `oncue-litellm` web service.
    (Or: New Web Service → repo → **root dir `backend`**, runtime **Docker**.)
 2. Set env vars:
    - `GROQ_API_KEY` = your Groq key
    - `LITELLM_MASTER_KEY` = a strong `sk-master-…` (the blueprint can auto-generate)
    - `DATABASE_URL` = **reuse Supabase's Postgres connection string** (no separate DB)
    - optional: `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`
-3. Deploy. **Collect:** the service URL (e.g. `https://parakeet-litellm.onrender.com`).
+3. Deploy. **Collect:** the service URL (e.g. `https://oncue-litellm.onrender.com`).
 4. Smoke-test (replace URL + master key):
    ```
    # mint a test key
    curl -X POST https://<render-url>/key/generate \
      -H "Authorization: Bearer <LITELLM_MASTER_KEY>" -H "Content-Type: application/json" \
-     -d '{"models":["parakeet-default"],"max_budget":1,"duration":"30d"}'
+      -d '{"models":["oncue-default"],"max_budget":1,"duration":"30d"}'
    # use it — should return a real answer
    curl https://<render-url>/v1/chat/completions \
      -H "Authorization: Bearer <the-key-from-above>" -H "Content-Type: application/json" \
-     -d '{"model":"parakeet-default","messages":[{"role":"user","content":"hi"}]}'
+      -d '{"model":"oncue-default","messages":[{"role":"user","content":"hi"}]}'
    ```
    > The model is `groq/qwen/qwen3.6-27b` (current). The old llama-4-scout was retired.
 
@@ -178,14 +178,14 @@ Add a Supabase scheduled job (pg_cron or a scheduled function) that pings the
 
 ## 5. Desktop app
 
-- **For users:** they sign up on the site and click **"Open Parakeet app"** — the
-  `parakeet://` link injects their key + your URLs automatically (hosted mode).
+- **For users:** they sign up on the site and click **"Open OnCUE app"** — the
+  `oncue://` link injects their key + your URLs automatically (hosted mode).
 - **For your own testing:** in the app's Settings set provider `hosted`,
-  `PARAKEET_BACKEND_URL` = LiteLLM URL (Render or Railway),
-  `PARAKEET_WEB_URL` = webapp Railway URL,
-  `PARAKEET_RAG_URL` = `<supabase-url>/functions/v1/rag`, and paste a key.
-- **Build the installer:** `pip install pyinstaller && pyinstaller packaging/parakeet.spec`
-  → `dist/Parakeet.exe`. Host it (GitHub Releases / Supabase Storage) and point the
+  `ONCUE_BACKEND_URL` = LiteLLM URL (Render or Railway),
+  `ONCUE_WEB_URL` = webapp Railway URL,
+  `ONCUE_RAG_URL` = `<supabase-url>/functions/v1/rag`, and paste a key.
+- **Build the installer:** `pip install pyinstaller && pyinstaller packaging/oncue.spec`
+  → `dist/OnCUE.exe`. Host it (GitHub Releases / Supabase Storage) and point the
   website's `/download` button at it.
 
 ---
@@ -193,7 +193,7 @@ Add a Supabase scheduled job (pg_cron or a scheduled function) that pings the
 ## End-to-end sanity check (once live)
 
 Sign up → dashboard shows a minted key + 0% credit meter → upload a resume (goes
-`ready`) → click "Open Parakeet app" → ask a question → answer streams on the
+`ready`) → click "Open OnCUE app" → ask a question → answer streams on the
 overlay, the credit meter ticks up, and "search my documents" grounds answers in
 your upload. Subscribe to Pro → checkout completes → tier flips in the dashboard
 → provider choice unlocks — all without leaving the app.

@@ -1,4 +1,4 @@
-"""Dashboard state: Parakeet key + credit meter, reference documents,
+"""Dashboard state: OnCUE key + credit meter, reference documents,
 preferences, and the onboarding checklist. All Supabase/LiteLLM calls are
 thin pass-throughs to webapp.services.* — this class only orchestrates."""
 from __future__ import annotations

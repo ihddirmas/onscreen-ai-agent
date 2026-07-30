@@ -56,7 +56,7 @@ def get_model(name: str | None = None) -> BaseChatModel:
 
         if not cfg.backend_url or not cfg.oncue_token:
             raise ValueError(
-                "Hosted mode needs PARAKEET_BACKEND_URL and ONCUE_TOKEN "
+                "Hosted mode needs ONCUE_BACKEND_URL and ONCUE_TOKEN "
                 "(open Settings and sign in with your license key)."
             )
         return ChatOpenAI(

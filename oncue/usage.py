@@ -28,7 +28,7 @@ def _web_url() -> str | None:
 
 
 def _post(path: str, body: dict[str, Any]) -> dict[str, Any] | None:
-    """POST to the Parakeet website API. Returns parsed JSON or None on failure."""
+    """POST to the OnCUE website API. Returns parsed JSON or None on failure."""
     base = _web_url()
     if not base:
         return None

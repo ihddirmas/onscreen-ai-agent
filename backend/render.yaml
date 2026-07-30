@@ -1,4 +1,4 @@
-# Render Blueprint for the Parakeet LiteLLM proxy.
+# Render Blueprint for the OnCUE LiteLLM proxy.
 # In Render: New + → Blueprint → connect this repo. Render builds the image from
 # backend/Dockerfile (you never build or upload an image yourself).
 #

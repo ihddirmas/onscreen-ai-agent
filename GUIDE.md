@@ -1,4 +1,4 @@
-# 🦜 Parakeet — User Guide
+# OnCUE — User Guide
 
 Everything in one place: how to run, every key, every feature, every setting.
 
@@ -7,15 +7,15 @@ Everything in one place: how to run, every key, every feature, every setting.
 ## ▶ Run
 
 ```powershell
-cd c:\Users\yasht.ASUS\OneDrive\Desktop\hackthon\Parakeet.ai
-python -m parakeet
+cd c:\Users\yasht.ASUS\OneDrive\Desktop\hackthon\OnCUE.ai
+python -m oncue
 ```
 
 - Nothing visibly opens — look for the **green P icon in the system tray**
   (bottom-right corner; click `^` if collapsed). The overlay appears on hotkey.
 - Detached (no terminal window):
-  `Start-Process python -ArgumentList "-m","parakeet" -WindowStyle Hidden`
-- Terminal smoke test (no GUI): `python -m parakeet.spine --now`
+  `Start-Process python -ArgumentList "-m","oncue" -WindowStyle Hidden`
+- Terminal smoke test (no GUI): `python -m oncue.spine --now`
 
 ## ⏹ Close
 
@@ -56,7 +56,7 @@ app/file/website — nothing side-effecting runs without your click.
 
 ## 🛡 Hidden from screen sharing
 
-Parakeet's overlay is **invisible in any screen share or recording** — Zoom,
+OnCUE's overlay is **invisible in any screen share or recording** — Zoom,
 Google Meet, Teams, Discord, OBS, PowerPoint, PrintScreen. You still see it on
 your own monitor; whoever you're sharing with does not. It works for any app or
 website because it's done at the Windows compositor level
@@ -64,17 +64,17 @@ website because it's done at the Windows compositor level
 
 - **On by default.** Toggle it from the tray → **"Hide from screen sharing"**,
   or Settings, or `.env` (`CONTENT_PROTECTION`).
-- **To show Parakeet in a demo/recording** (e.g. your hackathon presentation),
+- **To show OnCUE in a demo/recording** (e.g. your hackathon presentation),
   turn it **off** first.
 - **Limit:** it can't hide from a physical camera pointed at your screen.
 
 ## 🔒 Turning off system actions
 
-By default Parakeet can open apps, files, and the browser and search your local
+By default OnCUE can open apps, files, and the browser and search your local
 files (always behind an Allow/Deny prompt). To switch that off:
 
 - **In the overlay:** untick the **"System actions (apps · files · browser)"**
-  checkbox at the bottom. Now Parakeet only answers and searches the web — it
+  checkbox at the bottom. Now OnCUE only answers and searches the web — it
   can't touch your computer.
 - **Tray icon:** toggle **"Allow system actions"**, or **"Pause system actions →
   for 15 / 30 / 60 minutes"** to disable it temporarily (it re-enables itself
@@ -116,7 +116,7 @@ Edit `.env` in the project folder, or use tray → **Settings…** (same knobs).
 | `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` | — | Only for `claude` / `gpt` providers |
 | `CLAUDE_MODEL` / `GPT_MODEL` | `claude-opus-4-8` / `gpt-4o` | Model overrides |
 | `TAVILY_API_KEY` | — | Optional — upgrades web_search to Tavily quality. Web search works keyless (DuckDuckGo) without it. |
-| `PARAKEET_BACKEND_URL` / `PARAKEET_TOKEN` / `HOSTED_MODEL` | — | Hosted mode (deployed `backend/` LiteLLM proxy) |
+| `ONCUE_BACKEND_URL` / `ONCUE_TOKEN` / `HOSTED_MODEL` | — | Hosted mode (deployed `backend/` LiteLLM proxy) |
 | `CAPTURE_HOTKEY` | `<ctrl>+<shift>+<space>` | Rebindable (pynput syntax) |
 | `CHAT_HOTKEY` | `<ctrl>+<shift>+h` | Chat mode (no screenshot); press again to hide |
 | `VOICE_HOTKEY` | `<ctrl>+<shift>+v` | Rebindable |
@@ -133,7 +133,7 @@ Edit `.env` in the project folder, or use tray → **Settings…** (same knobs).
 | `CONTENT_PROTECTION` | `true` | Hide the overlay from screen shares/recordings. Toggle in tray/Settings. |
 | `OVERLAY_GEOMETRY` | — | Saved overlay position/size (managed automatically; delete the line to reset) |
 
-Settings saved from the dialog live in `%APPDATA%\Parakeet\config.env`.
+Settings saved from the dialog live in `%APPDATA%\OnCUE\config.env`.
 
 ---
 
@@ -155,7 +155,7 @@ Settings saved from the dialog live in `%APPDATA%\Parakeet\config.env`.
 
 ```powershell
 pip install pyinstaller
-pyinstaller packaging/parakeet.spec     # → dist/Parakeet.exe
+pyinstaller packaging/oncue.spec     # → dist/OnCUE.exe
 ```
 
 For end users without API keys: deploy `backend/` (LiteLLM proxy — see

@@ -1,7 +1,7 @@
-# 🦜 Parakeet.ai
+# OnCUE.ai
 
 An on-screen AI agent for Windows/macOS: press a hotkey (or hold the voice
-hotkey and speak), Parakeet screenshots your screen and runs a tool-using
+hotkey and speak), OnCUE screenshots your screen and runs a tool-using
 agent — web search, opening sites/apps/files, searching your documents — then
 streams the answer onto a transparent always-on-top overlay.
 
@@ -13,8 +13,8 @@ Pure Python. One process. No Electron.
 # Python 3.10+
 pip install -e .
 copy .env.example .env        # then put your free Groq key in it (console.groq.com)
-python -m parakeet.spine --now   # phase-0 smoke test: screenshot -> Groq -> stdout
-python -m parakeet               # full app: tray icon + overlay + hotkeys
+python -m oncue.spine --now   # phase-0 smoke test: screenshot -> Groq -> stdout
+python -m oncue               # full app: tray icon + overlay + hotkeys
 ```
 
 Default hotkeys:
@@ -41,7 +41,7 @@ Optional: `pip install playwright && playwright install chromium` enables the
 | `groq` (default) | Llama 4 Scout — free tier, vision + tools | dev/testing |
 | `claude` | `claude-opus-4-8` | production, BYO key |
 | `gpt` | `gpt-4o` | production, BYO key |
-| `hosted` | whatever our backend maps `parakeet-default` to | end users — **no provider key needed** |
+| `hosted` | whatever our backend maps `oncue-default` to | end users — **no provider key needed** |
 
 Switch in the tray → Settings dialog; takes effect immediately.
 
@@ -50,7 +50,7 @@ Switch in the tray → Settings dialog; takes effect immediately.
 The exe never contains API keys. It talks to our LiteLLM proxy
 (`backend/litellm-config.yaml` + `backend/Dockerfile`), which holds the real
 provider keys, issues per-user license keys with budgets, and maps the
-`parakeet-default` alias to Groq today / Claude-GPT at production — a
+`oncue-default` alias to Groq today / Claude-GPT at production — a
 server-side switch, no app update. Users paste their license key in Settings.
 
 ## Guardrails
@@ -64,14 +64,14 @@ server-side switch, no app update. Users paste their license key in Settings.
 
 ```bash
 pip install pyinstaller
-pyinstaller packaging/parakeet.spec
-# -> dist/Parakeet.exe
+pyinstaller packaging/oncue.spec
+# -> dist/OnCUE.exe
 ```
 
 ## Repo layout
 
 ```
-parakeet/            the app (UI, hotkeys, capture, voice, agent)
+oncue/            the app (UI, hotkeys, capture, voice, agent)
 ├── agent/           router (providers), tools, LangGraph agent, Qt worker
 ├── ui/              overlay + settings dialog
 └── spine.py         phase-0 CLI smoke test

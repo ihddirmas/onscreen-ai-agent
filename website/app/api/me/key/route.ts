@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { serverClient, adminClient } from "@/lib/supabase";
 import { mintKey } from "@/lib/litellm";
 
-// GET: return the logged-in user's Parakeet key, minting one on first call.
+// GET: return the logged-in user's OnCUE key, minting one on first call.
 export async function GET() {
   const supabase = serverClient();
   const {

@@ -56,7 +56,7 @@ class OnboardingDialog(QDialog):
     def _start_trial(self) -> None:
         cfg = get_config()
         if not cfg.web_url:
-            # A packaged build should set PARAKEET_WEB_URL so this always has
+            # A packaged build should set ONCUE_WEB_URL so this always has
             # somewhere real to send a first-time user (see .env.example) —
             # don't guess a domain here.
             self._status.setText(

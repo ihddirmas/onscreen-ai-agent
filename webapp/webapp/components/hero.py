@@ -4,10 +4,10 @@ from webapp.components.overlay_mockup import overlay_mockup
 from webapp.styles import tokens
 
 # Copy is reused verbatim from the copy-reviewed GTM deck
-# (.claude/campaigns/parakeet-launch/landing-page.md, "Hero" section) —
+# (.claude/campaigns/oncue-launch/landing-page.md, "Hero" section) —
 # never invent new marketing copy here. The overlay-privacy framing is
 # strictly "stays private during your own demos/calls" per
-# .claude/campaigns/parakeet-launch/positioning.md's standing guardrail —
+# .claude/campaigns/oncue-launch/positioning.md's standing guardrail —
 # never interview/exam-evasion language.
 
 

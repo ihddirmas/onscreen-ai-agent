@@ -119,7 +119,7 @@ export default function Dashboard(props: {
   return (
     <>
       <div className="nav">
-        <div className="brand">Parakeet</div>
+        <div className="brand">OnCUE</div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <span className="muted">{props.email}</span>
           <button className="btn secondary" onClick={signOut}>Sign out</button>
@@ -128,19 +128,19 @@ export default function Dashboard(props: {
 
       <div className="container">
         <div className="card">
-          <h2>Use Parakeet on your computer</h2>
+          <h2>Use OnCUE on your computer</h2>
           <p className="muted">
             Launch the desktop app already signed in.
           </p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
-            <a className="btn" href={deepLink}>Open Parakeet app</a>
+            <a className="btn" href={deepLink}>Open OnCUE app</a>
             <a className="btn secondary" href="/download">Download the app</a>
           </div>
         </div>
 
         <div className="grid">
           <div className="card">
-            <h2>Your Parakeet key <span className="tier-badge">{props.tier}</span></h2>
+            <h2>Your OnCUE key <span className="tier-badge">{props.tier}</span></h2>
             <p className="muted">Paste this into the desktop app Settings.</p>
             {props.oncueKey ? (
               <div className="keybox">
@@ -174,7 +174,7 @@ export default function Dashboard(props: {
         <div className="card">
           <h2>Reference documents</h2>
           <p className="muted">
-            Upload your resume, notes, or study plan. Parakeet uses them to give better personalized answers.
+            Upload your resume, notes, or study plan. OnCUE uses them to give better personalized answers.
           </p>
           <label className="btn" style={{ marginTop: 8, cursor: "pointer" }}>
             {uploading ? "Uploading..." : "Upload document"}
@@ -248,7 +248,7 @@ export default function Dashboard(props: {
         <div className="card">
           <h2>Preferences</h2>
           <p className="muted">
-            How should Parakeet answer you?
+            How should OnCUE answer you?
           </p>
           <textarea
             rows={3}
@@ -262,7 +262,7 @@ export default function Dashboard(props: {
           </div>
           {props.persona && (
             <p className="muted" style={{ marginTop: 14 }}>
-              <strong>What Parakeet knows about you:</strong> {props.persona}
+              <strong>What OnCUE knows about you:</strong> {props.persona}
             </p>
           )}
         </div>

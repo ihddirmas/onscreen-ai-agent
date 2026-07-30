@@ -3,7 +3,7 @@ import reflex as rx
 from webapp.components.overlay_mockup import overlay_mockup
 from webapp.styles import tokens
 
-# Steps mirror .claude/campaigns/parakeet-launch/landing-page.md's
+# Steps mirror .claude/campaigns/oncue-launch/landing-page.md's
 # "How it works" + "Solution" sections — real, shipped hotkeys, not
 # aspirational copy. Each step now renders as its own full-bleed color band
 # (mymind.com's structural pattern for depth/rhythm) with a mockup of what

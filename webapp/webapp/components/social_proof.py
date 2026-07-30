@@ -3,7 +3,7 @@ import reflex as rx
 from webapp.styles import tokens
 
 # Honest use-case framing, not fabricated reviews or invented names — see
-# .claude/campaigns/parakeet-launch/landing-page.md "Social proof" section:
+# .claude/campaigns/oncue-launch/landing-page.md "Social proof" section:
 # no real testimonials exist yet, so this stays a "Built for" row of
 # concrete, verifiable use cases rather than star ratings or quotes
 # attributed to a specific named person. Swap for real, permissioned

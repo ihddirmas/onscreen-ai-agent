@@ -8,7 +8,7 @@ Monorepo with three independent subprojects (no root `package.json`):
 
 | Path | Stack | Purpose |
 |------|-------|---------|
-| `parakeet/` | Python 3.10+ (PySide6, LangGraph) | Desktop on-screen AI agent |
+| `oncue/` | Python 3.10+ (PySide6, LangGraph) | Desktop on-screen AI agent |
 | `website/` | Next.js 14 + npm | Auth, dashboard, document RAG portal |
 | `backend/` | LiteLLM (Docker) | Hosted-mode model proxy |
 
@@ -38,13 +38,13 @@ Activate for interactive work: `source .venv/bin/activate`
 
 ```bash
 # Screenshot pipeline (needs Xvfb in headless Linux)
-xvfb-run -a .venv/bin/python -c "from parakeet.capture import screenshot_png; print(len(screenshot_png()))"
+xvfb-run -a .venv/bin/python -c "from oncue.capture import screenshot_png; print(len(screenshot_png()))"
 
 # Full spine: screenshot → Groq → stdout (requires GROQ_API_KEY in .env)
-xvfb-run -a .venv/bin/python -m parakeet.spine --now
+xvfb-run -a .venv/bin/python -m oncue.spine --now
 ```
 
-The full tray/overlay app (`python -m parakeet`) targets Windows/macOS and is not practical to run in this Linux cloud VM.
+The full tray/overlay app (`python -m oncue`) targets Windows/macOS and is not practical to run in this Linux cloud VM.
 
 ### Website (Next.js)
 
@@ -66,7 +66,7 @@ Optional for full hosted E2E. Requires Docker and external Postgres (`DATABASE_U
 
 | Secret | Used by |
 |--------|---------|
-| `GROQ_API_KEY` | Desktop dev (`parakeet.spine`, default provider) |
+| `GROQ_API_KEY` | Desktop dev (`oncue.spine`, default provider) |
 | `NEXT_PUBLIC_SUPABASE_*`, `SUPABASE_SERVICE_ROLE_KEY` | Website auth + RAG |
 | `LITELLM_URL`, `LITELLM_MASTER_KEY` | Website key minting + credits |
 
@@ -75,4 +75,4 @@ Optional for full hosted E2E. Requires Docker and external Postgres (`DATABASE_U
 - `pip install -e .` on bare Ubuntu fails without `python3.12-venv` and `python3-dev` (for `evdev` / `pynput`).
 - PySide6 screenshot downscaling needs `libegl1` on Linux; use `xvfb-run` when no real display is available.
 - Do not commit `.env` or `website/.env.local` (gitignored).
-- Do **not** `source .env` in bash — hotkey values like `<ctrl>+<shift>+<space>` break shell parsing. Parakeet reads `.env` via its own parser; export only the vars you need (e.g. `export GROQ_API_KEY=...`).
+- Do **not** `source .env` in bash — hotkey values like `<ctrl>+<shift>+<space>` break shell parsing. OnCUE reads `.env` via its own parser; export only the vars you need (e.g. `export GROQ_API_KEY=...`).

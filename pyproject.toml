@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "oncue-ai"
 version = "0.1.0"
-description = "Parakeet.ai — on-screen AI agent: hotkey/voice + screenshot + tool-using agent on a transparent overlay"
+description = "OnCUE — on-screen AI agent: hotkey/voice + screenshot + tool-using agent on a transparent overlay"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

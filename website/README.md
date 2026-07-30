@@ -1,6 +1,6 @@
-# Parakeet — Web app
+# OnCUE — Web app
 
-Login, pricing, credit usage, and **reference documents** for the Parakeet
+Login, pricing, credit usage, and **reference documents** for the OnCUE
 desktop assistant. Next.js (App Router) + Supabase (auth + Postgres + storage +
 pgvector). Documents you upload here become knowledge the desktop agent uses to
 give better, personalized answers.
@@ -8,10 +8,10 @@ give better, personalized answers.
 ## What it does
 
 - **Auth** — email + Google (Supabase).
-- **One Parakeet key per user** — minted from the LiteLLM proxy (`backend/`); it
+- **One OnCUE key per user** — minted from the LiteLLM proxy (`backend/`); it
   authenticates both model calls *and* the document/profile APIs the desktop
-  calls. Shown on the dashboard; also handed to the app via the "Open Parakeet
-  app" button (`parakeet://` deep link) so there's nothing to paste.
+  calls. Shown on the dashboard; also handed to the app via the "Open OnCUE
+  app" button (`oncue://` deep link) so there's nothing to paste.
 - **Pricing + credit usage** — tiers page; the dashboard meter reads the user's
   spend/budget from LiteLLM.
 - **Reference documents (RAG)** — upload a resume/notes/study plan → extracted →
@@ -43,10 +43,10 @@ give better, personalized answers.
 
 ## How the desktop connects
 
-The dashboard "Open Parakeet app" button opens
-`parakeet://connect?token=<key>&web=<site>`; the desktop app registers that
+The dashboard "Open OnCUE app" button opens
+`oncue://connect?token=<key>&web=<site>`; the desktop app registers that
 scheme, saves the token + site URL, and switches to hosted mode. Or paste the
-key + set `PARAKEET_WEB_URL` manually in the app's Settings.
+key + set `ONCUE_WEB_URL` manually in the app's Settings.
 
 ## Routes
 
@@ -56,7 +56,7 @@ key + set `PARAKEET_WEB_URL` manually in the app's Settings.
 | `/login` | Auth |
 | `/dashboard` | Key · credits · documents · preferences · Open-in-app |
 | `POST /api/documents/upload` | Ingest a document (auth: session) |
-| `POST /api/documents/search` | RAG retrieval (auth: Bearer Parakeet key — desktop) |
+| `POST /api/documents/search` | RAG retrieval (auth: Bearer OnCUE key — desktop) |
 | `GET /api/me/key` | Get/mint the user's key (session) |
 | `GET /api/me/profile` | Persona + preferences (Bearer key — desktop) |
 | `POST /api/me/preferences` | Save preferences (session) |
