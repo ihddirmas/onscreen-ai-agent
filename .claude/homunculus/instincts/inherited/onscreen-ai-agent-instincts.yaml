@@ -1,0 +1,420 @@
+# Instincts generated from https://github.com/ihddirmas/onscreen-ai-agent
+# Generated: 2026-07-30T20:34:00.096Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: onscreen-ai-agent-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: test
+
+## Evidence
+
+- 1 commits analyzed
+- Detected conventional commit pattern
+- Examples: test: add full user-flow E2E and fix LiteLLM model assertions
+
+---
+id: onscreen-ai-agent-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Commit Length
+
+## Action
+
+Write moderate-length commit messages (~61 characters)
+
+## Evidence
+
+- Average commit message length: 61 chars
+- Based on 1 commits
+
+---
+id: onscreen-ai-agent-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Naming Files
+
+## Action
+
+Use snake_case naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: snake_case
+
+---
+id: onscreen-ai-agent-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: onscreen-ai-agent-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Export Style
+
+## Action
+
+Prefer default exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: default
+
+---
+id: onscreen-ai-agent-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: onscreen-ai-agent-test-framework
+trigger: "when writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Test Framework
+
+## Action
+
+Use playwright as the test framework
+
+## Evidence
+
+- Test framework detected: playwright
+- File pattern: *.spec.ts
+
+---
+id: onscreen-ai-agent-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Test Naming
+
+## Action
+
+Name test files using the pattern: *.spec.ts
+
+## Evidence
+
+- File pattern: *.spec.ts
+- Consistent across test files
+
+---
+id: onscreen-ai-agent-test-types
+trigger: "when planning tests for a feature"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Test Types
+
+## Action
+
+Write unit, e2e tests to match project standards
+
+## Evidence
+
+- Test types detected: unit, e2e
+- Coverage config: no
+
+---
+id: onscreen-ai-agent-instinct-file-naming
+trigger: "When creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct File Naming
+
+## Action
+
+Name the file using snake_case
+
+## Evidence
+
+- Pattern in namingConventions.files
+
+---
+id: onscreen-ai-agent-instinct-function-naming
+trigger: "When defining a new function"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Function Naming
+
+## Action
+
+Use camelCase for the function name
+
+## Evidence
+
+- Pattern in namingConventions.functions
+
+---
+id: onscreen-ai-agent-instinct-class-naming
+trigger: "When defining a new class"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Class Naming
+
+## Action
+
+Use PascalCase for the class name
+
+## Evidence
+
+- Pattern in namingConventions.classes
+
+---
+id: onscreen-ai-agent-instinct-constant-naming
+trigger: "When defining a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Constant Naming
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for the constant name
+
+## Evidence
+
+- Pattern in namingConventions.constants
+
+---
+id: onscreen-ai-agent-instinct-import-style
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Import Style
+
+## Action
+
+Use relative import paths
+
+## Evidence
+
+- Pattern in importStyle
+
+---
+id: onscreen-ai-agent-instinct-export-style
+trigger: "When exporting modules or components"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Export Style
+
+## Action
+
+Use default exports
+
+## Evidence
+
+- Pattern in exportStyle
+
+---
+id: onscreen-ai-agent-instinct-test-file-location
+trigger: "When adding new tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Test File Location
+
+## Action
+
+Place test files in the separate 'tests' folder
+
+## Evidence
+
+- Pattern in folderStructure.testLocation
+- Common folder: tests
+
+---
+id: onscreen-ai-agent-instinct-test-file-naming
+trigger: "When naming a test file"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Test File Naming
+
+## Action
+
+Use the '*.spec.ts' pattern for test files
+
+## Evidence
+
+- Pattern in testing.filePattern
+
+---
+id: onscreen-ai-agent-instinct-test-framework
+trigger: "When writing new tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Test Framework
+
+## Action
+
+Use Playwright as the testing framework
+
+## Evidence
+
+- Pattern in testing.framework
+- Config file: website/playwright.config.ts
+
+---
+id: onscreen-ai-agent-instinct-test-types
+trigger: "When planning test coverage"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Test Types
+
+## Action
+
+Include both unit and E2E tests
+
+## Evidence
+
+- Pattern in testing.testTypes
+- Commit: 'test: add full user-flow E2E and fix LiteLLM model assertions'
+
+---
+id: onscreen-ai-agent-instinct-git-commit-prefix
+trigger: "When making a commit related to tests"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Git Commit Prefix
+
+## Action
+
+Start the commit message with 'test:'
+
+## Evidence
+
+- Pattern in commits.prefixes
+- Example commit: 'test: add full user-flow E2E and fix LiteLLM model assertions'
+
+---
+id: onscreen-ai-agent-instinct-git-commit-format
+trigger: "When writing a commit message"
+confidence: 0.8
+domain: git
+source: repo-analysis
+source_repo: ihddirmas/onscreen-ai-agent
+---
+
+# Onscreen Ai Agent Instinct Git Commit Format
+
+## Action
+
+Follow the conventional commit format: <type>: <description>
+
+## Evidence
+
+- Pattern in commits.type
+- Example commit: 'test: add full user-flow E2E and fix LiteLLM model assertions'
+
