@@ -100,15 +100,19 @@ class TTSManager:
     def __init__(self):
         self._worker: TTSWorker | None = None
 
-    def speak(self, text: str, error_callback=None) -> None:
+    def speak(self, text: str, error_callback=None, done_callback=None) -> None:
         """Cancel any in-progress TTS and start speaking `text`.
-        `error_callback` is connected to the worker's error signal."""
+        `error_callback` / `done_callback` are connected to the worker's signals."""
         self.stop()
         if not text.strip():
+            if done_callback:
+                done_callback()
             return
         self._worker = TTSWorker(text)
         if error_callback:
             self._worker.error.connect(error_callback)
+        if done_callback:
+            self._worker.done.connect(done_callback)
         self._worker.start()
 
     def stop(self) -> None:

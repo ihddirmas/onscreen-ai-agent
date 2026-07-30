@@ -478,7 +478,12 @@ class OnCUEApp(QObject):
 
             clean = strip_point_tags(self.overlay._answer_buffer).strip()
             if clean:
-                self._tts.speak(clean, error_callback=self.overlay.show_error)
+                self.overlay.set_tts_speaking(True)
+                self._tts.speak(
+                    clean,
+                    error_callback=self.overlay.show_error,
+                    done_callback=lambda: self.overlay.set_tts_speaking(False),
+                )
 
     def _on_error(self, message: str, gen: int) -> None:
         if gen != self._capture_gen:
@@ -491,6 +496,8 @@ class OnCUEApp(QObject):
         if self._worker and self._worker.isRunning():
             self._worker.cancel()
         self._worker = None
+        self._pointer.clear_points()
+        self._tts.stop()
         self.overlay._reset()
 
     def _busy(self) -> bool:

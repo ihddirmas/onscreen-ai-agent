@@ -25,9 +25,14 @@ from oncue.ui.pointer import strip_point_tags
 from oncue.ui.theme import COLOR, FONT, RADIUS
 
 _CODE_STYLE = (
-    f"background:{COLOR['code_block_bg']}; border:1px solid {COLOR['accent_border']}; "
-    f"border-radius:{RADIUS['code']}; padding:8px; color:{COLOR['code_block_text']}; "
-    f"white-space:pre-wrap; font-family:{FONT['mono']}; font-size:12px;"
+    f"background:{COLOR['code_block_bg']}; "
+    f"border-left:3px solid {COLOR['code_block_border']}; "
+    f"border-top:1px solid {COLOR['answer_border']}; "
+    f"border-right:1px solid {COLOR['answer_border']}; "
+    f"border-bottom:1px solid {COLOR['answer_border']}; "
+    f"border-radius:{RADIUS['code']}; padding:8px 10px; color:{COLOR['code_block_text']}; "
+    f"white-space:pre-wrap; font-family:{FONT['mono']}; font-size:12px; "
+    f"margin:4px 0;"
 )
 _INLINE_STYLE = (
     f"background:{COLOR['inline_code_bg']}; border-radius:3px; padding:1px 4px; "
@@ -85,8 +90,11 @@ QLineEdit {{
     border: 1px solid {COLOR['input_border']};
     border-radius: {RADIUS['control']};
     color: {COLOR['text']};
-    padding: 6px 8px;
+    padding: 7px 10px;
     font-size: 13px;
+}}
+QLineEdit:focus {{
+    border: 1px solid {COLOR['input_focus_border']};
 }}
 QLabel#status {{ color: {COLOR['status_green']}; font-size: 12px; }}
 QLabel#question {{
@@ -95,10 +103,12 @@ QLabel#question {{
 }}
 QLabel#confirm {{ color: {COLOR['confirm_yellow']}; font-size: 13px; }}
 QTextBrowser {{
-    background: transparent;
-    border: none;
+    background: {COLOR['code_block_bg']};
+    border: 1px solid {COLOR['answer_border']};
+    border-radius: {RADIUS['code']};
     color: {COLOR['text']};
     font-size: 13px;
+    padding: 6px;
 }}
 QPushButton {{
     background: {COLOR['button_bg']};
@@ -146,6 +156,8 @@ class Overlay(QWidget):
         self._answer_displayed = ""    # answer text with [POINT] tags stripped
         self._system_enabled = system_enabled
         self._content_protection = content_protection
+        self._trial_remaining = 0
+        self._tts_speaking = False
         self.setMouseTracking(True)
         self._save_timer = QTimer(self)
         self._save_timer.setSingleShot(True)
@@ -169,11 +181,11 @@ class Overlay(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
 
         panel = QFrame(objectName="panel")
-        panel.setMouseTracking(True)  # lets edge-hover cursor feedback reach us
+        panel.setMouseTracking(True)
         root.addWidget(panel)
         lay = QVBoxLayout(panel)
-        lay.setContentsMargins(14, 12, 14, 12)
-        lay.setSpacing(8)
+        lay.setContentsMargins(12, 10, 12, 10)
+        lay.setSpacing(6)
 
         self._title = QLabel("OnCUE — drag to move · Enter to ask · Esc to hide")
         self._title.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
@@ -300,13 +312,22 @@ class Overlay(QWidget):
 
     def set_trial_status(self, remaining: int) -> None:
         """Show trial session count in the title bar."""
-        if remaining > 0:
-            self._title.setText(
-                f"OnCUE — trial: {remaining} session{'s' if remaining > 1 else ''} remaining"
-                " · Enter to ask · Esc to hide"
-            )
-        else:
-            self._title.setText("OnCUE — drag to move · Enter to ask · Esc to hide")
+        self._trial_remaining = remaining
+        self._update_title()
+
+    def set_tts_speaking(self, speaking: bool) -> None:
+        self._tts_speaking = speaking
+        self._update_title()
+
+    def _update_title(self) -> None:
+        parts = ["OnCUE"]
+        if self._tts_speaking:
+            parts.append("🔊 Speaking...")
+        if self._trial_remaining > 0:
+            s = "s" if self._trial_remaining > 1 else ""
+            parts.append(f"trial: {self._trial_remaining} session{s} remaining")
+        parts.append("Enter to ask · Esc to hide")
+        self._title.setText(" — ".join(parts))
 
     def set_system_enabled(self, enabled: bool) -> None:
         """Sync the checkbox without re-emitting (tray/timer changed it)."""

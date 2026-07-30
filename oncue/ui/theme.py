@@ -17,36 +17,29 @@ this module is the single source of truth going forward.
 from __future__ import annotations
 
 COLOR = {
-    # Lower alpha than a typical opaque panel — Windows now draws a real
-    # OS-level acrylic blur-behind under this window (oncue/ui/blur.py),
-    # so the QSS-drawn panel only needs enough tint to stay legible and
-    # on-brand, not to hide the desktop. A near-opaque value here would sit
-    # on top of the blur and cancel out the frosted-glass look entirely.
-    "panel_bg": "rgba(18, 18, 24, 130)",
-    # Shared accent border for every floating panel. 120 (the indicator's
-    # previous value) was kept over the overlay's previous 90 — it reads more
-    # clearly against busy/bright screen content.
-    "accent_border": "rgba(120, 200, 120, 120)",
+    "panel_bg": "rgba(14, 14, 22, 160)",
+    "accent_border": "rgba(120, 200, 120, 140)",
+    "accent_glow": "rgba(120, 200, 120, 40)",
     "text": "#f0f0f0",
-    "text_muted_faint": "rgba(255, 255, 255, 70)",  # resize hint
-    "text_muted": "rgba(255, 255, 255, 120)",  # title bar hint
-    # Checkbox label. Contrast against panel_bg (~rgb(18,18,24) at full
-    # opacity) is ~4.6:1 — meets WCAG AA (4.5:1) for normal-size text.
-    # Re-check this ratio if panel_bg or this alpha ever changes.
-    "text_muted_strong": "rgba(255, 255, 255, 150)",
+    "text_muted_faint": "rgba(255, 255, 255, 72)",
+    "text_muted": "rgba(255, 255, 255, 130)",
+    "text_muted_strong": "rgba(255, 255, 255, 155)",
     "status_green": "#8fd48f",
     "question_purple": "#c9c9e0",
     "confirm_yellow": "#ffd479",
     "allow_border": "#8fd48f",
     "deny_border": "#d48f8f",
-    "input_bg": "rgba(255, 255, 255, 18)",
-    "input_border": "rgba(255, 255, 255, 40)",
-    "button_bg": "rgba(255, 255, 255, 25)",
-    "button_bg_hover": "rgba(255, 255, 255, 45)",
-    "button_border": "rgba(255, 255, 255, 50)",
-    "inline_code_bg": "rgba(255, 255, 255, 28)",
+    "input_bg": "rgba(255, 255, 255, 22)",
+    "input_border": "rgba(255, 255, 255, 50)",
+    "input_focus_border": "rgba(120, 200, 120, 180)",
+    "button_bg": "rgba(255, 255, 255, 28)",
+    "button_bg_hover": "rgba(255, 255, 255, 50)",
+    "button_border": "rgba(255, 255, 255, 55)",
+    "inline_code_bg": "rgba(255, 255, 255, 30)",
     "code_block_bg": "#0b0b12",
     "code_block_text": "#cde6cd",
+    "code_block_border": "rgba(120, 200, 120, 60)",
+    "answer_border": "rgba(255, 255, 255, 8)",
 }
 
 FONT = {

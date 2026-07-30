@@ -39,6 +39,30 @@ supabase/.temp/
 # ---- Superpowers brainstorming companion ----
 .superpowers/
 
+# ---- Agent / skill tooling ----
+.agents/
+agent/
+skills-lock.json
+.claude/skills/
+.claude/worktrees/
+.claude/TDD-QUICKSTART.md
+
+# ---- Dev / analysis artifacts ----
+claudeanalysis.md
+nul
+
+# ---- E2E testing ----
+.playwright-mcp/
+website/e2e/
+website/test-results/
+website/playwright.config.ts
+
+# ---- Screenshot files (root level) ----
+*.png
+
+# ---- Process stderr logs ----
+*_stderr.log
+
 # ---- OS / editor ----
 .DS_Store
 Thumbs.db
