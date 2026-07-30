@@ -69,3 +69,4 @@ Thumbs.db
 .idea/
 .vscode/
 *.log
+playwright-report
