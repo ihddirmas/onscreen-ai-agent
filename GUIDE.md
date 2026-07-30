@@ -11,7 +11,7 @@ cd c:\Users\yasht.ASUS\OneDrive\Desktop\hackthon\OnCUE.ai
 python -m oncue
 ```
 
-- Nothing visibly opens — look for the **green P icon in the system tray**
+- Nothing visibly opens — look for the **green O icon in the system tray**
   (bottom-right corner; click `^` if collapsed). The overlay appears on hotkey.
 - Detached (no terminal window):
   `Start-Process python -ArgumentList "-m","oncue" -WindowStyle Hidden`
@@ -19,7 +19,7 @@ python -m oncue
 
 ## ⏹ Close
 
-- **Normal:** right-click the green P tray icon → **Quit**
+- **Normal:** right-click the green O tray icon → **Quit**
 - From a terminal that's running it: `Ctrl+C`
 - Stuck / can't find the icon: `Get-Process python | Stop-Process -Force`
 

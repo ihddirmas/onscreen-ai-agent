@@ -88,7 +88,7 @@ def _tray_icon() -> QIcon:
     f = p.font()
     f.setPixelSize(34)
     p.setFont(f)
-    p.drawText(pm.rect(), 0x84, "P")  # AlignCenter
+    p.drawText(pm.rect(), 0x84, "O")  # AlignCenter
     p.end()
     return QIcon(pm)
 
