@@ -41,6 +41,11 @@ class AgentWorker(QThread):
         self._confirm_result = False
         self._confirm_event = threading.Event()
         self._pending_action = ""
+        self._cancel_event = threading.Event()
+        self._gen = 0
+
+    def cancel(self) -> None:
+        self._cancel_event.set()
 
     def provide_confirmation(self, allowed: bool) -> None:
         """Called from the UI thread when the user clicks Allow/Deny."""
@@ -52,12 +57,22 @@ class AgentWorker(QThread):
         payload = {"messages": [self._message]}
         try:
             while True:
+                if self._cancel_event.is_set():
+                    break
                 interrupted = self._stream(payload, config)
+                if self._cancel_event.is_set():
+                    break
                 if not interrupted:
                     break
                 self._confirm_event.clear()
                 self.confirm_request.emit(self._pending_action)
-                self._confirm_event.wait()
+                # Wait for confirm with cancel check
+                while not self._confirm_event.is_set():
+                    if self._cancel_event.is_set():
+                        break
+                    self._confirm_event.wait(0.1)
+                if self._cancel_event.is_set():
+                    break
                 payload = Command(resume=self._confirm_result)
             self.done.emit()
         except Exception as e:  # surfaced on the overlay
@@ -75,6 +90,8 @@ class AgentWorker(QThread):
         for mode, chunk in self._agent.stream(
             payload, config, stream_mode=["updates", "messages"]
         ):
+            if self._cancel_event.is_set():
+                return False
             if mode == "messages":
                 msg_chunk, meta = chunk
                 if isinstance(msg_chunk, AIMessageChunk) and meta.get("langgraph_node") == "agent":

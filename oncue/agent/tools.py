@@ -23,7 +23,7 @@ from urllib.parse import quote_plus
 from langchain_core.tools import tool
 from langgraph.types import interrupt
 
-from parakeet.config import get_config
+from oncue.config import get_config
 
 # Tools with side effects — gated behind user confirmation.
 ACTION_TOOLS = ["launch_app", "open_file", "open_website"]
@@ -100,9 +100,9 @@ def search_my_documents(query: str) -> str:
     own background, projects, or notes could improve the answer. Use the results
     silently to give a better, personalized answer — do not cite the document."""
     cfg = get_config()
-    if not cfg.parakeet_token or not (cfg.rag_url or cfg.web_url):
+    if not cfg.oncue_token or not (cfg.rag_url or cfg.web_url):
         return (
-            "No documents connected. Sign in and upload documents at the Parakeet "
+            "No documents connected. Sign in and upload documents at the OnCUE "
             "website, then paste your key in Settings."
         )
     # Prefer the Supabase edge function directly (lowest latency: embed + vector
@@ -120,7 +120,7 @@ def search_my_documents(query: str) -> str:
             url,
             data=json.dumps(payload).encode(),
             headers={
-                "Authorization": f"Bearer {cfg.parakeet_token}",
+                "Authorization": f"Bearer {cfg.oncue_token}",
                 "Content-Type": "application/json",
             },
             method="POST",

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "parakeet-ai"
+name = "oncue-ai"
 version = "0.1.0"
 description = "Parakeet.ai — on-screen AI agent: hotkey/voice + screenshot + tool-using agent on a transparent overlay"
 readme = "README.md"
@@ -34,7 +34,7 @@ dependencies = [
 browser = ["playwright>=1.45"]
 
 [project.scripts]
-parakeet = "parakeet.app:main"
+oncue = "oncue.app:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["parakeet"]
+packages = ["oncue"]

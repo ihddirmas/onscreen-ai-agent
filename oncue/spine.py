@@ -1,9 +1,9 @@
 """Phase-0 spine: hotkey -> screenshot -> model -> streamed answer to stdout.
 
 Usage:
-  python -m parakeet.spine --now                # capture immediately
-  python -m parakeet.spine                      # wait for the capture hotkey
-  python -m parakeet.spine --question "..."     # custom question
+  python -m oncue.spine --now                # capture immediately
+  python -m oncue.spine                      # wait for the capture hotkey
+  python -m oncue.spine --question "..."     # custom question
 Acceptance: prints a streaming answer describing what's on screen (Groq free tier).
 """
 
@@ -12,10 +12,10 @@ from __future__ import annotations
 import argparse
 import threading
 
-from parakeet.capture import screenshot_png
-from parakeet.config import get_config
-from parakeet.agent.router import build_message, get_model
-from parakeet.usage import report_inference, report_session_start
+from oncue.capture import screenshot_png
+from oncue.config import get_config
+from oncue.agent.router import build_message, get_model
+from oncue.usage import report_inference, report_session_start
 
 DEFAULT_QUESTION = "Describe what's on my screen and answer anything it's asking. Be concise."
 
@@ -58,7 +58,7 @@ def main() -> None:
         run_once(args.question)
         return
 
-    from parakeet.hotkeys import HotkeyManager
+    from oncue.hotkeys import HotkeyManager
 
     done = threading.Event()
 

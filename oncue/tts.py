@@ -5,6 +5,7 @@ blocks."""
 from __future__ import annotations
 
 import os
+import sys
 import tempfile
 import threading
 
@@ -62,6 +63,8 @@ class TTSWorker(QThread):
                 return
 
             # Play the audio file
+            if sys.platform == "win32":
+                os.environ.setdefault("SDL_AUDIODRIVER", "directsound")
             pygame.mixer.init()
             pygame.mixer.music.load(tmp_path)
             pygame.mixer.music.play()
@@ -97,12 +100,15 @@ class TTSManager:
     def __init__(self):
         self._worker: TTSWorker | None = None
 
-    def speak(self, text: str) -> None:
-        """Cancel any in-progress TTS and start speaking `text`."""
+    def speak(self, text: str, error_callback=None) -> None:
+        """Cancel any in-progress TTS and start speaking `text`.
+        `error_callback` is connected to the worker's error signal."""
         self.stop()
         if not text.strip():
             return
         self._worker = TTSWorker(text)
+        if error_callback:
+            self._worker.error.connect(error_callback)
         self._worker.start()
 
     def stop(self) -> None:

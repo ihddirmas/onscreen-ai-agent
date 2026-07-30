@@ -4,12 +4,12 @@
 const BASE = process.env.LITELLM_URL!;
 const MASTER = process.env.LITELLM_MASTER_KEY!;
 
-// Free-tier model allowlist now includes parakeet-default (which chains
+// Free-tier model allowlist now includes oncue-default (which chains
 // through Groq → Cerebras → Cloudflare → OpenRouter free tiers) so
 // hosted users get working inference at zero cost to us.
 const TIER_MODELS: Record<string, string[]> = {
-  free: ["parakeet-groq", "parakeet-default"],
-  pro: ["parakeet-groq", "parakeet-claude", "parakeet-gpt", "parakeet-gemini", "parakeet-default"],
+  free: ["oncue-groq", "oncue-default"],
+  pro: ["oncue-groq", "oncue-claude", "oncue-gpt", "oncue-gemini", "oncue-default"],
 };
 
 const TIER_BUDGET: Record<string, number> = {

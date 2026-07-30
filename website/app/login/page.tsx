@@ -43,7 +43,7 @@ export default function LoginPage() {
 
   return (
     <div className="container" style={{ maxWidth: 420, marginTop: 60 }}>
-      <div className="brand" style={{ textAlign: "center", marginBottom: 20 }}>🦜 Parakeet</div>
+      <div className="brand" style={{ textAlign: "center", marginBottom: 20 }}>🦜 OnCUE</div>
       <div className="card">
         <h2>{mode === "in" ? "Log in" : "Create your account"}</h2>
         <form onSubmit={submit}>

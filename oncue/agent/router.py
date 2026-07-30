@@ -17,7 +17,7 @@ from typing import Optional
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 
-from parakeet.config import get_config
+from oncue.config import get_config
 
 PROVIDERS = ("groq", "claude", "gpt", "gemini", "hosted")
 
@@ -54,14 +54,14 @@ def get_model(name: str | None = None) -> BaseChatModel:
     if name == "hosted":
         from langchain_openai import ChatOpenAI
 
-        if not cfg.backend_url or not cfg.parakeet_token:
+        if not cfg.backend_url or not cfg.oncue_token:
             raise ValueError(
-                "Hosted mode needs PARAKEET_BACKEND_URL and PARAKEET_TOKEN "
+                "Hosted mode needs PARAKEET_BACKEND_URL and ONCUE_TOKEN "
                 "(open Settings and sign in with your license key)."
             )
         return ChatOpenAI(
             model=cfg.hosted_model,
-            api_key=cfg.parakeet_token,
+            api_key=cfg.oncue_token,
             base_url=cfg.backend_url,
         )
     raise ValueError(f"unknown provider: {name}")

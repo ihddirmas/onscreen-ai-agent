@@ -1,7 +1,7 @@
 """Settings: process env > user config file > defaults.
 
 The config file is a simple KEY=VALUE file in the platform user-config dir
-(e.g. %APPDATA%/Parakeet/config.env on Windows), written by the settings UI.
+(e.g. %APPDATA%/OnCUE/config.env on Windows), written by the settings UI.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ from pathlib import Path
 
 from platformdirs import user_config_dir
 
-CONFIG_DIR = Path(user_config_dir("Parakeet", appauthor=False))
+CONFIG_DIR = Path(user_config_dir("OnCUE", appauthor=False))
 CONFIG_FILE = CONFIG_DIR / "config.env"
 
 # config attribute -> env var name
@@ -27,11 +27,11 @@ _ENV_MAP = {
     "claude_model": "CLAUDE_MODEL",
     "gpt_model": "GPT_MODEL",
     "gemini_model": "GEMINI_MODEL",
-    "backend_url": "PARAKEET_BACKEND_URL",
-    "parakeet_token": "PARAKEET_TOKEN",
+    "backend_url": "ONCUE_BACKEND_URL",
+    "oncue_token": "ONCUE_TOKEN",
     "hosted_model": "HOSTED_MODEL",
-    "web_url": "PARAKEET_WEB_URL",
-    "rag_url": "PARAKEET_RAG_URL",
+    "web_url": "ONCUE_WEB_URL",
+    "rag_url": "ONCUE_RAG_URL",
     "capture_hotkey": "CAPTURE_HOTKEY",
     "voice_hotkey": "VOICE_HOTKEY",
     "dictate_hotkey": "DICTATE_HOTKEY",
@@ -75,9 +75,9 @@ class Config:
     gpt_model: str = "gpt-4o"
     gemini_model: str = "gemini-2.5-flash"
     backend_url: str = ""
-    parakeet_token: str = ""
-    hosted_model: str = "parakeet-default"
-    web_url: str = ""  # Parakeet website base URL (for documents + profile)
+    oncue_token: str = ""
+    hosted_model: str = "oncue-default"
+    web_url: str = ""  # OnCUE website base URL (for documents + profile)
     rag_url: str = ""  # Supabase edge `rag` function URL (fast direct doc search)
     capture_hotkey: str = "<ctrl>+<shift>+<space>"
     voice_hotkey: str = "<ctrl>+<shift>+v"

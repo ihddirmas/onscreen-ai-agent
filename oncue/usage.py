@@ -8,7 +8,7 @@ import uuid
 from typing import Any
 from urllib.request import Request, urlopen
 
-from parakeet.config import get_config
+from oncue.config import get_config
 
 SESSION_ID: str | None = None
 
@@ -33,7 +33,7 @@ def _post(path: str, body: dict[str, Any]) -> dict[str, Any] | None:
     if not base:
         return None
     cfg = get_config()
-    payload = {**body, "token": cfg.parakeet_token}
+    payload = {**body, "token": cfg.oncue_token}
     try:
         data = json.dumps(payload).encode()
         req = Request(f"{base}/api{path}", data=data, method="POST")

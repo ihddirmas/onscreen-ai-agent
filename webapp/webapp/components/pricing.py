@@ -34,7 +34,7 @@ def _tier_card(
         cta,
         background=tokens.COLOR["surface"],
         # Green, not violet — the same accent family as the real desktop
-        # overlay's border (parakeet/ui/theme.py's accent_border), so the
+        # overlay's border (oncue/ui/theme.py's accent_border), so the
         # one place on the pricing section meant to draw the eye ties back
         # to the actual product rather than an arbitrary decorative color.
         border=(

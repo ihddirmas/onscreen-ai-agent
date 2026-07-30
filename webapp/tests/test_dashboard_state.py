@@ -141,13 +141,13 @@ def test_checklist_complete_requires_all_three_conditions():
 
 
 def test_deep_link_is_hash_without_a_key():
-    state = _make_state(parakeet_key="")
+    state = _make_state(oncue_key="")
     assert state.deep_link == "#"
 
 
 def test_deep_link_embeds_the_key_as_a_token():
-    state = _make_state(parakeet_key="sk-user-abc")
-    assert state.deep_link == "parakeet://connect?token=sk-user-abc"
+    state = _make_state(oncue_key="sk-user-abc")
+    assert state.deep_link == "oncue://connect?token=sk-user-abc"
 
 
 # --- simple mutators -----------------------------------------------------
@@ -210,7 +210,7 @@ async def test_load_dashboard_uses_existing_key_without_minting(monkeypatch):
     assert state.tier == "pro"
     assert state.persona == "a backend engineer"
     assert state.preferences == "be concise"
-    assert state.parakeet_key == "sk-existing"
+    assert state.oncue_key == "sk-existing"
     assert state.spend == 0.42
     assert state.max_budget == 15.0
     assert state.docs == [{"id": "1", "filename": "notes.txt", "status": "ready"}]
@@ -243,7 +243,7 @@ async def test_load_dashboard_mints_and_persists_key_when_missing(monkeypatch):
     await _drain(state.load_dashboard())
 
     assert minted == {"user_id": "user-2", "tier": "free"}
-    assert state.parakeet_key == "sk-freshly-minted"
+    assert state.oncue_key == "sk-freshly-minted"
     assert state.docs == []
     update_calls = [call for call in fake_admin.calls if call[0] == "update"]
     assert len(update_calls) == 1

@@ -12,7 +12,7 @@ from webapp.states.auth_state import AuthState
 
 class DashboardState(AuthState):
     tier: str = "free"
-    parakeet_key: str = ""
+    oncue_key: str = ""
     spend: float = 0.0
     max_budget: float = 0.0
     persona: str = ""
@@ -37,9 +37,9 @@ class DashboardState(AuthState):
 
     @rx.var
     def deep_link(self) -> str:
-        if not self.parakeet_key:
+        if not self.oncue_key:
             return "#"
-        return f"parakeet://connect?token={self.parakeet_key}"
+        return f"oncue://connect?token={self.oncue_key}"
 
     async def load_dashboard(self):
         if not self.is_logged_in:
@@ -58,13 +58,13 @@ class DashboardState(AuthState):
         self.tier = profile.get("tier", "free")
         self.persona = profile.get("persona") or ""
         self.preferences = profile.get("preferences") or ""
-        self.parakeet_key = profile.get("litellm_key") or ""
-        if not self.parakeet_key:
-            self.parakeet_key = mint_key(self.user_id, self.tier)
-            admin.table("profiles").update({"litellm_key": self.parakeet_key}).eq(
+        self.oncue_key = profile.get("litellm_key") or ""
+        if not self.oncue_key:
+            self.oncue_key = mint_key(self.user_id, self.tier)
+            admin.table("profiles").update({"litellm_key": self.oncue_key}).eq(
                 "id", self.user_id
             ).execute()
-        self.spend, self.max_budget = get_spend(self.parakeet_key)
+        self.spend, self.max_budget = get_spend(self.oncue_key)
         docs = (
             admin.table("documents")
             .select("id, filename, status, created_at")

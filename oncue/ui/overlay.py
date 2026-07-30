@@ -21,8 +21,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from parakeet.ui.pointer import strip_point_tags
-from parakeet.ui.theme import COLOR, FONT, RADIUS
+from oncue.ui.pointer import strip_point_tags
+from oncue.ui.theme import COLOR, FONT, RADIUS
 
 _CODE_STYLE = (
     f"background:{COLOR['code_block_bg']}; border:1px solid {COLOR['accent_border']}; "
@@ -119,6 +119,7 @@ class Overlay(QWidget):
     submitted = Signal(str)         # user typed a question and hit Enter
     confirmed = Signal(bool)        # user answered the Allow/Deny prompt
     system_toggled = Signal(bool)   # System-actions checkbox flipped
+    cancelled = Signal()            # user pressed Esc while agent was running
 
     def __init__(
         self,
@@ -366,6 +367,7 @@ class Overlay(QWidget):
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_Escape:
             self.hide()
+            self.cancelled.emit()
             return
         super().keyPressEvent(event)
 
@@ -373,13 +375,13 @@ class Overlay(QWidget):
 
     def showEvent(self, event) -> None:
         # (re)apply on every show — the native handle/state can change
-        from parakeet.screen_privacy import set_capture_protection
+        from oncue.screen_privacy import set_capture_protection
 
         set_capture_protection(self, self._content_protection)
         super().showEvent(event)
 
     def set_content_protection(self, enabled: bool) -> None:
-        from parakeet.screen_privacy import set_capture_protection
+        from oncue.screen_privacy import set_capture_protection
 
         self._content_protection = enabled
         set_capture_protection(self, enabled)
@@ -454,7 +456,7 @@ class Overlay(QWidget):
         super().resizeEvent(event)
 
     def _persist_geometry(self) -> None:
-        from parakeet.config import get_config
+        from oncue.config import get_config
 
         g = self.geometry()
         cfg = get_config()
@@ -466,7 +468,7 @@ class Overlay(QWidget):
 
     def reset_position(self) -> None:
         """Back to the default top-right spot (tray menu action)."""
-        from parakeet.config import get_config
+        from oncue.config import get_config
 
         self._custom_geometry = False
         self._set_size(430, 140)

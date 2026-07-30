@@ -101,7 +101,7 @@ def _transcribe_groq(audio: np.ndarray, language_mode: str) -> str:
         kwargs["language"] = params["language"]
     if params.get("initial_prompt"):
         kwargs["prompt"] = params["initial_prompt"]
-    from parakeet.config import get_config
+    from oncue.config import get_config
 
     client = groq.Groq()  # reads GROQ_API_KEY from env
     result = client.audio.transcriptions.create(

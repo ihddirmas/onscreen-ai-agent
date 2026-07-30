@@ -1,4 +1,4 @@
-from parakeet.app import main
+from oncue.app import main
 
 if __name__ == "__main__":
     main()

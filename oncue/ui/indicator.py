@@ -10,7 +10,7 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QWidget
 
-from parakeet.ui.theme import COLOR, RADIUS
+from oncue.ui.theme import COLOR, RADIUS
 
 _STYLE = f"""
 QFrame#pill {{
@@ -50,13 +50,13 @@ class DictationIndicator(QWidget):
         self._hide_timer.timeout.connect(self.hide)
 
     def showEvent(self, event) -> None:
-        from parakeet.screen_privacy import set_capture_protection
+        from oncue.screen_privacy import set_capture_protection
 
         set_capture_protection(self, self._content_protection)
         super().showEvent(event)
 
     def set_content_protection(self, enabled: bool) -> None:
-        from parakeet.screen_privacy import set_capture_protection
+        from oncue.screen_privacy import set_capture_protection
 
         self._content_protection = enabled
         set_capture_protection(self, enabled)

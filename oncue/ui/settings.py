@@ -14,8 +14,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from parakeet.agent.router import PROVIDERS
-from parakeet.config import Config, get_config, set_config
+from oncue.agent.router import PROVIDERS
+from oncue.config import Config, get_config, set_config
 
 _LANGUAGES = [
     ("hinglish", "Hinglish — Roman (kal milte hain)"),
@@ -70,18 +70,18 @@ class SettingsDialog(QDialog):
         hosted = QFormLayout(hosted_box)
         self.backend_url = QLineEdit(cfg.backend_url)
         self.backend_url.setPlaceholderText("https://api.yourdomain.com/v1")
-        self.token = self._secret(cfg.parakeet_token)
+        self.token = self._secret(cfg.oncue_token)
         self.hosted_model = QComboBox()
         self.hosted_model.setEditable(True)  # a licensed alias not in this list still works
         self.hosted_model.addItems(
-            ["parakeet-default", "parakeet-groq", "parakeet-claude", "parakeet-gpt", "parakeet-gemini"]
+            ["oncue-default", "oncue-groq", "oncue-claude", "oncue-gpt", "oncue-gemini"]
         )
         self.hosted_model.setCurrentText(cfg.hosted_model)
         hosted.addRow("Backend URL", self.backend_url)
         hosted.addRow("License key", self.token)
         hosted.addRow("Hosted model", self.hosted_model)
         hosted_note = QLabel(
-            "Free-tier keys are only allowed \"parakeet-groq\" server-side —\n"
+            "Free-tier keys are only allowed \"oncue-groq\" server-side —\n"
             "picking another alias here does nothing without a Pro key."
         )
         hosted_note.setStyleSheet("color: #8a8a8a; font-size: 11px;")
@@ -156,7 +156,7 @@ class SettingsDialog(QDialog):
         root.addWidget(buttons)
 
     def showEvent(self, event):
-        from parakeet.screen_privacy import set_capture_protection
+        from oncue.screen_privacy import set_capture_protection
 
         set_capture_protection(self, get_config().content_protection)
         super().showEvent(event)
@@ -181,7 +181,7 @@ class SettingsDialog(QDialog):
             gpt_model=old.gpt_model,
             gemini_model=old.gemini_model,
             backend_url=self.backend_url.text().strip(),
-            parakeet_token=self.token.text().strip(),
+            oncue_token=self.token.text().strip(),
             hosted_model=self.hosted_model.currentText().strip() or old.hosted_model,
             capture_hotkey=self.capture_hotkey.text().strip() or old.capture_hotkey,
             voice_hotkey=self.voice_hotkey.text().strip() or old.voice_hotkey,

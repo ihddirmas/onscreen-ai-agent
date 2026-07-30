@@ -16,16 +16,17 @@ from PySide6.QtCore import QObject, QThread, Signal
 from PySide6.QtGui import QAction, QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
-from parakeet.agent.router import build_message
-from parakeet.agent.worker import AgentWorker
-from parakeet.capture import screenshot_png
-from parakeet.config import CONFIG_FILE, get_config
-from parakeet.hotkeys import HotkeyManager
-from parakeet.ui.onboarding import OnboardingDialog
-from parakeet.ui.pointer import PointingWidget, parse_point_tags
-from parakeet.ui.settings import SettingsDialog
-from parakeet.tts import TTSManager
-from parakeet.usage import check_session, report_inference, report_session_start
+from oncue.agent.router import build_message
+from oncue.agent.worker import AgentWorker
+from oncue.capture import screenshot_png
+from oncue.config import CONFIG_FILE, get_config
+from oncue.hotkeys import HotkeyManager
+from oncue.ui.onboarding import OnboardingDialog
+from oncue.ui.overlay import Overlay
+from oncue.ui.pointer import PointingWidget, parse_point_tags
+from oncue.ui.settings import SettingsDialog
+from oncue.tts import TTSManager
+from oncue.usage import check_session, report_inference, report_session_start
 
 # Auto-analysis prompt for the screenshot hotkey — the user doesn't say what's
 # on screen; the agent figures out what to do.
@@ -65,7 +66,7 @@ class TranscribeWorker(QThread):
 
     def run(self) -> None:
         try:
-            from parakeet.stt import transcribe
+            from oncue.stt import transcribe
 
             self.text.emit(
                 transcribe(
@@ -92,7 +93,7 @@ def _tray_icon() -> QIcon:
     return QIcon(pm)
 
 
-class ParakeetApp(QObject):
+class OnCUEApp(QObject):
     def __init__(self, app: QApplication):
         super().__init__()
         self._qapp = app
@@ -130,7 +131,7 @@ class ParakeetApp(QObject):
         self.overlay.cancelled.connect(self._on_cancel)
         self._pause_timer: object | None = None
 
-        from parakeet.ui.indicator import DictationIndicator
+        from oncue.ui.indicator import DictationIndicator
 
         self.indicator = DictationIndicator(content_protection=cfg.content_protection)
         self._dictating = False
@@ -138,7 +139,7 @@ class ParakeetApp(QObject):
         self._build_tray()
         self._start_hotkeys(cfg)
 
-        from parakeet.audio import MeetingRecorder, Recorder, warmup_system_audio
+        from oncue.audio import MeetingRecorder, Recorder, warmup_system_audio
 
         self._recorder = Recorder()
         self._meeting_recorder = MeetingRecorder()
@@ -319,7 +320,7 @@ class ParakeetApp(QObject):
         if not text:
             self.indicator.failed()
             return
-        from parakeet.inject import paste_text
+        from oncue.inject import paste_text
 
         paste_text(text)  # queued signal → we're on the main thread; safe
         self.indicator.done()
@@ -409,7 +410,7 @@ class ParakeetApp(QObject):
         if self._agent is not None:
             return True
         try:
-            from parakeet.agent.agent import build_agent
+            from oncue.agent.agent import build_agent
 
             self._agent = build_agent(
                 allow_system=get_config().system_tools_enabled,
@@ -473,7 +474,7 @@ class ParakeetApp(QObject):
                 tokens_out=len(answer) // 4,
             )
         if self._tts_enabled:
-            from parakeet.ui.pointer import strip_point_tags
+            from oncue.ui.pointer import strip_point_tags
 
             clean = strip_point_tags(self.overlay._answer_buffer).strip()
             if clean:
@@ -563,8 +564,8 @@ class ParakeetApp(QObject):
         dialog.exec()
 
     def handle_protocol_url(self, url: str) -> None:
-        """Apply a parakeet:// deep link (from the website 'Open app' button)."""
-        from parakeet.protocol import apply_url
+        """Apply a oncue:// deep link (from the website 'Open app' button)."""
+        from oncue.protocol import apply_url
 
         status = apply_url(url)
         if status:
@@ -586,19 +587,19 @@ class ParakeetApp(QObject):
         self.overlay.set_system_enabled(cfg.system_tools_enabled)
 
 
-_SINGLE_INSTANCE = "parakeet-single-instance"
+_SINGLE_INSTANCE = "oncue-single-instance"
 
 
 def main() -> None:
     from PySide6.QtNetwork import QLocalServer, QLocalSocket
 
-    from parakeet.protocol import register_windows, url_in_argv
+    from oncue.protocol import register_windows, url_in_argv
 
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     app.setApplicationName("OnCUE")
 
-    # Single instance: if one is already running, forward any parakeet:// URL to
+    # Single instance: if one is already running, forward any oncue:// URL to
     # it and exit — so clicking "Open app" twice doesn't spawn a duplicate.
     probe = QLocalSocket()
     probe.connectToServer(_SINGLE_INSTANCE)
@@ -613,21 +614,21 @@ def main() -> None:
     server = QLocalServer()
     server.listen(_SINGLE_INSTANCE)
 
-    parakeet = ParakeetApp(app)
+    oncue_app = OnCUEApp(app)
 
     def _on_conn():
         conn = server.nextPendingConnection()
         if conn and conn.waitForReadyRead(300):
             url = bytes(conn.readAll()).decode()
             if url:
-                parakeet.handle_protocol_url(url)
+                oncue_app.handle_protocol_url(url)
 
     server.newConnection.connect(_on_conn)
 
     # apply a URL we were launched with, and register the scheme for next time
     launch_url = url_in_argv()
     if launch_url:
-        parakeet.handle_protocol_url(launch_url)
+        oncue_app.handle_protocol_url(launch_url)
     register_windows()
 
     sys.exit(app.exec())

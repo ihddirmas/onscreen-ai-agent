@@ -6,9 +6,9 @@ from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
-from parakeet.agent.router import get_model
-from parakeet.agent.tools import tools_for
-from parakeet.config import get_config
+from oncue.agent.router import get_model
+from oncue.agent.tools import tools_for
+from oncue.config import get_config
 
 
 def _has_image(m) -> bool:
@@ -49,7 +49,7 @@ def _strip_old_images(state):
     return {"llm_input_messages": out}
 
 SYSTEM = (
-    "You are Parakeet, an on-screen desktop assistant. When a screenshot is "
+    "You are OnCUE, an on-screen desktop assistant. When a screenshot is "
     "attached to the user's message you can see their screen; without one, "
     "answer as a normal chat assistant. Answer directly when you can, but if "
     "the question depends on current or real-world information (news, prices, "
@@ -83,7 +83,7 @@ def _user_profile() -> str:
     """Fetch the user's persona + preferences from the website (hosted mode) to
     personalize every answer. Best-effort — returns '' if unavailable."""
     cfg = get_config()
-    if not cfg.web_url or not cfg.parakeet_token:
+    if not cfg.web_url or not cfg.oncue_token:
         return ""
     try:
         import json
@@ -91,7 +91,7 @@ def _user_profile() -> str:
 
         req = urllib.request.Request(
             f"{cfg.web_url.rstrip('/')}/api/me/profile",
-            headers={"Authorization": f"Bearer {cfg.parakeet_token}"},
+            headers={"Authorization": f"Bearer {cfg.oncue_token}"},
         )
         with urllib.request.urlopen(req, timeout=8) as resp:
             data = json.loads(resp.read().decode())

@@ -1,4 +1,4 @@
-"""A stylized rendering of the real desktop overlay (parakeet/ui/theme.py's
+"""A stylized rendering of the real desktop overlay (oncue/ui/theme.py's
 actual colors, not stock art) — used as the "floating app mockup" in the
 hero and how-it-works sections. Rendering the real UI, even approximated in
 CSS, ties the marketing site to the actual product instead of a generic

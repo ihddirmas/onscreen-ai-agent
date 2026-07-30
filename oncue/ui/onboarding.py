@@ -10,7 +10,7 @@ import webbrowser
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
-from parakeet.config import get_config
+from oncue.config import get_config
 
 
 class OnboardingDialog(QDialog):

@@ -4,13 +4,13 @@
 # virtual key; the proxy holds our real keys (env vars on the host).
 #
 # Multi-provider hosted parity: each provider has its own always-on alias
-# (parakeet-groq/claude/gpt/gemini) rather than one alias that gets swapped
+# (oncue-groq/claude/gpt/gemini) rather than one alias that gets swapped
 # by commenting/uncommenting — free-tier keys are minted with only
-# ["parakeet-groq", "parakeet-default"] in their `models` allowlist (see
+# ["oncue-groq", "oncue-default"] in their `models` allowlist (see
 # webapp/webapp/services/litellm.py:mint_key), pro-tier keys get all,
 # so "pro = real provider choice" is enforced server-side by LiteLLM itself,
 # not just a client-side dropdown a free user could also click.
-# `parakeet-default` uses a fallback chain of free open-source providers
+# `oncue-default` uses a fallback chain of free open-source providers
 # (Groq → Cerebras → Cloudflare → OpenRouter) so hosted users get
 # working inference without us paying for API calls.
 #
@@ -23,49 +23,49 @@
 #     ghcr.io/berriai/litellm:main-latest --config /app/config.yaml
 
 model_list:
-  # --- Free open-source fallback chain (parakeet-default) -------------------
+  # --- Free open-source fallback chain (oncue-default) -------------------
   # Primary: Groq (fastest, no cost to us)
-  - model_name: parakeet-default
+  - model_name: oncue-default
     litellm_params:
       model: groq/qwen/qwen3.6-27b
       api_key: os.environ/GROQ_API_KEY
   # Fallback 1: Cerebras (fast, 1M tokens/day free tier)
-  - model_name: parakeet-default
+  - model_name: oncue-default
     litellm_params:
       model: cerebras/llama-3.3-70b
       api_key: os.environ/CEREBRAS_API_KEY
   # Fallback 2: Cloudflare Workers AI (39 free models, generous daily allocation)
-  - model_name: parakeet-default
+  - model_name: oncue-default
     litellm_params:
       model: cloudflare/@cf/meta/llama-3.3-70b-instruct-fp8-fast
       api_key: os.environ/CLOUDFLARE_API_KEY
   # Fallback 3: OpenRouter free routes (broadest free model selection)
-  - model_name: parakeet-default
+  - model_name: oncue-default
     litellm_params:
       model: openrouter/meta-llama/llama-3.3-70b-instruct:free
       api_key: os.environ/OPENROUTER_API_KEY
 
   # --- Tiered provider aliases --------------------------------------------
-  - model_name: parakeet-groq
+  - model_name: oncue-groq
     litellm_params:
       model: groq/qwen/qwen3.6-27b
       api_key: os.environ/GROQ_API_KEY
-  - model_name: parakeet-claude
+  - model_name: oncue-claude
     litellm_params:
       model: anthropic/claude-opus-4-8
       api_key: os.environ/ANTHROPIC_API_KEY
-  - model_name: parakeet-gpt
+  - model_name: oncue-gpt
     litellm_params:
       model: openai/gpt-4o
       api_key: os.environ/OPENAI_API_KEY
-  - model_name: parakeet-gemini
+  - model_name: oncue-gemini
     litellm_params:
       model: gemini/gemini-2.5-flash
       api_key: os.environ/GOOGLE_API_KEY
 
 litellm_settings:
   drop_params: true          # ignore params a given provider doesn't support
-  # Fallback chain: if parakeet-default's primary (Groq) is rate-limited,
+  # Fallback chain: if oncue-default's primary (Groq) is rate-limited,
   # try the next deployment in order automatically.
   # num_retries: 0 — let the router-level fallback handle failures
   request_timeout: 30        # seconds
@@ -74,10 +74,10 @@ router_settings:
   # Fallback routing: when the primary deployment for a model fails (rate
   # limit, timeout, 5xx), try the fallback before returning an error.
   fallbacks:
-    - parakeet-default: [parakeet-default, parakeet-default, parakeet-default]
+    - oncue-default: [oncue-default, oncue-default, oncue-default]
   # LiteLLM routes to multiple deployments with the same model_name in order.
   # The router_settings.fallbacks above is for cross-model fallback; since all
-  # four deployments share model_name "parakeet-default", LiteLLM's default
+  # four deployments share model_name "oncue-default", LiteLLM's default
   # behavior tries them sequentially on failure. The explicit fallback list
   # here ensures the chain is tried in order even under load.
   enable_fallback: true

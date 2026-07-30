@@ -6,7 +6,7 @@
 
 services:
   - type: web
-    name: parakeet-litellm
+    name: oncue-litellm
     runtime: docker
     rootDir: backend
     dockerfilePath: ./Dockerfile

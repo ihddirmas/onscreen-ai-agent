@@ -13,8 +13,8 @@ const PRICING: Record<string, { in: number; out: number }> = {
 
   // Hosted defaults (LiteLLM proxy): tracked via LiteLLM spend if available;
   // fallback to $0 since most hosted backends chain through free APIs.
-  "parakeet-default": { in: 0, out: 0 },
-  "parakeet-groq": { in: 0, out: 0 },
+  "oncue-default": { in: 0, out: 0 },
+  "oncue-groq": { in: 0, out: 0 },
 };
 
 export function computeCost(

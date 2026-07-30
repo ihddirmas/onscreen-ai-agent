@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { adminClient } from "@/lib/supabase";
+import { serverClient, adminClient } from "@/lib/supabase";
 import { userFromBearer } from "@/lib/keyauth";
 import { embedOne } from "@/lib/rag";
 
-// Desktop-facing RAG retrieval. The agent's search_my_documents tool calls this
-// with the user's Parakeet key. Returns the top relevant passages (used
-// silently by the agent — no citation needed).
 export async function POST(req: Request) {
-  const userId = await userFromBearer(req);
+  const cookieUser = await serverClient().auth.getUser().then((r) => r.data.user);
+  const bearerUser = await userFromBearer(req);
+  const userId = cookieUser?.id ?? bearerUser;
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const { query } = await req.json().catch(() => ({ query: "" }));

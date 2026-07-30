@@ -32,7 +32,7 @@ COLOR = {
 # Alternating full-bleed section bands (the mymind-style structural device):
 # each band is a dark or tinted panel that content sits inside, giving the
 # page real color and rhythm instead of one long white scroll. "dark" reuses
-# the ACTUAL desktop overlay's real palette (parakeet/ui/theme.py) rather
+# the ACTUAL desktop overlay's real palette (oncue/ui/theme.py) rather
 # than inventing a new dark color — the marketing site's mockups should look
 # like the real product, not an approximation of it.
 BAND = {
@@ -51,7 +51,7 @@ BAND = {
     "peach_tag_text": "#8a4a1f",
 }
 
-# The real desktop-overlay colors (parakeet/ui/theme.py), duplicated
+# The real desktop-overlay colors (oncue/ui/theme.py), duplicated
 # intentionally: the floating "product mockup" cards on the marketing site
 # render an actual likeness of the overlay, so they need its real colors,
 # not the webapp's own light-editorial palette.

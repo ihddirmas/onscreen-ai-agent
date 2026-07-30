@@ -18,7 +18,7 @@ from __future__ import annotations
 
 COLOR = {
     # Lower alpha than a typical opaque panel — Windows now draws a real
-    # OS-level acrylic blur-behind under this window (parakeet/ui/blur.py),
+    # OS-level acrylic blur-behind under this window (oncue/ui/blur.py),
     # so the QSS-drawn panel only needs enough tint to stay legible and
     # on-brand, not to hide the desktop. A near-opaque value here would sit
     # on top of the blur and cancel out the frosted-glass look entirely.

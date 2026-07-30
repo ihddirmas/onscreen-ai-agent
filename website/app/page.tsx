@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <>
       <div className="nav">
-        <div className="brand">🦜 Parakeet</div>
+        <div className="brand">🦜 OnCUE</div>
         <div style={{ display: "flex", gap: 12 }}>
           <Link className="btn secondary" href="/login">Log in</Link>
           <Link className="btn" href="/login">Get started</Link>

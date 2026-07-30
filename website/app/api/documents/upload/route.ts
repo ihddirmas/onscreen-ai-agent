@@ -3,10 +3,11 @@ import { serverClient, adminClient } from "@/lib/supabase";
 import { extractText } from "@/lib/extract";
 import { chunk, embed } from "@/lib/rag";
 
-export const maxDuration = 60; // embedding can take a bit
+export const maxDuration = 60;
 
-// Upload a reference document: store → extract → chunk → embed → index,
-// then refresh the user's persona summary.
+const ALLOWED_EXTENSIONS = new Set([".pdf", ".docx", ".txt", ".md", ".csv", ".json"]);
+const MAX_FILE_SIZE = 25 * 1024 * 1024;
+
 export async function POST(req: Request) {
   const supabase = serverClient();
   const {
@@ -18,17 +19,32 @@ export async function POST(req: Request) {
   const file = form.get("file") as File | null;
   if (!file) return NextResponse.json({ error: "no file" }, { status: 400 });
 
+  if (file.size > MAX_FILE_SIZE) {
+    return NextResponse.json(
+      { error: `file too large (max ${MAX_FILE_SIZE / 1024 / 1024} MB)` },
+      { status: 413 },
+    );
+  }
+
+  const ext = "." + file.name.split(".").pop()?.toLowerCase();
+  if (!ALLOWED_EXTENSIONS.has(ext)) {
+    return NextResponse.json(
+      {
+        error: `unsupported file type: ${ext}. Allowed: pdf, docx, txt, md, csv, json`,
+      },
+      { status: 415 },
+    );
+  }
+
   const admin = adminClient();
   const buffer = Buffer.from(await file.arrayBuffer());
   const storagePath = `${user.id}/${Date.now()}-${file.name}`;
 
-  // 1. store the raw file
   await admin.storage.from("documents").upload(storagePath, buffer, {
     contentType: file.type || "application/octet-stream",
     upsert: false,
   });
 
-  // 2. document row (processing)
   const { data: doc } = await admin
     .from("documents")
     .insert({ user_id: user.id, filename: file.name, storage_path: storagePath, status: "processing" })
@@ -36,9 +52,8 @@ export async function POST(req: Request) {
     .single();
 
   try {
-    // 3. extract + chunk + embed
     const text = await extractText(buffer, file.name);
-    const chunks = chunk(text);
+    const chunks = chunk(text, 500, 100);
     if (chunks.length === 0) throw new Error("no readable text");
     const vectors = await embed(chunks);
     const rows = chunks.map((content, i) => ({
@@ -50,7 +65,6 @@ export async function POST(req: Request) {
     await admin.from("doc_chunks").insert(rows);
     await admin.from("documents").update({ status: "ready" }).eq("id", doc!.id);
 
-    // 4. refresh persona (best-effort; don't fail the upload if it errors)
     updatePersona(user.id, text).catch(() => {});
 
     return NextResponse.json({ id: doc!.id, chunks: chunks.length, status: "ready" });
@@ -60,8 +74,6 @@ export async function POST(req: Request) {
   }
 }
 
-// One cheap LLM call (via LiteLLM) to summarize the user from a new document,
-// merged into profiles.persona.
 async function updatePersona(userId: string, text: string) {
   const admin = adminClient();
   const { data: profile } = await admin
@@ -77,7 +89,7 @@ async function updatePersona(userId: string, text: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "parakeet-default",
+      model: "oncue-default",
       max_tokens: 200,
       messages: [
         {

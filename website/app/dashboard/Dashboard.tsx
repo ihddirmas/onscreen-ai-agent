@@ -9,11 +9,14 @@ type Doc = { id: string; filename: string; status: string; created_at: string };
 export default function Dashboard(props: {
   email: string;
   tier: string;
-  parakeetKey: string | null;
+  oncueKey: string | null;
   spend: number;
   maxBudget: number;
   persona: string;
   preferences: string;
+  sessionCount: number;
+  trialUsed: boolean;
+  trialRemaining: number;
   docs: Doc[];
   siteUrl: string;
   ragUrl: string;
@@ -24,12 +27,16 @@ export default function Dashboard(props: {
   const [prefsMsg, setPrefsMsg] = useState("");
   const [uploading, setUploading] = useState(false);
   const [copyMsg, setCopyMsg] = useState("Copy");
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<string[] | null>(null);
+  const [searching, setSearching] = useState(false);
 
   const pct =
     props.maxBudget > 0 ? Math.min(100, (props.spend / props.maxBudget) * 100) : 0;
 
-  const deepLink = props.parakeetKey
-    ? `parakeet://connect?token=${encodeURIComponent(props.parakeetKey)}` +
+  const deepLink = props.oncueKey
+    ? `oncue://connect?token=${encodeURIComponent(props.oncueKey)}` +
       `&web=${encodeURIComponent(props.siteUrl)}` +
       `&rag=${encodeURIComponent(props.ragUrl)}`
     : "#";
@@ -41,13 +48,13 @@ export default function Dashboard(props: {
   }
 
   async function savePrefs() {
-    setPrefsMsg("Saving…");
+    setPrefsMsg("Saving...");
     await fetch("/api/me/preferences", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ preferences: prefs }),
     });
-    setPrefsMsg("Saved ✓");
+    setPrefsMsg("Saved ok");
     setTimeout(() => setPrefsMsg(""), 1500);
   }
 
@@ -61,20 +68,58 @@ export default function Dashboard(props: {
     setUploading(false);
     e.target.value = "";
     if (res.ok) router.refresh();
-    else alert("Upload failed: " + (await res.text()));
+    else {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      alert("Upload failed: " + (err.error || res.statusText));
+    }
+  }
+
+  async function deleteDoc(id: string) {
+    setDeleting(id);
+    await fetch("/api/documents/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    setDeleting(null);
+    router.refresh();
+  }
+
+  async function searchDocs() {
+    if (!searchQuery.trim()) return;
+    setSearching(true);
+    setSearchResults(null);
+    try {
+      const res = await fetch("/api/documents/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: searchQuery }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        alert("Search failed: " + (err.error || res.statusText));
+        return;
+      }
+      const data = await res.json();
+      setSearchResults(data.passages || []);
+    } catch (e: any) {
+      alert("Search failed: " + e.message);
+    } finally {
+      setSearching(false);
+    }
   }
 
   function copyKey() {
-    if (!props.parakeetKey) return;
-    navigator.clipboard.writeText(props.parakeetKey);
-    setCopyMsg("Copied ✓");
+    if (!props.oncueKey) return;
+    navigator.clipboard.writeText(props.oncueKey);
+    setCopyMsg("Copied");
     setTimeout(() => setCopyMsg("Copy"), 1500);
   }
 
   return (
     <>
       <div className="nav">
-        <div className="brand">🦜 Parakeet</div>
+        <div className="brand">Parakeet</div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <span className="muted">{props.email}</span>
           <button className="btn secondary" onClick={signOut}>Sign out</button>
@@ -82,26 +127,24 @@ export default function Dashboard(props: {
       </div>
 
       <div className="container">
-        {/* Open in app */}
         <div className="card">
           <h2>Use Parakeet on your computer</h2>
           <p className="muted">
-            Launch the desktop app already signed in — no key to paste.
+            Launch the desktop app already signed in.
           </p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
             <a className="btn" href={deepLink}>Open Parakeet app</a>
-            <a className="btn secondary" href="/download">Don&apos;t have the app? Download</a>
+            <a className="btn secondary" href="/download">Download the app</a>
           </div>
         </div>
 
-        {/* Key + credits */}
         <div className="grid">
           <div className="card">
             <h2>Your Parakeet key <span className="tier-badge">{props.tier}</span></h2>
-            <p className="muted">Paste this into the desktop app&apos;s Settings (hosted mode).</p>
-            {props.parakeetKey ? (
+            <p className="muted">Paste this into the desktop app Settings.</p>
+            {props.oncueKey ? (
               <div className="keybox">
-                <span>{props.parakeetKey}</span>
+                <span>{props.oncueKey}</span>
                 <button className="btn secondary" onClick={copyKey}>{copyMsg}</button>
               </div>
             ) : (
@@ -116,17 +159,25 @@ export default function Dashboard(props: {
               ${props.spend.toFixed(3)} of ${props.maxBudget.toFixed(2)} used this month
             </p>
           </div>
+
+          {props.trialRemaining > 0 && (
+            <div className="card">
+              <h2>Trial status</h2>
+              <p className="muted">
+                You have <strong>{props.trialRemaining} trial session{props.trialRemaining > 1 ? "s" : ""}</strong> remaining.
+              </p>
+              <a className="btn secondary" href="/pricing" style={{ marginTop: 8, display: "inline-block" }}>View pricing</a>
+            </div>
+          )}
         </div>
 
-        {/* Documents */}
         <div className="card">
           <h2>Reference documents</h2>
           <p className="muted">
-            Upload your resume, notes, or study plan. Parakeet uses them to give
-            better, personalized answers.
+            Upload your resume, notes, or study plan. Parakeet uses them to give better personalized answers.
           </p>
           <label className="btn" style={{ marginTop: 8, cursor: "pointer" }}>
-            {uploading ? "Uploading…" : "Upload document"}
+            {uploading ? "Uploading..." : "Upload document"}
             <input type="file" hidden accept=".pdf,.docx,.txt,.md,.csv,.json" onChange={upload} disabled={uploading} />
           </label>
           <ul className="docs" style={{ marginTop: 14 }}>
@@ -134,17 +185,70 @@ export default function Dashboard(props: {
             {props.docs.map((d) => (
               <li key={d.id}>
                 <span>{d.filename}</span>
-                <span className={`pill ${d.status}`}>{d.status}</span>
+                <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <span className={`pill ${d.status}`}>{d.status}</span>
+                  <button
+                    className="btn secondary"
+                    style={{ padding: "4px 10px", fontSize: 12 }}
+                    onClick={() => deleteDoc(d.id)}
+                    disabled={deleting === d.id}
+                  >
+                    {deleting === d.id ? "..." : "Delete"}
+                  </button>
+                </span>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Preferences */}
+        <div className="card">
+          <h2>Search your documents</h2>
+          <p className="muted">
+            Find relevant passages from your uploaded reference documents.
+          </p>
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <input
+              type="text"
+              placeholder="e.g. What projects have I worked on?"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && searchDocs()}
+            />
+            <button className="btn" onClick={searchDocs} disabled={searching || !searchQuery.trim()}>
+              {searching ? "Searching..." : "Search"}
+            </button>
+          </div>
+          {searchResults !== null && (
+            <div style={{ marginTop: 14 }}>
+              {searchResults.length === 0 ? (
+                <p className="muted">No relevant passages found.</p>
+              ) : (
+                searchResults.map((p, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      background: "#0b0b12",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      borderRadius: 8,
+                      padding: "10px 12px",
+                      marginBottom: 8,
+                      fontSize: 13,
+                      lineHeight: 1.5,
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {p}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="card">
           <h2>Preferences</h2>
           <p className="muted">
-            How should Parakeet answer you? This shapes every answer.
+            How should Parakeet answer you?
           </p>
           <textarea
             rows={3}

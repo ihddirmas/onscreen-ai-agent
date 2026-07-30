@@ -15,14 +15,14 @@ export default async function DashboardPage() {
   const admin = adminClient();
   let { data: profile } = await admin
     .from("profiles")
-    .select("tier, litellm_key, persona, preferences")
+    .select("tier, litellm_key, persona, preferences, session_count, trial_used")
     .eq("id", user.id)
     .maybeSingle();
 
   // ensure the row + key exist
   if (!profile) {
     await admin.from("profiles").insert({ id: user.id });
-    profile = { tier: "free", litellm_key: null, persona: "", preferences: "" } as any;
+    profile = { tier: "free", litellm_key: null, persona: "", preferences: "", session_count: 0, trial_used: false } as any;
   }
   let key = profile!.litellm_key as string | null;
   if (!key) {
@@ -41,15 +41,23 @@ export default async function DashboardPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
+  const sessionCount = profile!.session_count ?? 0;
+  const trialUsed = profile!.trial_used ?? false;
+  const isTrial = (profile!.tier === "free" && !trialUsed) || profile!.tier === "trial";
+  const trialRemaining = isTrial ? Math.max(0, 1 - sessionCount) : 0;
+
   return (
     <Dashboard
       email={user.email ?? ""}
       tier={profile!.tier || "free"}
-      parakeetKey={key}
+      oncueKey={key}
       spend={spend.spend}
       maxBudget={spend.maxBudget}
       persona={profile!.persona || ""}
       preferences={profile!.preferences || ""}
+      sessionCount={sessionCount}
+      trialUsed={trialUsed}
+      trialRemaining={trialRemaining}
       docs={docs ?? []}
       siteUrl={process.env.NEXT_PUBLIC_SITE_URL || ""}
       ragUrl={

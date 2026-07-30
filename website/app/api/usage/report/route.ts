@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
   // atomically).
   const { data: profile } = await admin
     .from("profiles")
-    .select("tier, trial_used")
+    .select("tier, trial_used, session_count")
     .eq("id", userId)
     .maybeSingle();
 
