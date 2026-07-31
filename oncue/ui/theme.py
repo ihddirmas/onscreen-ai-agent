@@ -43,8 +43,106 @@ COLOR = {
 }
 
 FONT = {
-    "family": "Segoe UI",
-    "mono": "Consolas,'Courier New',monospace",
+    "family": "'Inter', 'Segoe UI', system-ui, sans-serif",
+    "mono": "'JetBrains Mono', Consolas, 'Courier New', monospace",
 }
 
 RADIUS = {"panel": "12px", "pill": "16px", "control": "6px", "code": "8px"}
+
+# Shared dark dialog chrome (settings, onboarding).
+DIALOG_STYLE = f"""
+QDialog {{
+    background: #12121a;
+    color: {COLOR['text']};
+}}
+QGroupBox {{
+    border: 1px solid {COLOR['accent_border']};
+    border-radius: {RADIUS['panel']};
+    margin-top: 14px;
+    padding: 14px 12px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: {COLOR['accent_border']};
+}}
+QGroupBox::title {{
+    subcontrol-origin: margin;
+    left: 12px;
+    padding: 0 6px;
+}}
+QLabel {{
+    color: {COLOR['text_muted_strong']};
+    font-size: 12px;
+}}
+QLineEdit {{
+    background: {COLOR['input_bg']};
+    border: 1px solid {COLOR['input_border']};
+    border-radius: {RADIUS['control']};
+    color: {COLOR['text']};
+    padding: 6px 8px;
+    font-size: 13px;
+}}
+QLineEdit:focus {{
+    border: 1px solid {COLOR['input_focus_border']};
+}}
+QComboBox {{
+    background: {COLOR['input_bg']};
+    border: 1px solid {COLOR['input_border']};
+    border-radius: {RADIUS['control']};
+    color: {COLOR['text']};
+    padding: 4px 8px;
+    font-size: 13px;
+    min-height: 20px;
+}}
+QComboBox:focus {{
+    border: 1px solid {COLOR['input_focus_border']};
+}}
+QComboBox::drop-down {{ border: none; width: 20px; }}
+QComboBox::down-arrow {{
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid {COLOR['text_muted_strong']};
+    margin-right: 6px;
+}}
+QComboBox QAbstractItemView {{
+    background: #1a1a26;
+    border: 1px solid {COLOR['accent_border']};
+    border-radius: {RADIUS['control']};
+    color: {COLOR['text']};
+    selection-background-color: {COLOR['accent_border']};
+    selection-color: #04120a;
+    padding: 2px;
+}}
+QCheckBox {{
+    color: {COLOR['text_muted_strong']};
+    font-size: 12px;
+    spacing: 6px;
+}}
+QCheckBox::indicator {{
+    width: 14px;
+    height: 14px;
+    border: 1px solid {COLOR['input_border']};
+    border-radius: 3px;
+    background: {COLOR['input_bg']};
+}}
+QCheckBox::indicator:checked {{
+    background: {COLOR['accent_border']};
+    border-color: {COLOR['accent_border']};
+}}
+QPushButton {{
+    background: {COLOR['button_bg']};
+    border: 1px solid {COLOR['button_border']};
+    border-radius: {RADIUS['control']};
+    color: {COLOR['text']};
+    padding: 8px 16px;
+    font-size: 13px;
+}}
+QPushButton:hover {{
+    background: {COLOR['button_bg_hover']};
+    border-color: {COLOR['accent_border']};
+}}
+QDialogButtonBox QPushButton {{
+    padding: 6px 20px;
+    min-width: 72px;
+}}
+"""

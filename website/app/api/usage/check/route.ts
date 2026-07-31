@@ -50,10 +50,15 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const isTrial = profile.tier === "free" && !profile.trial_used
-    || profile.tier === "trial";
+  const isTrial =
+    (profile.tier === "free" && !profile.trial_used) || profile.tier === "trial";
   const sessionCount = profile.session_count ?? 0;
-  const canStart = profile.tier !== "trial" || sessionCount < 1;
+  const canStart =
+    profile.tier === "pro"
+      ? true
+      : profile.tier === "trial"
+        ? sessionCount < 1
+        : !profile.trial_used && sessionCount < 1;
 
   return NextResponse.json({
     can_start: canStart,

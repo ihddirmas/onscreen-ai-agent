@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -10,112 +10,18 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
     QFormLayout,
     QGroupBox,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
+    QPushButton,
+    QScrollArea,
     QVBoxLayout,
+    QWidget,
 )
 
 from oncue.agent.router import PROVIDERS
 from oncue.config import Config, get_config, set_config
-from oncue.ui.theme import COLOR, RADIUS
-
-_DIALOG_STYLE = f"""
-QDialog {{
-    background: #12121a;
-    color: {COLOR['text']};
-}}
-QGroupBox {{
-    border: 1px solid {COLOR['accent_border']};
-    border-radius: {RADIUS['panel']};
-    margin-top: 14px;
-    padding: 14px 12px 10px;
-    font-size: 13px;
-    font-weight: 600;
-    color: {COLOR['accent_border']};
-}}
-QGroupBox::title {{
-    subcontrol-origin: margin;
-    left: 12px;
-    padding: 0 6px;
-}}
-QLabel {{
-    color: {COLOR['text_muted_strong']};
-    font-size: 12px;
-}}
-QLineEdit {{
-    background: {COLOR['input_bg']};
-    border: 1px solid {COLOR['input_border']};
-    border-radius: {RADIUS['control']};
-    color: {COLOR['text']};
-    padding: 6px 8px;
-    font-size: 13px;
-}}
-QLineEdit:focus {{
-    border: 1px solid {COLOR['input_focus_border']};
-}}
-QComboBox {{
-    background: {COLOR['input_bg']};
-    border: 1px solid {COLOR['input_border']};
-    border-radius: {RADIUS['control']};
-    color: {COLOR['text']};
-    padding: 4px 8px;
-    font-size: 13px;
-    min-height: 20px;
-}}
-QComboBox:focus {{
-    border: 1px solid {COLOR['input_focus_border']};
-}}
-QComboBox::drop-down {{
-    border: none;
-    width: 20px;
-}}
-QComboBox::down-arrow {{
-    image: none;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 5px solid {COLOR['text_muted_strong']};
-    margin-right: 6px;
-}}
-QComboBox QAbstractItemView {{
-    background: #1a1a26;
-    border: 1px solid {COLOR['accent_border']};
-    border-radius: {RADIUS['control']};
-    color: {COLOR['text']};
-    selection-background-color: {COLOR['accent_border']};
-    selection-color: #04120a;
-    padding: 2px;
-    outline: none;
-}}
-QCheckBox {{
-    color: {COLOR['text_muted_strong']};
-    font-size: 12px;
-    spacing: 6px;
-}}
-QCheckBox::indicator {{
-    width: 14px;
-    height: 14px;
-    border: 1px solid {COLOR['input_border']};
-    border-radius: 3px;
-    background: {COLOR['input_bg']};
-}}
-QCheckBox::indicator:checked {{
-    background: {COLOR['accent_border']};
-    border-color: {COLOR['accent_border']};
-}}
-QDialogButtonBox QPushButton {{
-    background: {COLOR['button_bg']};
-    border: 1px solid {COLOR['button_border']};
-    border-radius: {RADIUS['control']};
-    color: {COLOR['text']};
-    padding: 6px 20px;
-    font-size: 13px;
-    min-width: 72px;
-}}
-QDialogButtonBox QPushButton:hover {{
-    background: {COLOR['button_bg_hover']};
-    border-color: {COLOR['accent_border']};
-}}
-"""
+from oncue.ui.theme import COLOR, DIALOG_STYLE, RADIUS
 
 _LANGUAGES = [
     ("hinglish", "Hinglish — Roman (kal milte hain)"),
@@ -138,18 +44,59 @@ class SettingsDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("OnCUE Settings")
         self.setMinimumWidth(500)
-        self.setStyleSheet(_DIALOG_STYLE)
+        self.setStyleSheet(DIALOG_STYLE)
         cfg = get_config()
 
-        root = QVBoxLayout(self)
+        outer = QVBoxLayout(self)
+        self._scroll = QScrollArea()
+        self._scroll.setWidgetResizable(True)
+        self._scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
+        content = QWidget()
+        root = QVBoxLayout(content)
+
+        # Quick start (Clicky hotkey table + Parakeet connect flow)
+        quick_box = QGroupBox("Quick start")
+        quick_lay = QVBoxLayout(quick_box)
+        quick_intro = QLabel(
+            "OnCUE lives in your tray. Use hotkeys over any app — no tab switching."
+        )
+        quick_intro.setWordWrap(True)
+        quick_lay.addWidget(quick_intro)
+        hotkeys = QLabel(
+            "<table cellspacing='4'>"
+            "<tr><td><b>Ctrl+Shift+Space</b></td><td>Screen Q&A (screenshot + question)</td></tr>"
+            "<tr><td><b>Ctrl+Shift+H</b></td><td>Chat without screenshot</td></tr>"
+            "<tr><td><b>Ctrl+Shift+V</b></td><td>Voice about screen (hold)</td></tr>"
+            "<tr><td><b>Ctrl+Shift+D</b></td><td>Dictate at cursor (hold)</td></tr>"
+            "<tr><td><b>Ctrl+Shift+M</b></td><td>Meeting audio (hold)</td></tr>"
+            "</table>"
+        )
+        hotkeys.setTextFormat(Qt.TextFormat.RichText)
+        hotkeys.setStyleSheet(f"color: {COLOR['text_muted_strong']}; font-size: 11px;")
+        quick_lay.addWidget(hotkeys)
+        connect_note = QLabel(
+            "Hosted users: sign in on the website → <b>Open OnCUE app</b> "
+            "(auto-fills license key + URLs below)."
+        )
+        connect_note.setWordWrap(True)
+        connect_note.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
+        quick_lay.addWidget(connect_note)
+        guide_row = QHBoxLayout()
+        guide_btn = QPushButton("Open feature guide…")
+        guide_btn.clicked.connect(self._open_feature_guide)
+        guide_row.addWidget(guide_btn)
+        guide_row.addStretch()
+        quick_lay.addLayout(guide_row)
+        root.addWidget(quick_box)
 
         # provider
-        form = QFormLayout()
+        provider_box = QGroupBox("AI provider")
+        provider_form = QFormLayout(provider_box)
         self.provider = QComboBox()
         self.provider.addItems(PROVIDERS)
         self.provider.setCurrentText(cfg.provider)
-        form.addRow("Provider", self.provider)
-        root.addLayout(form)
+        provider_form.addRow("Provider", self.provider)
+        root.addWidget(provider_box)
 
         # BYO keys
         keys_box = QGroupBox("API keys (bring-your-own providers)")
@@ -171,6 +118,10 @@ class SettingsDialog(QDialog):
         hosted = QFormLayout(hosted_box)
         self.backend_url = QLineEdit(cfg.backend_url)
         self.backend_url.setPlaceholderText("https://api.yourdomain.com/v1")
+        self.web_url = QLineEdit(cfg.web_url)
+        self.web_url.setPlaceholderText("https://your-oncue-site.com")
+        self.rag_url = QLineEdit(cfg.rag_url)
+        self.rag_url.setPlaceholderText("https://xxx.supabase.co/functions/v1/rag")
         self.token = self._secret(cfg.oncue_token)
         self.hosted_model = QComboBox()
         self.hosted_model.setEditable(True)  # a licensed alias not in this list still works
@@ -179,6 +130,8 @@ class SettingsDialog(QDialog):
         )
         self.hosted_model.setCurrentText(cfg.hosted_model)
         hosted.addRow("Backend URL", self.backend_url)
+        hosted.addRow("Website URL", self.web_url)
+        hosted.addRow("RAG URL", self.rag_url)
         hosted.addRow("License key", self.token)
         hosted.addRow("Hosted model", self.hosted_model)
         hosted_note = QLabel(
@@ -187,6 +140,9 @@ class SettingsDialog(QDialog):
         )
         hosted_note.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
         hosted.addRow("", hosted_note)
+        self._trial_label = QLabel("")
+        self._trial_label.setStyleSheet(f"color: {COLOR['status_green']}; font-size: 11px;")
+        hosted.addRow("", self._trial_label)
         root.addWidget(hosted_box)
 
         # speech
@@ -249,18 +205,59 @@ class SettingsDialog(QDialog):
         behavior.addRow("", self.confirm_actions)
         root.addWidget(behavior_box)
 
+        self._scroll.setWidget(content)
+        outer.addWidget(self._scroll)
+
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
         )
         buttons.accepted.connect(self._save)
         buttons.rejected.connect(self.reject)
-        root.addWidget(buttons)
+        outer.addWidget(buttons)
+
+        # Section widgets for guided tours / tests
+        self._section_widgets = {
+            "quick_start": quick_box,
+            "provider": provider_box,
+            "api_keys": keys_box,
+            "hosted": hosted_box,
+            "speech": speech_box,
+            "behavior": behavior_box,
+        }
+
+    def scroll_to_section(self, name: str) -> None:
+        """Scroll settings to a named section (for demos and tutorials)."""
+        widget = self._section_widgets.get(name)
+        if widget and self._scroll.widget():
+            self._scroll.ensureWidgetVisible(widget, 24, 24)
+
+    def _open_feature_guide(self) -> None:
+        from oncue.ui.feature_guide import FeatureGuideDialog
+
+        FeatureGuideDialog(self).exec()
 
     def showEvent(self, event):
         from oncue.screen_privacy import set_capture_protection
 
         set_capture_protection(self, get_config().content_protection)
+        self._refresh_trial_label()
         super().showEvent(event)
+
+    def _refresh_trial_label(self) -> None:
+        cfg = get_config()
+        if cfg.provider != "hosted" or not cfg.web_url or not cfg.oncue_token:
+            self._trial_label.setText("")
+            return
+        from oncue.usage import check_session
+
+        result = check_session()
+        remaining = result.get("trial_remaining", 0)
+        if remaining > 0:
+            self._trial_label.setText(f"Hosted trial: {remaining} session(s) remaining")
+        elif not result.get("can_start", True):
+            self._trial_label.setText("Trial ended — upgrade on your dashboard")
+        else:
+            self._trial_label.setText("Hosted mode connected")
 
     @staticmethod
     def _secret(value: str) -> QLineEdit:
@@ -283,6 +280,8 @@ class SettingsDialog(QDialog):
             gemini_model=old.gemini_model,
             backend_url=self.backend_url.text().strip(),
             oncue_token=self.token.text().strip(),
+            web_url=self.web_url.text().strip(),
+            rag_url=self.rag_url.text().strip(),
             hosted_model=self.hosted_model.currentText().strip() or old.hosted_model,
             capture_hotkey=self.capture_hotkey.text().strip() or old.capture_hotkey,
             voice_hotkey=self.voice_hotkey.text().strip() or old.voice_hotkey,

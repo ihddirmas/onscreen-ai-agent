@@ -41,14 +41,35 @@ _INLINE_STYLE = (
 
 
 def _prose_to_html(text: str) -> str:
-    """Escape prose, style inline `code`, keep line breaks."""
+    """Escape prose; support **bold**, `code`, and simple bullet lines."""
     out, last = [], 0
-    for m in re.finditer(r"`([^`\n]+)`", text):
+    for m in re.finditer(r"`([^`\n]+)`|\*\*(.+?)\*\*", text):
         out.append(html.escape(text[last:m.start()]))
-        out.append(f'<code style="{_INLINE_STYLE}">{html.escape(m.group(1))}</code>')
+        if m.group(1) is not None:
+            out.append(f'<code style="{_INLINE_STYLE}">{html.escape(m.group(1))}</code>')
+        else:
+            out.append(f"<strong>{html.escape(m.group(2))}</strong>")
         last = m.end()
     out.append(html.escape(text[last:]))
-    return "".join(out).replace("\n", "<br>")
+    body = "".join(out)
+    lines = body.split("\n")
+    html_lines: list[str] = []
+    in_list = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("- ") or stripped.startswith("* "):
+            if not in_list:
+                html_lines.append("<ul style='margin:4px 0;padding-left:18px;'>")
+                in_list = True
+            html_lines.append(f"<li>{stripped[2:].strip()}</li>")
+        else:
+            if in_list:
+                html_lines.append("</ul>")
+                in_list = False
+            html_lines.append(line if line else "<br>")
+    if in_list:
+        html_lines.append("</ul>")
+    return "<br>".join(html_lines)
 
 
 def markdown_to_html(text: str) -> str:
@@ -320,13 +341,17 @@ class Overlay(QWidget):
         self._update_title()
 
     def _update_title(self) -> None:
+        from oncue.config import get_config
+
+        cfg = get_config()
         parts = ["OnCUE"]
         if self._tts_speaking:
             parts.append("🔊 Speaking...")
         if self._trial_remaining > 0:
             s = "s" if self._trial_remaining > 1 else ""
-            parts.append(f"trial: {self._trial_remaining} session{s} remaining")
-        parts.append("Enter to ask · Esc to hide")
+            parts.append(f"trial: {self._trial_remaining} session{s} left")
+        cap = cfg.capture_hotkey.replace("<", "").replace(">", "").replace("+", "+")
+        parts.append(f"{cap} capture · Esc hide")
         self._title.setText(" — ".join(parts))
 
     def set_system_enabled(self, enabled: bool) -> None:
@@ -358,6 +383,23 @@ class Overlay(QWidget):
         self.set_status("Something went wrong")
         self.append_token(message)
         self.finish()  # re-show the input so the user can retry
+
+    def show_blocked(self, headline: str, upgrade_url: str = "") -> None:
+        """Trial or quota exhausted — show upgrade path instead of agent input."""
+        self.begin_answer()
+        self.set_status(headline)
+        body = (
+            "Upgrade to **Pro** for more hosted credits, priority models "
+            "(Claude / GPT / Gemini), and unlimited reference documents."
+        )
+        if upgrade_url:
+            link = html.escape(upgrade_url)
+            body += f'\n\n<a href="{link}" style="color:{COLOR["status_green"]};">Open dashboard →</a>'
+        self.answer.setHtml(f"<div>{markdown_to_html(body)}</div>")
+        self.answer.show()
+        self.input.hide()
+        self.show()
+        self.raise_()
 
     # --- internals ----------------------------------------------------------
 
