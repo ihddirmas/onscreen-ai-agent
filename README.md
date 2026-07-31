@@ -78,4 +78,5 @@ oncue/            the app (UI, hotkeys, capture, voice, agent)
 backend/             hosted-mode LiteLLM proxy (Docker)
 packaging/           PyInstaller spec
 onscreen-agent-plan.md   original build brief
+docs/hackathon/          Gemini XPRIZE submission package (plan, narrative, evidence templates)
 ```

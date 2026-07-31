@@ -22,6 +22,8 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
       # Admin key to mint per-user virtual keys + read spend. Generate a strong one.
       - key: LITELLM_MASTER_KEY
         generateValue: true

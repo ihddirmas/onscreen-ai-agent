@@ -1,4 +1,4 @@
-Short term Goal  : To submit to @geminixprize.md before deadline
+Short term Goal  : To submit to @geminixprize.md before deadline — see `docs/hackathon/HACKATHON-PLAN.md`
 Long Term Goal : Make money
 
 Tasks to be done :decide order for subagents ,parallel or sequential

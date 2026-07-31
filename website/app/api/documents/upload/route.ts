@@ -89,7 +89,8 @@ async function updatePersona(userId: string, text: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "oncue-default",
+      // Gemini-backed persona summarization (see backend/litellm-config.yaml:oncue-persona).
+      model: "oncue-persona",
       max_tokens: 200,
       messages: [
         {

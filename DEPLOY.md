@@ -48,7 +48,45 @@ Components:
 
 ---
 
-## 2. LiteLLM on Render
+## 2. LiteLLM proxy (Render or Google Cloud Run)
+
+The LiteLLM proxy holds provider keys server-side and mints per-user virtual
+keys. Pick **one** host — Cloud Run is recommended for the Gemini XPRIZE
+hackathon (satisfies the Google Cloud product requirement).
+
+### Option A — Google Cloud Run (recommended for hackathon)
+
+Uses `backend/cloudbuild.yaml` and `backend/cloudrun-service.yaml`.
+
+1. Enable APIs:
+   ```
+   gcloud services enable run.googleapis.com artifactregistry.googleapis.com \
+     cloudbuild.googleapis.com secretmanager.googleapis.com
+   ```
+2. Create an Artifact Registry repo:
+   ```
+   gcloud artifacts repositories create oncue \
+     --repository-format=docker --location=asia-south1
+   ```
+3. Store secrets in Secret Manager:
+   ```
+   echo -n "gsk_..." | gcloud secrets create groq-api-key --data-file=-
+   echo -n "AIza..." | gcloud secrets create google-api-key --data-file=-
+   echo -n "postgresql://..." | gcloud secrets create litellm-database-url --data-file=-
+   echo -n "sk-master-..." | gcloud secrets create litellm-master-key --data-file=-
+   ```
+   `GOOGLE_API_KEY` is **required** — it powers the `oncue-persona` model
+   (Gemini 2.5 Flash) called on every document upload.
+4. Build and deploy:
+   ```
+   gcloud builds submit --config backend/cloudbuild.yaml backend/
+   ```
+5. **Collect:** the Cloud Run URL (e.g. `https://oncue-litellm-xxxxx.asia-south1.run.app`).
+6. Smoke-test — same curl commands as Render below, replacing the URL.
+
+See `docs/hackathon/GCP-GEMINI.md` for compliance details.
+
+### Option B — Render
 
 Render **builds the Docker image from `backend/Dockerfile`** — you do not build
 or upload an image.
@@ -58,6 +96,7 @@ or upload an image.
    (Or: New Web Service → repo → **root dir `backend`**, runtime **Docker**.)
 2. Set env vars:
    - `GROQ_API_KEY` = your Groq key
+   - `GOOGLE_API_KEY` = your Gemini API key (required for `oncue-persona`)
    - `LITELLM_MASTER_KEY` = a strong `sk-master-…` (the blueprint can auto-generate)
    - `DATABASE_URL` = **reuse Supabase's Postgres connection string** (no separate DB)
    - optional: `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`
