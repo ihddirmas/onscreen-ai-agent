@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from webapp.api.usage import router as usage_router
 from webapp.api.webhooks import router as webhooks_router
+from webapp.pages.dashboard import dashboard_page
 from webapp.pages.download import download_page
 from webapp.pages.landing import landing_page
 from webapp.pages.login import login_page
@@ -12,12 +13,14 @@ from webapp.pages.login import login_page
 # back to system-ui/Georgia this whole time. Loading them globally here.
 app = rx.App(
     stylesheets=[
-        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap",
+        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap",
+        "/optimus.css",
     ],
 )
 app.add_page(landing_page, route="/")
 app.add_page(login_page, route="/login")
 app.add_page(download_page, route="/download")
+app.add_page(dashboard_page, route="/dashboard")
 
 # Escape hatch for server-to-server routes. Reflex's backend ASGI app
 # (`app._api`) is a plain Starlette instance (0.9.7) — no public `.api`

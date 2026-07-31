@@ -9,7 +9,7 @@ import reflex as rx
 
 from webapp.services.documents import ALLOWED_EXTENSIONS, MAX_FILE_SIZE, chunk, embed, extract_text
 from webapp.services.supabase import admin_client
-from webapp.states.dashboard_state import DashboardState
+from webapp.states.dashboard_state import FREE_DOC_LIMIT, DashboardState
 
 
 class UploadState(DashboardState):
@@ -22,6 +22,23 @@ class UploadState(DashboardState):
         self.uploading = True
         self.upload_error = ""
         yield
+        if self.tier == "free":
+            existing = (
+                admin_client()
+                .table("documents")
+                .select("id")
+                .eq("user_id", self.user_id)
+                .execute()
+                .data
+                or []
+            )
+            if len(existing) >= FREE_DOC_LIMIT:
+                self.upload_error = (
+                    f"Free plan allows {FREE_DOC_LIMIT} reference document. "
+                    "Upgrade to Pro for unlimited uploads."
+                )
+                self.uploading = False
+                return
         file = files[0]
         ext = "." + file.name.rsplit(".", 1)[-1].lower() if "." in file.name else ""
         if ext not in ALLOWED_EXTENSIONS:

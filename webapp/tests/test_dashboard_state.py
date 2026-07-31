@@ -145,9 +145,34 @@ def test_deep_link_is_hash_without_a_key():
     assert state.deep_link == "#"
 
 
-def test_deep_link_embeds_the_key_as_a_token():
-    state = _make_state(oncue_key="sk-user-abc")
-    assert state.deep_link == "oncue://connect?token=sk-user-abc"
+def test_deep_link_embeds_token_web_rag_and_backend():
+    state = _make_state(
+        oncue_key="sk-user-abc",
+        site_url="https://app.example.com",
+        rag_url_value="https://db.example.com/functions/v1/rag",
+        backend_url="https://litellm.example.com",
+    )
+    link = state.deep_link
+    assert link.startswith("oncue://connect?")
+    assert "token=sk-user-abc" in link
+    assert "web=https%3A%2F%2Fapp.example.com" in link
+    assert "rag=https%3A%2F%2Fdb.example.com%2Ffunctions%2Fv1%2Frag" in link
+    assert "backend=https%3A%2F%2Flitellm.example.com" in link
+
+
+def test_trial_remaining_for_unused_free_tier():
+    state = _make_state(tier="free", trial_used=False, session_count=0)
+    assert state.trial_remaining == 1
+
+
+def test_trial_remaining_zero_after_session():
+    state = _make_state(tier="free", trial_used=False, session_count=1)
+    assert state.trial_remaining == 0
+
+
+def test_trial_remaining_zero_for_pro():
+    state = _make_state(tier="pro", trial_used=False, session_count=0)
+    assert state.trial_remaining == 0
 
 
 # --- simple mutators -----------------------------------------------------
