@@ -5,6 +5,41 @@
 
 ---
 
+## MCP deployment status (2026-07-31)
+
+| Component | Status | URL / notes |
+|-----------|--------|-------------|
+| **Supabase** (`oncue`) | ✅ Live | `https://jttumhkqzpfhpamwlxtr.supabase.co` — schemas + RAG edge function deployed; 67 LiteLLM tables applied |
+| **Website (Render)** | ✅ Live | https://oncue-website.onrender.com |
+| **LiteLLM (Render)** | ❌ Blocked | Free tier OOM at 512MB — use **Cloud Run** or Render **Starter** ($7/mo) |
+| **Vercel** | ⏸ MCP auth timeout | Use Render website or authenticate Vercel MCP |
+| **Railway webapp** | ⏸ MCP error | Manual deploy via dashboard |
+| **Stripe** | ⏸ Not configured | Needs keys + webhook |
+
+### Manual step required (blocks dashboard)
+
+Copy `SUPABASE_SERVICE_ROLE_KEY` from [Supabase API settings](https://supabase.com/dashboard/project/jttumhkqzpfhpamwlxtr/settings/api) and set on Render `oncue-website`:
+
+```
+SUPABASE_SERVICE_ROLE_KEY=<service_role JWT>
+```
+
+Also set edge function secrets (CLI):
+
+```bash
+npx supabase secrets set --project-ref jttumhkqzpfhpamwlxtr \
+  EMBED_SECRET=kXxc1417DNJ9JVMwI1x1UXEJ6AwvdteRSiuup1Sdims \
+  SUPABASE_SERVICE_ROLE_KEY=<same service role key>
+```
+
+Add auth redirect URL in Supabase Dashboard → Auth → URL Configuration:
+
+```
+https://oncue-website.onrender.com/**
+```
+
+---
+
 ## Prerequisites
 
 Create accounts (all have free tiers):
