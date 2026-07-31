@@ -59,6 +59,17 @@ def _edge_url() -> str:
     return f"{base.rstrip('/')}/functions/v1/rag"
 
 
+def rag_url() -> str:
+    """Public URL of the Supabase `rag` edge function (for deep links)."""
+    explicit = os.environ.get("SUPABASE_FUNCTIONS_URL")
+    if explicit:
+        return f"{explicit.rstrip('/')}/rag"
+    base = os.environ.get("SUPABASE_URL")
+    if not base:
+        return ""
+    return f"{base.rstrip('/')}/functions/v1/rag"
+
+
 def embed(texts: list[str]) -> list[list[float]]:
     """Embed strings via the Supabase Edge Function (server-to-server, shared secret)."""
     if not texts:

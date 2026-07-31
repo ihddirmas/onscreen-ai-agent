@@ -1,6 +1,6 @@
 """`oncue://` deep-link support so the website can launch/configure the app.
 
-Website button → oncue://connect?token=<key>&web=<url>
+Website button → oncue://connect?token=<key>&web=<url>&rag=<url>&backend=<url>
 → OS launches the app with that URL as argv → we parse it, save token + web
 URL into config, and switch to hosted mode. Registration is done on Windows via
 a per-user registry key pointing back at this app.
@@ -36,6 +36,7 @@ def apply_url(url: str) -> str | None:
     token = (q.get("token") or [""])[0]
     web = (q.get("web") or [""])[0]
     rag = (q.get("rag") or [""])[0]
+    backend = (q.get("backend") or [""])[0]
     if not token:
         return None
     cfg = get_config()
@@ -44,6 +45,8 @@ def apply_url(url: str) -> str | None:
         cfg.web_url = web
     if rag:
         cfg.rag_url = rag
+    if backend:
+        cfg.backend_url = backend
     cfg.provider = "hosted"
     try:
         cfg.save()

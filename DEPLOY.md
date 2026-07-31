@@ -108,17 +108,21 @@ datacenter that matches your Hinglish-first India audience.
    - **Without managed Redis** the app still works — it runs redis-server in
      the same container as a fallback.
 
-3. **Set the 14 environment variables** in the webapp's **Variables** tab
+3. **Set the 15 environment variables** in the webapp's **Variables** tab
    (never commit secrets):
 
    `SUPABASE_URL` · `SUPABASE_ANON_KEY` · `SUPABASE_SERVICE_ROLE_KEY` ·
-   `SUPABASE_FUNCTIONS_URL` · `EMBED_SECRET` · `LITELLM_URL` ·
+   `SUPABASE_FUNCTIONS_URL` · `EMBED_SECRET` · `SITE_URL` · `LITELLM_URL` ·
    `LITELLM_MASTER_KEY` · `STRIPE_SECRET_KEY` · `STRIPE_WEBHOOK_SECRET` ·
    `STRIPE_PRICE_ID_PRO` · `RAZORPAY_KEY_ID` · `RAZORPAY_KEY_SECRET` ·
    `RAZORPAY_WEBHOOK_SECRET` · `RAZORPAY_PLAN_ID_PRO`
 
    > **Tip:** Start with Stripe in test mode so you can verify the full
    > checkout flow without real charges. Same for Razorpay test mode.
+
+   `SITE_URL` is your public Railway URL (same as step 4 below). The dashboard
+   embeds it in the `oncue://connect` deep link so the desktop app knows where
+   to call `/api/usage/*` and profile endpoints.
 
    `LITELLM_URL` should point to where your LiteLLM instance runs. If it's on
    Render (see §2 above), use its Render URL. If you move LiteLLM to Railway
