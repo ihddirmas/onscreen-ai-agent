@@ -111,15 +111,27 @@ Or check Google AI Studio / Cloud Console for `gemini-2.5-flash` request counts 
 
 ## 5. Pre-configured test account
 
-If you prefer not to sign up:
+For automated E2E (local stack or Supabase cloud):
 
 | Field | Value |
 |---|---|
-| Email | `[PLACEHOLDER: judge-test@example.com]` |
-| Password | `[PLACEHOLDER: TestPassword123!]` |
-| License key | `[PLACEHOLDER: sk-...]` |
-| Tier | `[PLACEHOLDER: pro]` |
-| Pre-uploaded doc | `[PLACEHOLDER: sample-resume.pdf on account]` |
+| Email | `oncue-e2e-test@example.com` |
+| Password | `OnCUE-E2E-Test-Only-2026!` |
+| User ID | `00000000-0000-4000-8000-000000000001` |
+| License key | Written to `.env.test` by `scripts/provision_test_user.py` |
+| Tier | `free` (1 hosted trial session) |
+
+**Setup:**
+
+```bash
+cp .env.test.example .env.test
+# Optional: fill NEXT_PUBLIC_SUPABASE_* for cloud Supabase test user
+bash scripts/start_local_e2e_stack.sh
+.venv/bin/pytest tests/test_e2e_hosted_flow.py -v
+bash scripts/record_gui_e2e.sh   # screen recording
+```
+
+See `.env.test.example` for all test-only variables. Never commit `.env.test`.
 
 ---
 
