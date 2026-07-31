@@ -45,10 +45,14 @@ class OnboardingDialog(QDialog):
         root.addWidget(body)
 
         tips = QLabel(
-            "Hotkeys (customizable in Settings):\n"
-            "  Ctrl+Shift+Space — ask about your screen\n"
+            "Hotkeys (change anytime in Settings → Behavior):\n"
+            "  Ctrl+Shift+Space — screen Q&A\n"
+            "  Ctrl+Shift+H — chat (no screenshot)\n"
+            "  Ctrl+Shift+V — voice about screen (hold)\n"
             "  Ctrl+Shift+D — dictate at cursor (hold)\n"
-            "  Ctrl+Shift+H — chat without screenshot"
+            "  Ctrl+Shift+M — meeting audio (hold)\n\n"
+            "Screen sharing: enable “Hide from screen sharing” in Settings "
+            "so the overlay stays private on Zoom/Meet."
         )
         tips.setStyleSheet(
             f"color: {COLOR['text_muted']}; font-size: 11px;"

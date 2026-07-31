@@ -221,6 +221,8 @@ class OnCUEApp(QObject):
         show_overlay.triggered.connect(lambda: self.overlay.show_for_input())
         settings = QAction("Settings…", menu)
         settings.triggered.connect(self._open_settings)
+        guide = QAction("Feature guide…", menu)
+        guide.triggered.connect(self._open_feature_guide)
         reset_pos = QAction("Reset overlay position", menu)
         reset_pos.triggered.connect(lambda: self.overlay.reset_position())
 
@@ -616,6 +618,11 @@ class OnCUEApp(QObject):
         dialog = SettingsDialog()
         dialog.saved.connect(self._on_settings_saved)
         dialog.exec()
+
+    def _open_feature_guide(self) -> None:
+        from oncue.ui.feature_guide import FeatureGuideDialog
+
+        FeatureGuideDialog().exec()
 
     def handle_protocol_url(self, url: str) -> None:
         """Apply a oncue:// deep link (from the website 'Open app' button)."""

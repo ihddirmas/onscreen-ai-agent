@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -10,9 +10,13 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
     QFormLayout,
     QGroupBox,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
+    QPushButton,
+    QScrollArea,
     QVBoxLayout,
+    QWidget,
 )
 
 from oncue.agent.router import PROVIDERS
@@ -43,15 +47,56 @@ class SettingsDialog(QDialog):
         self.setStyleSheet(DIALOG_STYLE)
         cfg = get_config()
 
-        root = QVBoxLayout(self)
+        outer = QVBoxLayout(self)
+        self._scroll = QScrollArea()
+        self._scroll.setWidgetResizable(True)
+        self._scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
+        content = QWidget()
+        root = QVBoxLayout(content)
+
+        # Quick start (Clicky hotkey table + Parakeet connect flow)
+        quick_box = QGroupBox("Quick start")
+        quick_lay = QVBoxLayout(quick_box)
+        quick_intro = QLabel(
+            "OnCUE lives in your tray. Use hotkeys over any app — no tab switching."
+        )
+        quick_intro.setWordWrap(True)
+        quick_lay.addWidget(quick_intro)
+        hotkeys = QLabel(
+            "<table cellspacing='4'>"
+            "<tr><td><b>Ctrl+Shift+Space</b></td><td>Screen Q&A (screenshot + question)</td></tr>"
+            "<tr><td><b>Ctrl+Shift+H</b></td><td>Chat without screenshot</td></tr>"
+            "<tr><td><b>Ctrl+Shift+V</b></td><td>Voice about screen (hold)</td></tr>"
+            "<tr><td><b>Ctrl+Shift+D</b></td><td>Dictate at cursor (hold)</td></tr>"
+            "<tr><td><b>Ctrl+Shift+M</b></td><td>Meeting audio (hold)</td></tr>"
+            "</table>"
+        )
+        hotkeys.setTextFormat(Qt.TextFormat.RichText)
+        hotkeys.setStyleSheet(f"color: {COLOR['text_muted_strong']}; font-size: 11px;")
+        quick_lay.addWidget(hotkeys)
+        connect_note = QLabel(
+            "Hosted users: sign in on the website → <b>Open OnCUE app</b> "
+            "(auto-fills license key + URLs below)."
+        )
+        connect_note.setWordWrap(True)
+        connect_note.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
+        quick_lay.addWidget(connect_note)
+        guide_row = QHBoxLayout()
+        guide_btn = QPushButton("Open feature guide…")
+        guide_btn.clicked.connect(self._open_feature_guide)
+        guide_row.addWidget(guide_btn)
+        guide_row.addStretch()
+        quick_lay.addLayout(guide_row)
+        root.addWidget(quick_box)
 
         # provider
-        form = QFormLayout()
+        provider_box = QGroupBox("AI provider")
+        provider_form = QFormLayout(provider_box)
         self.provider = QComboBox()
         self.provider.addItems(PROVIDERS)
         self.provider.setCurrentText(cfg.provider)
-        form.addRow("Provider", self.provider)
-        root.addLayout(form)
+        provider_form.addRow("Provider", self.provider)
+        root.addWidget(provider_box)
 
         # BYO keys
         keys_box = QGroupBox("API keys (bring-your-own providers)")
@@ -160,12 +205,36 @@ class SettingsDialog(QDialog):
         behavior.addRow("", self.confirm_actions)
         root.addWidget(behavior_box)
 
+        self._scroll.setWidget(content)
+        outer.addWidget(self._scroll)
+
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
         )
         buttons.accepted.connect(self._save)
         buttons.rejected.connect(self.reject)
-        root.addWidget(buttons)
+        outer.addWidget(buttons)
+
+        # Section widgets for guided tours / tests
+        self._section_widgets = {
+            "quick_start": quick_box,
+            "provider": provider_box,
+            "api_keys": keys_box,
+            "hosted": hosted_box,
+            "speech": speech_box,
+            "behavior": behavior_box,
+        }
+
+    def scroll_to_section(self, name: str) -> None:
+        """Scroll settings to a named section (for demos and tutorials)."""
+        widget = self._section_widgets.get(name)
+        if widget and self._scroll.widget():
+            self._scroll.ensureWidgetVisible(widget, 24, 24)
+
+    def _open_feature_guide(self) -> None:
+        from oncue.ui.feature_guide import FeatureGuideDialog
+
+        FeatureGuideDialog(self).exec()
 
     def showEvent(self, event):
         from oncue.screen_privacy import set_capture_protection

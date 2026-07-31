@@ -78,7 +78,10 @@ cp .env.test.example .env.test
 bash scripts/start_local_e2e_stack.sh   # LiteLLM :4000, usage API :3001, provisions user
 .venv/bin/pytest tests/test_e2e_hosted_flow.py -v
 bash scripts/record_gui_e2e.sh            # GUI walkthrough recording
+bash scripts/record_gui_settings_tour.sh  # all Settings sections + feature guide
 ```
+
+See `docs/FEATURE_GUIDE.md` for hotkey/tray reference (Parakeet + Clicky-inspired flows).
 
 With real Supabase credentials in `.env.test`, `scripts/provision_test_user.py` creates/resets `oncue-e2e-test@example.com` in your project instead of local Postgres.
 
