@@ -184,7 +184,7 @@ Copy-paste ready fields for [xprize.devpost.com](https://xprize.devpost.com):
 | Project name | OnCUE.ai |
 | Tagline | On-screen AI agent — Hinglish-first screen Q&A, voice, and dictation |
 | Category | Education & Human Potential |
-| Repository URL | Your GitHub repo |
+| Repository URL | https://github.com/ihddirmas/onscreen-ai-agent |
 | Demo URL | Vercel website + test account in TESTING.md |
 | Video URL | YouTube link |
 | Description | SUBMISSION-NARRATIVE.md |

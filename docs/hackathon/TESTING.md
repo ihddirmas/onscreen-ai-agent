@@ -125,7 +125,9 @@ If you prefer not to sign up:
 
 ## 6. Repository
 
-**GitHub:** `[PLACEHOLDER: https://github.com/your-org/oncue]`
+**GitHub (public):** https://github.com/ihddirmas/onscreen-ai-agent
+
+Judges can clone and review without an invite. If the repo is made private later, add `testing@devpost.com` and `judging@hacker.fund` as collaborators.
 
 Key paths for reviewers:
 - `oncue/agent/` — LangGraph ReAct agent + tools

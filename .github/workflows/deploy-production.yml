@@ -1,0 +1,52 @@
+name: Deploy production
+
+on:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: "Component to deploy"
+        required: true
+        type: choice
+        options:
+          - website
+          - litellm-cloudrun
+          - all
+
+jobs:
+  deploy-website:
+    if: inputs.component == 'website' || inputs.component == 'all'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      - name: Deploy to Vercel
+        run: npx vercel deploy --prod --token "${{ secrets.VERCEL_TOKEN }}" --yes
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  deploy-litellm:
+    if: inputs.component == 'litellm-cloudrun' || inputs.component == 'all'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Build and deploy LiteLLM to Cloud Run
+        run: |
+          gcloud builds submit --config backend/cloudbuild.yaml backend/ \
+            --substitutions=_REGION=${{ vars.GCP_REGION || 'asia-south1' }}

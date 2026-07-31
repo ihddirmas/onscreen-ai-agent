@@ -41,6 +41,20 @@ export async function mintKey(userId: string, tier: string): Promise<string> {
   return data.key as string;
 }
 
+/** Update budget + model allowlist for an existing key (subscription changes). */
+export async function updateKeyBudget(key: string, tier: string): Promise<void> {
+  const res = await fetch(`${BASE}/key/update`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({
+      key,
+      models: TIER_MODELS[tier] ?? TIER_MODELS.free,
+      max_budget: TIER_BUDGET[tier] ?? TIER_BUDGET.free,
+    }),
+  });
+  if (!res.ok) throw new Error(`LiteLLM key/update failed: ${res.status}`);
+}
+
 /** Spend + budget for a key, for the dashboard credit meter. */
 export async function getSpend(
   key: string

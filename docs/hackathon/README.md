@@ -12,8 +12,10 @@ This folder contains everything needed to complete the Devpost submission for On
 |---|---|---|
 | **Gemini API in deployed app** | ✅ Wired | `oncue-persona` model (Gemini 2.5 Flash) runs on every document upload → persona summarization. See `backend/litellm-config.yaml`. |
 | **Google Cloud product** | ✅ Config ready | LiteLLM proxy deploys to **Google Cloud Run** via `backend/cloudbuild.yaml`. Deploy and set `LITELLM_URL` to the Cloud Run URL. |
-| **Public repo + judge access** | ⬜ TODO | Make repo public OR invite `testing@devpost.com` and `judging@hacker.fund`. |
-| **Live demo URL** | ⬜ TODO | Deploy website (Vercel) + LiteLLM (Cloud Run) + webapp (Railway). See `TESTING.md`. |
+| **Public repo + judge access** | ✅ Done | Public: https://github.com/ihddirmas/onscreen-ai-agent. Judges: `testing@devpost.com`, `judging@hacker.fund` can clone directly. |
+| **Live demo URL** | ⬜ TODO | Follow `DEPLOY-NOW.md` — deploy Supabase + Cloud Run + Vercel. |
+| **Stripe Pro checkout** | ✅ Wired | Website `/pricing` → `/api/checkout/stripe` → webhook at `/api/webhooks/stripe`. |
+| **Windows .exe distribution** | ✅ CI ready | Tag `v0.1.0` to trigger `.github/workflows/release-windows.yml`. |
 | **3-minute demo video** | ⬜ TODO | Record using `VIDEO-OUTLINE.md`. Upload to YouTube (public). |
 | **Written narrative (500–1000 words)** | ✅ Draft | `SUBMISSION-NARRATIVE.md` — customize with your real numbers. |
 | **Revenue evidence** | ⬜ TODO | Fill `EVIDENCE-TEMPLATES.md` with Stripe/Razorpay exports. |
