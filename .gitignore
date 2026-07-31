@@ -6,6 +6,7 @@ config.env
 !.env.example
 !**/.env.example
 !**/.env.local.example
+!.env.deploy.example
 
 # ---- Python (desktop app) ----
 __pycache__/
