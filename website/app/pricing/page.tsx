@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ProCheckoutButton } from "./ProCheckoutButton";
 
 const TIERS = [
   {
@@ -11,6 +12,11 @@ const TIERS = [
       "~$1 of model credits / month",
       "1 reference document",
     ],
+    cta: (
+      <Link className="btn" href="/login" style={{ marginTop: 8 }}>
+        Start free
+      </Link>
+    ),
   },
   {
     name: "Pro",
@@ -20,8 +26,9 @@ const TIERS = [
       "Everything in Free",
       "~$15 of model credits / month",
       "Unlimited reference documents",
-      "Priority models (Claude / GPT)",
+      "Priority models (Claude / GPT / Gemini)",
     ],
+    cta: <ProCheckoutButton />,
   },
 ];
 
@@ -52,21 +59,21 @@ export default function PricingPage() {
             <div className="card" key={t.name}>
               <span className="tier-badge">{t.badge}</span>
               <h2 style={{ marginTop: 10 }}>{t.name}</h2>
-              <div className="price">{t.price}<span className="muted" style={{ fontSize: 14 }}> / mo</span></div>
+              <div className="price">
+                {t.price}
+                <span className="muted" style={{ fontSize: 14 }}> / mo</span>
+              </div>
               <ul style={{ paddingLeft: 18, marginTop: 12 }}>
                 {t.features.map((f) => (
                   <li key={f} style={{ marginBottom: 6 }}>{f}</li>
                 ))}
               </ul>
-              <Link className="btn" href="/login" style={{ marginTop: 8 }}>
-                {t.name === "Free" ? "Start free" : "Choose Pro"}
-              </Link>
+              {t.cta}
             </div>
           ))}
         </div>
         <p className="muted" style={{ textAlign: "center", marginTop: 24 }}>
-          Credits are metered by actual model usage. Payments coming soon — Pro
-          is a placeholder for now.
+          Credits are metered by actual model usage. Pro checkout is powered by Stripe.
         </p>
         <p className="muted" style={{ textAlign: "center", marginTop: 8 }}>
           Already have an account? <Link href="/login">Log in</Link> to get your key.

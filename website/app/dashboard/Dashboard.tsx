@@ -169,6 +169,16 @@ export default function Dashboard(props: {
               <a className="btn secondary" href="/pricing" style={{ marginTop: 8, display: "inline-block" }}>View pricing</a>
             </div>
           )}
+
+          {props.tier === "free" && props.trialRemaining === 0 && (
+            <div className="card">
+              <h2>Upgrade to Pro</h2>
+              <p className="muted">
+                Unlimited documents, priority models (Claude / GPT / Gemini), and ~$15 of credits/month.
+              </p>
+              <a className="btn" href="/pricing" style={{ marginTop: 8, display: "inline-block" }}>Subscribe — $9/mo</a>
+            </div>
+          )}
         </div>
 
         <div className="card">

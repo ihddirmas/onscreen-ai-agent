@@ -63,6 +63,14 @@ model_list:
       model: gemini/gemini-2.5-flash
       api_key: os.environ/GOOGLE_API_KEY
 
+  # Server-side persona summarization (document upload on the web portal).
+  # Always routes through Gemini — satisfies the hackathon requirement that the
+  # deployed application makes at least one Gemini API call.
+  - model_name: oncue-persona
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GOOGLE_API_KEY
+
 litellm_settings:
   drop_params: true          # ignore params a given provider doesn't support
   # Fallback chain: if oncue-default's primary (Groq) is rate-limited,

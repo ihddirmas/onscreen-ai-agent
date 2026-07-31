@@ -1,0 +1,46 @@
+# Google Cloud Build → Artifact Registry → Cloud Run
+# Trigger from the repo root:
+#   gcloud builds submit --config backend/cloudbuild.yaml backend/
+#
+# Set substitutions in a Cloud Build trigger or pass on the CLI:
+#   --substitutions=_REGION=asia-south1,_REPOSITORY=oncue,_SERVICE=oncue-litellm
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/litellm:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/litellm:latest
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - --all-tags
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/litellm
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/litellm:$SHORT_SHA
+      - --region=${_REGION}
+      - --platform=managed
+      - --port=4000
+      - --allow-unauthenticated
+
+substitutions:
+  _REGION: asia-south1
+  _REPOSITORY: oncue
+  _SERVICE: oncue-litellm
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/litellm:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/litellm:latest
+
+options:
+  logging: CLOUD_LOGGING_ONLY
