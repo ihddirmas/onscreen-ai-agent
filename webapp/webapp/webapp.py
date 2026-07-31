@@ -13,7 +13,8 @@ from webapp.pages.login import login_page
 # back to system-ui/Georgia this whole time. Loading them globally here.
 app = rx.App(
     stylesheets=[
-        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap",
+        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap",
+        "/optimus.css",
     ],
 )
 app.add_page(landing_page, route="/")

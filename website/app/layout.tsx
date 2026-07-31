@@ -1,26 +1,32 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Fraunces, JetBrains_Mono } from "next/font/google";
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-sans",
 });
 
-const playfair = Playfair_Display({
+const fraunces = Fraunces({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-display",
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
-  title: "OnCUE — your on-screen AI",
-  description: "Login, pricing, credit usage, and reference documents for OnCUE.",
+  title: "OnCUE — your on-screen AI assistant",
+  description:
+    "Ask about anything on your screen, dictate in Hinglish, and get answers grounded in your documents. Private overlay, no alt-tab.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable} ${jetbrains.variable}`}>
+      <body className="font-sans">{children}</body>
     </html>
   );
 }
