@@ -2,4 +2,5 @@
 # Render-native LiteLLM start (no Docker). Copies config and starts proxy.
 set -euo pipefail
 cd "$(dirname "$0")"
-exec litellm --config litellm-config.yaml --port "${PORT:-4000}"
+PORT="${PORT:-4000}"
+exec litellm --config litellm-config.yaml --host 0.0.0.0 --port "$PORT"
