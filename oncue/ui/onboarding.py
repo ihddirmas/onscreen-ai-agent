@@ -11,6 +11,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
 from oncue.config import get_config
+from oncue.ui.theme import COLOR, DIALOG_STYLE
 
 
 class OnboardingDialog(QDialog):
@@ -22,30 +23,47 @@ class OnboardingDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Welcome to OnCUE")
-        self.setMinimumWidth(440)
+        self.setMinimumWidth(480)
+        self.setStyleSheet(DIALOG_STYLE)
 
         root = QVBoxLayout(self)
+        root.setSpacing(12)
 
         title = QLabel("How do you want to get started?")
-        title.setStyleSheet("font-size: 15px; font-weight: 600;")
+        title.setStyleSheet(
+            f"font-size: 17px; font-weight: 600; color: {COLOR['text']};"
+        )
         root.addWidget(title)
 
         body = QLabel(
-            "Try it free for one session — no API key needed — "
-            "or bring your own key from Groq, Claude, GPT, or Gemini if you'd "
-            "rather manage that yourself."
+            "Sign in for a free hosted trial — screenshot Q&A, Hinglish dictation, "
+            "and document-grounded answers with no API keys.\n\n"
+            "Or bring your own Groq / Claude / GPT / Gemini key if you prefer."
         )
         body.setWordWrap(True)
+        body.setStyleSheet(f"color: {COLOR['text_muted_strong']}; line-height: 1.5;")
         root.addWidget(body)
+
+        tips = QLabel(
+            "Hotkeys (customizable in Settings):\n"
+            "  Ctrl+Shift+Space — ask about your screen\n"
+            "  Ctrl+Shift+D — dictate at cursor (hold)\n"
+            "  Ctrl+Shift+H — chat without screenshot"
+        )
+        tips.setStyleSheet(
+            f"color: {COLOR['text_muted']}; font-size: 11px;"
+        )
+        tips.setWordWrap(True)
+        root.addWidget(tips)
 
         self._status = QLabel("")
         self._status.setWordWrap(True)
-        self._status.setStyleSheet("color: #a06a2c;")
+        self._status.setStyleSheet(f"color: {COLOR['confirm_yellow']};")
         self._status.hide()
         root.addWidget(self._status)
 
         buttons = QHBoxLayout()
-        self._trial_btn = QPushButton("Sign in for a free hosted trial")
+        self._trial_btn = QPushButton("Sign in for free hosted trial")
         self._trial_btn.clicked.connect(self._start_trial)
         key_btn = QPushButton("I have my own API key")
         key_btn.clicked.connect(self._use_own_key)
@@ -56,12 +74,9 @@ class OnboardingDialog(QDialog):
     def _start_trial(self) -> None:
         cfg = get_config()
         if not cfg.web_url:
-            # A packaged build should set ONCUE_WEB_URL so this always has
-            # somewhere real to send a first-time user (see .env.example) —
-            # don't guess a domain here.
             self._status.setText(
                 "This build doesn't have a website URL configured yet. "
-                "Use your own API key below for now."
+                "Use your own API key below, or set ONCUE_WEB_URL in the environment."
             )
             self._status.show()
             return
