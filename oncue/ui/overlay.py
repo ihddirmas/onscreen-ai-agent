@@ -106,21 +106,44 @@ QFrame#panel {{
     border: 1px solid {COLOR['accent_border']};
     border-radius: {RADIUS['panel']};
 }}
+QFrame#header {{
+    background: {COLOR['accent_soft']};
+    border: none;
+    border-top-left-radius: {RADIUS['panel']};
+    border-top-right-radius: {RADIUS['panel']};
+    border-bottom: 1px solid {COLOR['border_subtle']};
+}}
+QLabel#brand {{
+    color: {COLOR['accent']};
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}}
+QLabel#title_hint {{
+    color: {COLOR['text_muted']};
+    font-size: 10px;
+}}
 QLineEdit {{
     background: {COLOR['input_bg']};
     border: 1px solid {COLOR['input_border']};
     border-radius: {RADIUS['control']};
     color: {COLOR['text']};
-    padding: 7px 10px;
+    padding: 10px 12px;
     font-size: 13px;
 }}
 QLineEdit:focus {{
     border: 1px solid {COLOR['input_focus_border']};
+    background: rgba(255, 255, 255, 0.07);
 }}
-QLabel#status {{ color: {COLOR['status_green']}; font-size: 12px; }}
+QLabel#status {{ color: {COLOR['status_green']}; font-size: 12px; font-weight: 500; }}
 QLabel#question {{
-    color: {COLOR['question_purple']}; font-size: 13px; font-style: italic;
-    border-left: 2px solid {COLOR['accent_border']}; padding-left: 8px;
+    color: {COLOR['question_purple']};
+    font-size: 13px;
+    font-weight: 500;
+    border-left: 3px solid {COLOR['accent']};
+    padding: 6px 0 6px 10px;
+    background: {COLOR['accent_soft']};
+    border-radius: 0 {RADIUS['control']} {RADIUS['control']} 0;
 }}
 QLabel#confirm {{ color: {COLOR['confirm_yellow']}; font-size: 13px; }}
 QTextBrowser {{
@@ -129,20 +152,27 @@ QTextBrowser {{
     border-radius: {RADIUS['code']};
     color: {COLOR['text']};
     font-size: 13px;
-    padding: 6px;
+    line-height: 1.45;
+    padding: 10px;
 }}
 QPushButton {{
     background: {COLOR['button_bg']};
     border: 1px solid {COLOR['button_border']};
     border-radius: {RADIUS['control']};
     color: {COLOR['text']};
-    padding: 4px 14px;
+    padding: 6px 16px;
+    font-weight: 500;
 }}
-QPushButton:hover {{ background: {COLOR['button_bg_hover']}; }}
-QPushButton#allow {{ border-color: {COLOR['allow_border']}; }}
-QPushButton#deny  {{ border-color: {COLOR['deny_border']}; }}
-QCheckBox {{ color: {COLOR['text_muted_strong']}; font-size: 10px; }}
-QCheckBox::indicator {{ width: 12px; height: 12px; }}
+QPushButton:hover {{ background: {COLOR['button_bg_hover']}; border-color: {COLOR['accent_border']}; }}
+QPushButton#allow {{ border-color: {COLOR['allow_border']}; color: {COLOR['status_green']}; }}
+QPushButton#deny  {{ border-color: {COLOR['deny_border']}; color: {COLOR['danger']}; }}
+QCheckBox {{ color: {COLOR['text_muted_strong']}; font-size: 11px; }}
+QCheckBox::indicator {{
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid {COLOR['input_border']};
+}}
 """
 
 
@@ -205,38 +235,50 @@ class Overlay(QWidget):
         panel.setMouseTracking(True)
         root.addWidget(panel)
         lay = QVBoxLayout(panel)
-        lay.setContentsMargins(12, 10, 12, 10)
-        lay.setSpacing(6)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(0)
 
-        self._title = QLabel("OnCUE — drag to move · Enter to ask · Esc to hide")
-        self._title.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
-        lay.addWidget(self._title)
+        header = QFrame(objectName="header")
+        header.setMouseTracking(True)
+        header_lay = QHBoxLayout(header)
+        header_lay.setContentsMargins(14, 10, 14, 10)
+        brand = QLabel("● OnCUE", objectName="brand")
+        header_lay.addWidget(brand)
+        header_lay.addStretch(1)
+        self._title = QLabel("", objectName="title_hint")
+        self._title.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        header_lay.addWidget(self._title)
+        lay.addWidget(header)
+
+        body = QVBoxLayout()
+        body.setContentsMargins(14, 12, 14, 12)
+        body.setSpacing(8)
 
         self.input = QLineEdit(placeholderText="Ask about your screen…")
         self.input.returnPressed.connect(self._on_return)
-        lay.addWidget(self.input)
+        body.addWidget(self.input)
 
         # the user's command (typed or spoken) — stays visible during the answer
         self.question = QLabel("", objectName="question")
         self.question.setWordWrap(True)
         self.question.hide()
-        lay.addWidget(self.question)
+        body.addWidget(self.question)
 
         self.status = QLabel("", objectName="status")
         self.status.hide()
-        lay.addWidget(self.status)
+        body.addWidget(self.status)
 
         self.answer = QTextBrowser()
         self.answer.setOpenExternalLinks(True)
-        self.answer.setMinimumHeight(60)
+        self.answer.setMinimumHeight(72)
         self.answer.hide()
-        lay.addWidget(self.answer, stretch=1)
+        body.addWidget(self.answer, stretch=1)
 
         # confirmation row (hidden until an action needs approval)
         self.confirm_label = QLabel("", objectName="confirm")
         self.confirm_label.setWordWrap(True)
         self.confirm_label.hide()
-        lay.addWidget(self.confirm_label)
+        body.addWidget(self.confirm_label)
 
         self.confirm_row = QWidget()
         row = QHBoxLayout(self.confirm_row)
@@ -249,11 +291,14 @@ class Overlay(QWidget):
         row.addWidget(deny)
         row.addWidget(allow)
         self.confirm_row.hide()
-        lay.addWidget(self.confirm_row)
+        body.addWidget(self.confirm_row)
+
+        lay.addLayout(body)
 
         # bottom row: system-actions toggle · resize hint · grip
-        grip_row = QHBoxLayout()
-        grip_row.setContentsMargins(0, 0, 0, 0)
+        footer = QWidget()
+        grip_row = QHBoxLayout(footer)
+        grip_row.setContentsMargins(14, 8, 10, 10)
         self.system_checkbox = QCheckBox("System actions (apps · files · browser)")
         self.system_checkbox.setChecked(self._system_enabled)
         self.system_checkbox.setToolTip(
@@ -269,11 +314,12 @@ class Overlay(QWidget):
         grip = QSizeGrip(panel)
         grip.setFixedSize(18, 18)
         grip_row.addWidget(grip)
-        lay.addLayout(grip_row)
+        lay.addWidget(footer)
 
-        self.setMinimumSize(280, 120)
+        self.setMinimumSize(300, 130)
         self.setFont(QFont(FONT["family"], 10))
-        self._set_size(430, 140)
+        self._set_size(440, 160)
+        self._update_title()
 
     def _set_size(self, w: int, h: int) -> None:
         self._adjusting = True
@@ -344,15 +390,15 @@ class Overlay(QWidget):
         from oncue.config import get_config
 
         cfg = get_config()
-        parts = ["OnCUE"]
+        parts = []
         if self._tts_speaking:
-            parts.append("🔊 Speaking...")
+            parts.append("Speaking…")
         if self._trial_remaining > 0:
             s = "s" if self._trial_remaining > 1 else ""
-            parts.append(f"trial: {self._trial_remaining} session{s} left")
+            parts.append(f"Trial · {self._trial_remaining} left")
         cap = cfg.capture_hotkey.replace("<", "").replace(">", "").replace("+", "+")
-        parts.append(f"{cap} capture · Esc hide")
-        self._title.setText(" — ".join(parts))
+        parts.append(f"{cap} · Esc")
+        self._title.setText(" · ".join(parts) if parts else "Drag to move")
 
     def set_system_enabled(self, enabled: bool) -> None:
         """Sync the checkbox without re-emitting (tray/timer changed it)."""

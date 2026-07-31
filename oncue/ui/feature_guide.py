@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from oncue.config import get_config
-from oncue.ui.theme import COLOR, DIALOG_STYLE
+from oncue.ui.theme import COLOR, DIALOG_STYLE, HEADER_TITLE_STYLE, SCROLL_STYLE
 
 _SECTIONS: list[tuple[str, str]] = [
     (
@@ -82,13 +82,11 @@ class FeatureGuideDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("OnCUE — Feature guide")
         self.setMinimumSize(520, 480)
-        self.setStyleSheet(DIALOG_STYLE)
+        self.setStyleSheet(DIALOG_STYLE + SCROLL_STYLE)
 
         outer = QVBoxLayout(self)
         title = QLabel("How OnCUE works")
-        title.setStyleSheet(
-            f"font-size: 17px; font-weight: 600; color: {COLOR['text']};"
-        )
+        title.setStyleSheet(HEADER_TITLE_STYLE)
         outer.addWidget(title)
 
         cfg = get_config()
