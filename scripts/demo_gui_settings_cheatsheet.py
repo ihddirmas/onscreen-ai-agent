@@ -341,7 +341,7 @@ def main() -> None:
             state["ide"].close()
         app.quit()
 
-    QTimer.singleShot(500, start_settings)
+    QTimer.singleShot(100, start_settings)
     sys.exit(app.exec())
 
 
