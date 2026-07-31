@@ -10,13 +10,13 @@ OnCUE.ai is an on-screen AI agent for **Windows**. The web portal handles signup
 
 **Category:** Education & Human Potential  
 **Gemini API:** Used for persona summarization on document upload (`oncue-persona` → Gemini 2.5 Flash)  
-**Google Cloud:** LiteLLM proxy hosted on Cloud Run
+**Google Cloud:** LiteLLM proxy hosted on Render (requires Starter plan — free tier OOMs at 512MB) or Cloud Run
 
 ---
 
 ## 1. Web portal (no install required)
 
-**URL:** `[PLACEHOLDER: https://your-website.vercel.app]`
+**URL:** https://oncue-website.onrender.com
 
 ### Create a test account
 1. Go to `[URL]/login`
