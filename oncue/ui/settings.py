@@ -21,7 +21,16 @@ from PySide6.QtWidgets import (
 
 from oncue.agent.router import PROVIDERS
 from oncue.config import Config, get_config, set_config
-from oncue.ui.theme import COLOR, DIALOG_STYLE, RADIUS
+from oncue.ui.theme import (
+    BRAND_DOT_STYLE,
+    COLOR,
+    DIALOG_STYLE,
+    HEADER_SUBTITLE_STYLE,
+    HEADER_TITLE_STYLE,
+    HOTKEY_CHIP_STYLE,
+    MUTED_CARD_STYLE,
+    SCROLL_STYLE,
+)
 
 _LANGUAGES = [
     ("hinglish", "Hinglish — Roman (kal milte hain)"),
@@ -37,56 +46,86 @@ _STT_BACKENDS = [
 ]
 
 
+def _hotkey_row(layout: QFormLayout, keys: str, description: str) -> None:
+    row = QHBoxLayout()
+    chip = QLabel(keys)
+    chip.setStyleSheet(HOTKEY_CHIP_STYLE)
+    chip.setFixedHeight(28)
+    desc = QLabel(description)
+    desc.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
+    row.addWidget(chip)
+    row.addWidget(desc, stretch=1)
+    wrap = QWidget()
+    wrap.setLayout(row)
+    layout.addRow("", wrap)
+
+
 class SettingsDialog(QDialog):
     saved = Signal()  # app.py rebuilds the agent when this fires
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("OnCUE Settings")
-        self.setMinimumWidth(500)
-        self.setStyleSheet(DIALOG_STYLE)
+        self.setMinimumWidth(520)
+        self.setMinimumHeight(560)
+        self.setStyleSheet(DIALOG_STYLE + SCROLL_STYLE)
         cfg = get_config()
 
         outer = QVBoxLayout(self)
+        outer.setContentsMargins(20, 20, 20, 16)
+        outer.setSpacing(12)
+
+        header_row = QHBoxLayout()
+        brand = QLabel("●")
+        brand.setStyleSheet(BRAND_DOT_STYLE)
+        title_col = QVBoxLayout()
+        title_col.setSpacing(2)
+        title_lbl = QLabel("Settings")
+        title_lbl.setStyleSheet(HEADER_TITLE_STYLE)
+        sub_lbl = QLabel("Provider, speech, hotkeys, and privacy")
+        sub_lbl.setStyleSheet(HEADER_SUBTITLE_STYLE)
+        title_col.addWidget(title_lbl)
+        title_col.addWidget(sub_lbl)
+        header_row.addWidget(brand)
+        header_row.addLayout(title_col)
+        header_row.addStretch(1)
+        outer.addLayout(header_row)
+
         self._scroll = QScrollArea()
         self._scroll.setWidgetResizable(True)
-        self._scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
+        self._scroll.setFrameShape(QScrollArea.Shape.NoFrame)
         content = QWidget()
         root = QVBoxLayout(content)
+        root.setSpacing(4)
 
-        # Quick start (Clicky hotkey table + Parakeet connect flow)
+        # Quick start
         quick_box = QGroupBox("Quick start")
         quick_lay = QVBoxLayout(quick_box)
         quick_intro = QLabel(
-            "OnCUE lives in your tray. Use hotkeys over any app — no tab switching."
+            "Tray app + global hotkeys. Works over any window — no tab switching."
         )
         quick_intro.setWordWrap(True)
+        quick_intro.setStyleSheet(f"color: {COLOR['text_muted']}; margin-bottom: 4px;")
         quick_lay.addWidget(quick_intro)
-        hotkeys = QLabel(
-            "<table cellspacing='4'>"
-            "<tr><td><b>Ctrl+Shift+Space</b></td><td>Screen Q&A (screenshot + question)</td></tr>"
-            "<tr><td><b>Ctrl+Shift+H</b></td><td>Chat without screenshot</td></tr>"
-            "<tr><td><b>Ctrl+Shift+V</b></td><td>Voice about screen (hold)</td></tr>"
-            "<tr><td><b>Ctrl+Shift+D</b></td><td>Dictate at cursor (hold)</td></tr>"
-            "<tr><td><b>Ctrl+Shift+M</b></td><td>Meeting audio (hold)</td></tr>"
-            "</table>"
+        hotkey_form = QFormLayout()
+        hotkey_form.setSpacing(8)
+        _hotkey_row(hotkey_form, "Ctrl+Shift+Space", "Screen Q&A")
+        _hotkey_row(hotkey_form, "Ctrl+Shift+H", "Chat (no screenshot)")
+        _hotkey_row(hotkey_form, "Ctrl+Shift+V", "Voice + screen (hold)")
+        _hotkey_row(hotkey_form, "Ctrl+Shift+D", "Dictate at cursor (hold)")
+        _hotkey_row(hotkey_form, "Ctrl+Shift+M", "Meeting audio (hold)")
+        quick_lay.addLayout(hotkey_form)
+        connect_card = QLabel(
+            "Hosted: sign in on the website → <b>Open OnCUE app</b> "
+            "to auto-fill your license key and URLs."
         )
-        hotkeys.setTextFormat(Qt.TextFormat.RichText)
-        hotkeys.setStyleSheet(f"color: {COLOR['text_muted_strong']}; font-size: 11px;")
-        quick_lay.addWidget(hotkeys)
-        connect_note = QLabel(
-            "Hosted users: sign in on the website → <b>Open OnCUE app</b> "
-            "(auto-fills license key + URLs below)."
-        )
-        connect_note.setWordWrap(True)
-        connect_note.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
-        quick_lay.addWidget(connect_note)
-        guide_row = QHBoxLayout()
-        guide_btn = QPushButton("Open feature guide…")
+        connect_card.setTextFormat(Qt.TextFormat.RichText)
+        connect_card.setWordWrap(True)
+        connect_card.setStyleSheet(MUTED_CARD_STYLE)
+        quick_lay.addWidget(connect_card)
+        guide_btn = QPushButton("Feature guide…")
         guide_btn.clicked.connect(self._open_feature_guide)
-        guide_row.addWidget(guide_btn)
-        guide_row.addStretch()
-        quick_lay.addLayout(guide_row)
+        quick_lay.addWidget(guide_btn, alignment=Qt.AlignmentFlag.AlignLeft)
         root.addWidget(quick_box)
 
         # provider
@@ -141,7 +180,10 @@ class SettingsDialog(QDialog):
         hosted_note.setStyleSheet(f"color: {COLOR['text_muted']}; font-size: 11px;")
         hosted.addRow("", hosted_note)
         self._trial_label = QLabel("")
-        self._trial_label.setStyleSheet(f"color: {COLOR['status_green']}; font-size: 11px;")
+        self._trial_label.setStyleSheet(
+            f"color: {COLOR['status_green']}; font-size: 11px; "
+            f"background: {COLOR['accent_soft']}; padding: 6px 10px; border-radius: 6px;"
+        )
         hosted.addRow("", self._trial_label)
         root.addWidget(hosted_box)
 
@@ -211,6 +253,12 @@ class SettingsDialog(QDialog):
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
         )
+        save_btn = buttons.button(QDialogButtonBox.StandardButton.Save)
+        if save_btn:
+            save_btn.setStyleSheet(
+                f"background: {COLOR['button_primary_bg']}; border: 1px solid {COLOR['accent']}; "
+                f"color: #ecfdf5; font-weight: 600; padding: 8px 22px; border-radius: 8px;"
+            )
         buttons.accepted.connect(self._save)
         buttons.rejected.connect(self.reject)
         outer.addWidget(buttons)
