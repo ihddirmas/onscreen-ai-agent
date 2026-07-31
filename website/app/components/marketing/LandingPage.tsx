@@ -94,10 +94,10 @@ function OverlayMockup() {
         <span className="h-2 w-2 rounded-full bg-green-500" />
         <span className="ml-auto">Ctrl+Shift+Space</span>
       </div>
-      <p className="text-sm text-white/50">what&apos;s this error?</p>
+      <p className="text-sm text-white/50">summarize this chart for my standup</p>
       <p className="mt-2 text-sm leading-relaxed text-[#8fd48f]">
-        TypeError on line 42 — you&apos;re passing a string where a number is expected. Wrap with{" "}
-        <code className="rounded bg-white/10 px-1">Number()</code> at the call site.
+        Signups dipped 18% after Tuesday — mostly mobile onboarding at the verify-phone step.
+        Consider shortening OTP or adding WhatsApp login.
       </p>
     </div>
   );

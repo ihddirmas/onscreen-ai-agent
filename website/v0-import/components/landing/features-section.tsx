@@ -5,26 +5,30 @@ import { useEffect, useRef, useState } from "react";
 const features = [
   {
     number: "01",
-    title: "Instant Deployment",
-    description: "Push to production in seconds. Our edge network ensures your applications load instantly, anywhere in the world.",
+    title: "Screen-aware answers",
+    description:
+      "Press a hotkey and ask about whatever is on your screen — errors, diagrams, slides. No screenshot → paste → alt-tab back.",
     visual: "deploy",
   },
   {
     number: "02",
-    title: "AI-Native Workflows",
-    description: "Build intelligent applications with built-in AI capabilities. From inference to training, everything scales automatically.",
+    title: "Hinglish-native dictation",
+    description:
+      "Hold a key and speak the way you actually talk. Text lands in WhatsApp, Gmail, or any focused field.",
     visual: "ai",
   },
   {
     number: "03",
-    title: "Real-time Collaboration",
-    description: "Work together seamlessly. Live preview, instant feedback, and version control that actually makes sense.",
+    title: "Grounded in your documents",
+    description:
+      "Upload your resume, notes, or study plan. Answers pull from your reference docs via RAG, not generic web fluff.",
     visual: "collab",
   },
   {
     number: "04",
-    title: "Enterprise Security",
-    description: "Bank-grade encryption, SOC 2 compliance, and granular access controls. Your data stays yours.",
+    title: "Invisible when it matters",
+    description:
+      "The overlay stays off screen recordings and shares by default — private during demos, calls, and presentations.",
     visual: "security",
   },
 ];

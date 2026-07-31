@@ -5,38 +5,29 @@ import { useEffect, useRef, useState } from "react";
 const steps = [
   {
     number: "I",
-    title: "Connect your tools",
-    description: "Integrate with your existing stack in minutes. We support 200+ data sources out of the box.",
-    code: `import { optimus } from '@optimus/core'
-
-optimus.connect({
-  source: 'your-database',
-  sync: true
-})`,
+    title: "Press your hotkey",
+    description:
+      "Ctrl+Shift+Space for screen Q&A, Ctrl+Shift+D to dictate, Ctrl+Shift+M during a call.",
+    code: `# Global hotkeys — work over any window
+Ctrl+Shift+Space  →  screen Q&A
+Ctrl+Shift+H      →  chat (no screenshot)
+Ctrl+Shift+D      →  dictate at cursor`,
   },
   {
     number: "II",
-    title: "Build your workflow",
-    description: "Design powerful automations with our visual builder or write code directly.",
-    code: `optimus.workflow('process', {
-  trigger: 'event',
-  actions: [
-    'validate',
-    'transform', 
-    'deliver'
-  ]
-})`,
+    title: "OnCUE captures context",
+    description:
+      "A screenshot, your voice, or meeting audio — whichever mode you triggered.",
+    code: `# Optional: hide overlay from Zoom/Meet
+Settings → Behavior → Hide from screen sharing`,
   },
   {
     number: "III",
-    title: "Ship to production",
-    description: "Deploy globally with zero configuration. Your app goes live in under 30 seconds.",
-    code: `optimus.deploy({
-  target: 'production',
-  regions: 'auto'
-})
-
-// Deployed to 12 regions`,
+    title: "Answer streams on the overlay",
+    description:
+      "A floating transparent window with follow-ups, or text typed straight into your app.",
+    code: `oncue://connect?token=…&web=…&rag=…&backend=…
+# One click from dashboard — no API keys to paste`,
   },
 ];
 
