@@ -106,6 +106,7 @@ class OnCUEApp(QObject):
         self._recording_meeting = False
         self._thread_id = str(uuid.uuid4())
         self._session_reported = False
+        self._trial_blocked = False
         self._tts_enabled = True
         self._tts = TTSManager()
         self._pointer = PointingWidget()
@@ -149,21 +150,54 @@ class OnCUEApp(QObject):
         self._maybe_check_trial()
         self._maybe_show_onboarding()
 
+    def _apply_trial_result(self, result: dict) -> None:
+        """Update trial gate + overlay badge from a /api/usage/check response."""
+        cfg = get_config()
+        if not result.get("can_start", True):
+            self._trial_blocked = True
+            base = cfg.web_url.rstrip("/") if cfg.web_url else ""
+            self.overlay.show_blocked(
+                "Your free trial session has ended.",
+                upgrade_url=f"{base}/login" if base else "",
+            )
+            return
+        self._trial_blocked = False
+        remaining = result.get("trial_remaining", 0)
+        if remaining > 0:
+            self.overlay.set_trial_status(remaining)
+
     def _maybe_check_trial(self) -> None:
         """Hosted mode only: check session cap on startup."""
         cfg = get_config()
         if cfg.provider != "hosted" or not cfg.web_url:
             return
+        self._apply_trial_result(check_session())
+
+    def _hosted_session_allowed(self) -> bool:
+        """Re-check before each agent turn in hosted mode."""
+        cfg = get_config()
+        if cfg.provider != "hosted" or not cfg.web_url:
+            return True
+        if self._trial_blocked:
+            base = cfg.web_url.rstrip("/")
+            self.overlay.show_blocked(
+                "Your free trial session has ended.",
+                upgrade_url=f"{base}/login",
+            )
+            return False
         result = check_session()
         if not result.get("can_start", True):
-            self.overlay.show_error(
-                "Your trial session has ended. Sign in at "
-                f"{cfg.web_url.rstrip('/')}/login to continue using OnCUE."
+            self._trial_blocked = True
+            base = cfg.web_url.rstrip("/")
+            self.overlay.show_blocked(
+                "Your free trial session has ended.",
+                upgrade_url=f"{base}/login",
             )
-        else:
-            remaining = result.get("trial_remaining", 0)
-            if remaining > 0:
-                self.overlay.set_trial_status(remaining)
+            return False
+        remaining = result.get("trial_remaining", 0)
+        if remaining > 0:
+            self.overlay.set_trial_status(remaining)
+        return True
 
     def _maybe_show_onboarding(self) -> None:
         """First launch only (detected by the config file not existing yet) —
@@ -183,6 +217,8 @@ class OnCUEApp(QObject):
         menu = QMenu()
         ask = QAction("Ask about my screen", menu)
         ask.triggered.connect(self._on_capture)
+        show_overlay = QAction("Show overlay", menu)
+        show_overlay.triggered.connect(lambda: self.overlay.show_for_input())
         settings = QAction("Settings…", menu)
         settings.triggered.connect(self._open_settings)
         reset_pos = QAction("Reset overlay position", menu)
@@ -214,6 +250,7 @@ class OnCUEApp(QObject):
         quit_action = QAction("Quit", menu)
         quit_action.triggered.connect(self._qapp.quit)
         menu.addAction(ask)
+        menu.addAction(show_overlay)
         menu.addAction(settings)
         menu.addAction(reset_pos)
         menu.addSeparator()
@@ -428,12 +465,22 @@ class OnCUEApp(QObject):
         out-of-order / stale worker completions are silently discarded."""
         if not self._ensure_agent():
             return
+        cfg = get_config()
+        if cfg.provider == "hosted" and cfg.web_url:
+            if not self._hosted_session_allowed():
+                return
+            if not self._session_reported:
+                if not report_session_start():
+                    self._trial_blocked = True
+                    base = cfg.web_url.rstrip("/")
+                    self.overlay.show_blocked(
+                        "Could not start a hosted session.",
+                        upgrade_url=f"{base}/login",
+                    )
+                    return
+                self._session_reported = True
         self._capture_gen += 1
         gen = self._capture_gen
-        cfg = get_config()
-        if not self._session_reported and cfg.provider == "hosted" and cfg.web_url:
-            report_session_start()
-            self._session_reported = True
         png = self._pending_png
         self.overlay.begin_answer("Thinking…")
         self.overlay.show_question(display or question)
@@ -577,10 +624,15 @@ class OnCUEApp(QObject):
         status = apply_url(url)
         if status:
             self._agent = None  # rebuild with the new token/profile
+            self._session_reported = False
+            self._trial_blocked = False
+            self._maybe_check_trial()
             self.indicator.flash(f"🔗 {status}", 2200)
 
     def _on_settings_saved(self) -> None:
         self._agent = None            # rebuilt lazily with the new provider
+        self._session_reported = False
+        self._trial_blocked = False
         # thread_id and self._checkpointer are intentionally left alone so
         # conversation memory survives a settings change instead of silently
         # resetting.
