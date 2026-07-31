@@ -23,7 +23,9 @@ DEFAULT_QUESTION = "Describe what's on my screen and answer anything it's asking
 def run_once(question: str) -> None:
     cfg = get_config()
     if cfg.provider == "hosted" and cfg.web_url:
-        report_session_start()
+        if not report_session_start():
+            print("[OnCUE] trial limit reached — sign in at your dashboard to continue.")
+            return
     print(f"[OnCUE] provider={cfg.provider}  capturing screen...")
     png = screenshot_png()
     model = get_model()

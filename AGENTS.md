@@ -69,6 +69,21 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 Production deploy uses `webapp/Dockerfile` + `docker-entrypoint.sh` (waits for Redis before Reflex starts). Railway healthcheck: `GET /ping` → `"pong"`. Set `REFLEX_REDIS_URL=${{Redis.REDIS_URL}}` when using managed Redis.
 
+### E2E test credentials (hosted desktop flow)
+
+Test-only account and stack (not production):
+
+```bash
+cp .env.test.example .env.test
+bash scripts/start_local_e2e_stack.sh   # LiteLLM :4000, usage API :3001, provisions user
+.venv/bin/pytest tests/test_e2e_hosted_flow.py -v
+bash scripts/record_gui_e2e.sh            # GUI walkthrough recording
+```
+
+With real Supabase credentials in `.env.test`, `scripts/provision_test_user.py` creates/resets `oncue-e2e-test@example.com` in your project instead of local Postgres.
+
+Stop stack: `bash scripts/stop_local_e2e_stack.sh`
+
 ### Backend (LiteLLM)
 
 Optional for full hosted E2E. Requires Docker and external Postgres (`DATABASE_URL`, often Supabase). See `DEPLOY.md` and `backend/Dockerfile`. Not needed for desktop-only dev with `DEFAULT_PROVIDER=groq`.
