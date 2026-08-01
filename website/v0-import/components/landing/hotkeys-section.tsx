@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { HOTKEYS, SECTION_LINE } from "@/lib/oncue-brand";
+import { HOTKEYS } from "@/lib/oncue-brand";
 
 export function HotkeysSection() {
   const [isVisible, setIsVisible] = useState(false);
@@ -21,9 +21,9 @@ export function HotkeysSection() {
   return (
     <section id="hotkeys" ref={ref} className="relative py-24 lg:py-32 border-t border-foreground/10">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-        <div className="mb-16 lg:mb-20">
+        <div className="mb-16 lg:mb-24">
           <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
-            <span className={`w-8 h-px ${SECTION_LINE}`} />
+            <span className="w-8 h-px bg-foreground/30" />
             Hotkeys
           </span>
           <h2
@@ -36,8 +36,8 @@ export function HotkeysSection() {
             <span className="text-muted-foreground">Zero alt-tab.</span>
           </h2>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
-            Global hotkeys work over any window — customize every binding in the desktop app
-            under Settings → Behavior.
+            Global hotkeys work over any window — customize every binding in the desktop app under
+            Settings → Behavior.
           </p>
         </div>
 
@@ -45,30 +45,37 @@ export function HotkeysSection() {
           {HOTKEYS.map((hk, i) => (
             <div
               key={hk.keys}
-              className={`bg-background p-8 lg:p-10 transition-all duration-500 ${
+              className={`group bg-background p-8 lg:p-10 hover-lift transition-all duration-500 ${
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               }`}
               style={{ transitionDelay: `${i * 80}ms` }}
             >
-              <kbd className="inline-block font-mono text-xs px-3 py-1.5 rounded-md border border-[#34d399]/35 bg-[#34d399]/10 text-[#059669] mb-4">
+              <span className="font-mono text-xs text-muted-foreground block mb-4">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <kbd className="inline-block font-mono text-xs px-3 py-1.5 border border-foreground/20 bg-foreground/[0.03] mb-4">
                 {hk.keys}
               </kbd>
-              <h3 className="font-display text-2xl mb-2">{hk.title}</h3>
+              <h3 className="font-display text-2xl mb-2 group-hover:translate-x-1 transition-transform duration-300">
+                {hk.title}
+              </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{hk.description}</p>
             </div>
           ))}
           <div
-            className={`bg-[#09090f] text-white p-8 lg:p-10 md:col-span-2 lg:col-span-1 flex flex-col justify-center transition-all duration-500 ${
+            className={`bg-foreground text-background p-8 lg:p-10 md:col-span-2 lg:col-span-1 flex flex-col justify-center transition-all duration-500 ${
               isVisible ? "opacity-100" : "opacity-0"
             }`}
             style={{ transitionDelay: "400ms" }}
           >
-            <span className="text-[#34d399] text-sm font-bold tracking-wide mb-2">● OnCUE</span>
-            <p className="font-display text-xl leading-snug">
-              Tray app + overlay — always one hotkey away.
+            <span className="font-mono text-xs tracking-widest text-background/50 uppercase mb-4">
+              Tray app
+            </span>
+            <p className="font-display text-2xl lg:text-3xl leading-snug">
+              Always one hotkey away.
             </p>
-            <p className="mt-3 text-sm text-white/55">
-              Hide from screen sharing before Zoom or Meet. Your viewers won&apos;t see the overlay.
+            <p className="mt-4 text-sm text-background/60 leading-relaxed">
+              Hide from screen sharing before Zoom or Meet — your viewers won&apos;t see the overlay.
             </p>
           </div>
         </div>

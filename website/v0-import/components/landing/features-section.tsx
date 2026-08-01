@@ -326,7 +326,7 @@ export function FeaturesSection() {
         {/* Header */}
         <div className="mb-16 lg:mb-24">
           <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
-            <span className="w-8 h-px bg-[#34d399]/60" />
+            <span className="w-8 h-px bg-foreground/30" />
             Capabilities
           </span>
           <h2

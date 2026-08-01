@@ -44,12 +44,22 @@ export function Navigation() {
         >
           <Link
             href="/"
-            className={`font-display tracking-tight transition-all duration-500 flex items-center gap-2 ${
-              isScrolled ? "text-xl" : "text-2xl"
-            }`}
+            className="flex items-center gap-2 group"
           >
-            <span className="text-[#34d399] text-lg leading-none">●</span>
-            OnCUE
+            <span
+              className={`font-display tracking-tight transition-all duration-500 ${
+                isScrolled ? "text-xl" : "text-2xl"
+              }`}
+            >
+              OnCUE
+            </span>
+            <span
+              className={`text-muted-foreground font-mono transition-all duration-500 ${
+                isScrolled ? "text-[10px] mt-0.5" : "text-xs mt-1"
+              }`}
+            >
+              TM
+            </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-12">
@@ -60,7 +70,7 @@ export function Navigation() {
                 className="text-sm text-foreground/70 hover:text-foreground transition-colors duration-300 relative group"
               >
                 {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-[#34d399] transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
           </div>

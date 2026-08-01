@@ -34,9 +34,9 @@ export const HOTKEYS = [
   },
 ] as const;
 
-/** Primary CTA button — emerald OnCUE accent */
+/** Primary CTA — matches v0 monochrome editorial buttons */
 export const BTN_PRIMARY =
-  "bg-[#059669] hover:bg-[#10b981] text-white border border-[#34d399]/40 rounded-full";
+  "bg-foreground hover:bg-foreground/90 text-background rounded-full";
 
-/** Section eyebrow line accent */
-export const SECTION_LINE = "bg-[#34d399]/60";
+/** Section eyebrow line — matches v0 landing sections */
+export const SECTION_LINE = "bg-foreground/30";

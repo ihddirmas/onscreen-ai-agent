@@ -82,6 +82,10 @@ export function CtaSection() {
                     <Link href="/download">Download app</Link>
                   </Button>
                 </div>
+
+                <p className="text-sm text-muted-foreground mt-8 font-mono">
+                  No API key required for hosted mode
+                </p>
               </div>
 
               <div className="hidden lg:flex items-center justify-center w-[500px] h-[500px] -mr-16">

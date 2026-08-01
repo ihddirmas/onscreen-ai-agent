@@ -88,7 +88,7 @@ export function HeroSection() {
                     </span>
                   ))}
                 </span>
-                <span className="absolute -bottom-2 left-0 right-0 h-3 bg-[#34d399]/20" />
+                <span className="absolute -bottom-2 left-0 right-0 h-3 bg-foreground/10" />
               </span>
               <span className="text-muted-foreground">.</span>
             </span>
@@ -125,7 +125,7 @@ export function HeroSection() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="h-14 px-8 text-base rounded-full border-[#34d399]/30 hover:bg-[#34d399]/5"
+                className="h-14 px-8 text-base rounded-full border-foreground/20 hover:bg-foreground/5"
               >
                 <a href="#how-it-works">See how it works</a>
               </Button>
