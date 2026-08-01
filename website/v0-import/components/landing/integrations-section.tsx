@@ -3,18 +3,18 @@
 import { useEffect, useState, useRef } from "react";
 
 const integrations = [
-  { name: "GitHub", category: "Version Control" },
-  { name: "Slack", category: "Communication" },
-  { name: "Stripe", category: "Payments" },
-  { name: "PostgreSQL", category: "Database" },
-  { name: "Redis", category: "Cache" },
-  { name: "AWS", category: "Cloud" },
-  { name: "MongoDB", category: "Database" },
-  { name: "Vercel", category: "Hosting" },
-  { name: "Figma", category: "Design" },
-  { name: "Linear", category: "Project Management" },
-  { name: "Notion", category: "Documentation" },
-  { name: "OpenAI", category: "AI/ML" },
+  { name: "Groq", category: "Free STT + LLM" },
+  { name: "Claude", category: "Anthropic" },
+  { name: "GPT", category: "OpenAI" },
+  { name: "Gemini", category: "Google" },
+  { name: "Supabase", category: "Auth & docs" },
+  { name: "Stripe", category: "Pro billing" },
+  { name: "LiteLLM", category: "Hosted proxy" },
+  { name: "Tavily", category: "Web search" },
+  { name: "WhatsApp", category: "Dictation target" },
+  { name: "Zoom", category: "Screen-share safe" },
+  { name: "VS Code", category: "Screen Q&A" },
+  { name: "Hinglish", category: "Roman Hindi STT" },
 ];
 
 export function IntegrationsSection() {
@@ -48,12 +48,12 @@ export function IntegrationsSection() {
             <span className="w-8 h-px bg-foreground/30" />
           </span>
           <h2 className="text-4xl lg:text-6xl font-display tracking-tight mb-6">
-            Works with everything
+            Your AI providers
             <br />
-            you already use.
+            and apps.
           </h2>
           <p className="text-xl text-muted-foreground">
-            200+ pre-built integrations. Connect your entire stack in minutes.
+            Hosted mode or bring-your-own keys. Groq for free dev STT, plus Claude, GPT, and Gemini on Pro.
           </p>
         </div>
 

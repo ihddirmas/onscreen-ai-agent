@@ -3,12 +3,12 @@
 import { useEffect, useState, useRef } from "react";
 
 const locations = [
-  { city: "San Francisco", region: "US West", latency: "12ms" },
-  { city: "New York", region: "US East", latency: "18ms" },
-  { city: "London", region: "Europe", latency: "24ms" },
-  { city: "Tokyo", region: "Asia Pacific", latency: "32ms" },
-  { city: "Sydney", region: "Oceania", latency: "45ms" },
-  { city: "Sao Paulo", region: "South America", latency: "38ms" },
+  { city: "LiteLLM proxy", region: "Hosted backend", latency: "~400ms TTFT" },
+  { city: "Usage API", region: "Trial & billing", latency: "session check" },
+  { city: "RAG service", region: "Your documents", latency: "grounded answers" },
+  { city: "Groq STT", region: "Speech (cloud)", latency: "Hinglish dictation" },
+  { city: "Local Whisper", region: "Offline STT", latency: "private mode" },
+  { city: "Desktop overlay", region: "Tray + hotkeys", latency: "<1s to first token" },
 ];
 
 export function InfrastructureSection() {
@@ -50,28 +50,28 @@ export function InfrastructureSection() {
               Infrastructure
             </span>
             <h2 className="text-4xl lg:text-6xl font-display tracking-tight mb-8">
-              Global by
+              Hosted stack,
               <br />
-              default.
+              one click.
             </h2>
             <p className="text-xl text-muted-foreground leading-relaxed mb-12">
-              Deploy once, run everywhere. Our edge network spans 17 data centers 
-              across 6 continents, delivering sub-50ms latency to 99% of the world.
+              Sign in on the dashboard → <strong>Open OnCUE app</strong> sends your license key,
+              usage API, RAG URL, and LiteLLM backend via <code className="font-mono text-sm">oncue://connect</code>.
+              Or bring your own Groq / Claude / GPT / Gemini keys.
             </p>
 
-            {/* Stats */}
             <div className="grid grid-cols-3 gap-8">
               <div>
-                <div className="text-4xl lg:text-5xl font-display mb-2">17</div>
-                <div className="text-sm text-muted-foreground">Data centers</div>
+                <div className="text-4xl lg:text-5xl font-display mb-2">5</div>
+                <div className="text-sm text-muted-foreground">Global hotkeys</div>
               </div>
               <div>
-                <div className="text-4xl lg:text-5xl font-display mb-2">99.99%</div>
-                <div className="text-sm text-muted-foreground">Uptime SLA</div>
+                <div className="text-4xl lg:text-5xl font-display mb-2">BYO</div>
+                <div className="text-sm text-muted-foreground">Or hosted trial</div>
               </div>
               <div>
-                <div className="text-4xl lg:text-5xl font-display mb-2">&lt;50ms</div>
-                <div className="text-sm text-muted-foreground">Global latency</div>
+                <div className="text-4xl lg:text-5xl font-display mb-2">RAG</div>
+                <div className="text-sm text-muted-foreground">Your documents</div>
               </div>
             </div>
           </div>

@@ -1,20 +1,25 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter, Fraunces, JetBrains_Mono } from "next/font/google";
+import {
+  Instrument_Sans,
+  Instrument_Serif,
+  JetBrains_Mono,
+} from "next/font/google";
 
-const inter = Inter({
+const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-instrument",
 });
 
-const fraunces = Fraunces({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  variable: "--font-display",
+  weight: "400",
+  variable: "--font-instrument-serif",
 });
 
-const jetbrains = JetBrains_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-mono",
+  variable: "--font-jetbrains",
 });
 
 export const metadata: Metadata = {
@@ -25,7 +30,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable} ${jetbrains.variable}`}>
+    <html
+      lang="en"
+      className={`${instrumentSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
+    >
       <body className="font-sans">{children}</body>
     </html>
   );

@@ -45,30 +45,10 @@ function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number; suffi
 }
 
 const metrics = [
-  { 
-    value: 2847392, 
-    suffix: "", 
-    prefix: "",
-    label: "API requests today",
-  },
-  { 
-    value: 99, 
-    suffix: ".99%", 
-    prefix: "",
-    label: "Uptime this quarter",
-  },
-  { 
-    value: 23, 
-    suffix: "ms", 
-    prefix: "",
-    label: "Average response time",
-  },
-  { 
-    value: 184, 
-    suffix: "", 
-    prefix: "",
-    label: "Countries served",
-  },
+  { value: 5, suffix: "", prefix: "", label: "Global hotkeys" },
+  { value: 1, suffix: "s", prefix: "<", label: "To first token" },
+  { value: 4, suffix: "", prefix: "", label: "Speech languages" },
+  { value: 0, suffix: "", prefix: "", label: "Alt-tab to ChatGPT" },
 ];
 
 export function MetricsSection() {
@@ -108,9 +88,9 @@ export function MetricsSection() {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
             >
-              Performance you
+              Built for
               <br />
-              can measure.
+              real workflows.
             </h2>
           </div>
           <div className="flex items-center gap-4 font-mono text-sm text-muted-foreground">
