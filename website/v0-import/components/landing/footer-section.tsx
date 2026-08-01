@@ -6,6 +6,7 @@ import { AnimatedWave } from "./animated-wave";
 const footerLinks = {
   Product: [
     { name: "Features", href: "#features" },
+    { name: "Hotkeys", href: "#hotkeys" },
     { name: "How it works", href: "#how-it-works" },
     { name: "Pricing", href: "#pricing" },
     { name: "Download", href: "/download" },
@@ -27,7 +28,8 @@ export function FooterSection() {
         <div className="py-16 lg:py-24">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-8">
             <div className="col-span-2 md:col-span-2">
-              <Link href="/" className="font-display text-3xl tracking-tight">
+              <Link href="/" className="font-display text-3xl tracking-tight flex items-center gap-2">
+                <span className="text-[#34d399]">●</span>
                 OnCUE
               </Link>
               <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">

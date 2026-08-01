@@ -22,7 +22,14 @@ v0-import/
 - **`website/tsconfig.json`** resolves `@/*` → `v0-import/*` first, then `website/*`
 - **`website/app/globals.css`** includes Tailwind v4 tokens aligned with `v0-import/app/globals.css`
 
-Edit landing copy and layout in `components/landing/`. Dashboard, login, and API routes stay under `website/app/`.
+Edit landing copy and OnCUE branding in `components/landing/` and tokens in `lib/oncue-brand.ts`. Dashboard, login, and API routes stay under `website/app/`.
+
+## OnCUE design overrides (vs raw Optimus v0)
+
+- Emerald accent `#34d399` / `#059669` — matches desktop app HUD
+- `HotkeysSection` — product-specific cheat sheet
+- `OverlayMockup` — dark overlay preview in hero
+- Animated sphere tinted emerald (not pure black)
 
 ## Local preview
 

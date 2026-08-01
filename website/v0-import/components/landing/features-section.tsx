@@ -326,7 +326,7 @@ export function FeaturesSection() {
         {/* Header */}
         <div className="mb-16 lg:mb-24">
           <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
-            <span className="w-8 h-px bg-foreground/30" />
+            <span className="w-8 h-px bg-[#34d399]/60" />
             Capabilities
           </span>
           <h2
@@ -334,9 +334,9 @@ export function FeaturesSection() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            Everything you need.
+            Built for your
             <br />
-            <span className="text-muted-foreground">Nothing you don&apos;t.</span>
+            <span className="text-muted-foreground">daily workflow.</span>
           </h2>
         </div>
 

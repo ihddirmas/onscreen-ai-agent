@@ -5,8 +5,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
+import { BTN_PRIMARY } from "@/lib/oncue-brand";
+
 const navLinks = [
   { name: "Features", href: "#features" },
+  { name: "Hotkeys", href: "#hotkeys" },
   { name: "How it works", href: "#how-it-works" },
   { name: "Pricing", href: "#pricing" },
 ];
@@ -41,10 +44,11 @@ export function Navigation() {
         >
           <Link
             href="/"
-            className={`font-display tracking-tight transition-all duration-500 ${
+            className={`font-display tracking-tight transition-all duration-500 flex items-center gap-2 ${
               isScrolled ? "text-xl" : "text-2xl"
             }`}
           >
+            <span className="text-[#34d399] text-lg leading-none">●</span>
             OnCUE
           </Link>
 
@@ -56,7 +60,7 @@ export function Navigation() {
                 className="text-sm text-foreground/70 hover:text-foreground transition-colors duration-300 relative group"
               >
                 {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-[#34d399] transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
           </div>
@@ -73,7 +77,7 @@ export function Navigation() {
             <Button
               asChild
               size="sm"
-              className={`bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all duration-500 ${
+              className={`${BTN_PRIMARY} transition-all duration-500 ${
                 isScrolled ? "px-4 h-8 text-xs" : "px-6"
               }`}
             >
@@ -124,7 +128,7 @@ export function Navigation() {
                 Sign in
               </Link>
             </Button>
-            <Button asChild className="flex-1 bg-foreground text-background rounded-full h-14 text-base">
+            <Button asChild className={`flex-1 ${BTN_PRIMARY} h-14 text-base`}>
               <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
                 Get started
               </Link>

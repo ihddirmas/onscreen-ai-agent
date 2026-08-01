@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { AnimatedSphere } from "./animated-sphere";
 import { OverlayMockup } from "./overlay-mockup";
+import { BTN_PRIMARY, SECTION_LINE } from "@/lib/oncue-brand";
 
 const words = ["ask", "dictate", "answer", "ship"];
 
@@ -61,7 +62,7 @@ export function HeroSection() {
           }`}
         >
           <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
-            <span className="w-8 h-px bg-foreground/30" />
+            <span className={`w-8 h-px ${SECTION_LINE}`} />
             The on-screen AI copilot
           </span>
         </div>
@@ -87,7 +88,7 @@ export function HeroSection() {
                     </span>
                   ))}
                 </span>
-                <span className="absolute -bottom-2 left-0 right-0 h-3 bg-foreground/10" />
+                <span className="absolute -bottom-2 left-0 right-0 h-3 bg-[#34d399]/20" />
               </span>
               <span className="text-muted-foreground">.</span>
             </span>
@@ -113,7 +114,7 @@ export function HeroSection() {
               <Button
                 asChild
                 size="lg"
-                className="bg-foreground hover:bg-foreground/90 text-background px-8 h-14 text-base rounded-full group"
+                className={`${BTN_PRIMARY} px-8 h-14 text-base group`}
               >
                 <Link href="/login">
                   Start free
@@ -124,7 +125,7 @@ export function HeroSection() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="h-14 px-8 text-base rounded-full border-foreground/20 hover:bg-foreground/5"
+                className="h-14 px-8 text-base rounded-full border-[#34d399]/30 hover:bg-[#34d399]/5"
               >
                 <a href="#how-it-works">See how it works</a>
               </Button>
@@ -132,7 +133,7 @@ export function HeroSection() {
           </div>
 
           <div
-            className={`hidden lg:block transition-all duration-700 delay-400 ${
+            className={`mt-10 lg:mt-0 transition-all duration-700 delay-400 ${
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >

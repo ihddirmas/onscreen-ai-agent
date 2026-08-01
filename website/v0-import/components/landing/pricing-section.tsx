@@ -57,11 +57,11 @@ export function PricingSection() {
             <div
               key={plan.name}
               className={`relative p-8 lg:p-12 bg-background ${
-                plan.popular ? "md:-my-4 md:py-12 lg:py-16 border-2 border-foreground" : ""
+                plan.popular ? "md:-my-4 md:py-12 lg:py-16 border-2 border-[#34d399]" : ""
               }`}
             >
               {plan.popular && (
-                <span className="absolute -top-3 left-8 px-3 py-1 bg-foreground text-primary-foreground text-xs font-mono uppercase tracking-widest">
+                <span className="absolute -top-3 left-8 px-3 py-1 bg-[#059669] text-white text-xs font-mono uppercase tracking-widest">
                   Most popular
                 </span>
               )}
@@ -86,7 +86,7 @@ export function PricingSection() {
               <ul className="space-y-4 mb-10">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
-                    <Check className="w-4 h-4 text-foreground mt-0.5 shrink-0" />
+                    <Check className="w-4 h-4 text-[#059669] mt-0.5 shrink-0" />
                     <span className="text-sm text-muted-foreground">{feature}</span>
                   </li>
                 ))}
@@ -96,8 +96,8 @@ export function PricingSection() {
                 href={plan.href}
                 className={`w-full py-4 flex items-center justify-center gap-2 text-sm font-medium transition-all group ${
                   plan.popular
-                    ? "bg-foreground text-primary-foreground hover:bg-foreground/90"
-                    : "border border-foreground/20 text-foreground hover:border-foreground hover:bg-foreground/5"
+                    ? "bg-[#059669] text-white hover:bg-[#10b981]"
+                    : "border border-foreground/20 text-foreground hover:border-[#34d399]/50 hover:bg-[#34d399]/5"
                 }`}
               >
                 {plan.cta}
