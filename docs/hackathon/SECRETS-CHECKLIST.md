@@ -28,14 +28,20 @@ Copy values into Vercel (website), Cloud Run (LiteLLM), and optionally GitHub Ac
 
 ## GitHub Actions (optional — for automated deploy)
 
-| Secret | Purpose |
+| Secret / variable | Purpose |
 |---|---|
 | `VERCEL_TOKEN` | vercel.com → Account → Tokens |
-| `VERCEL_ORG_ID` | Vercel project settings |
+| `VERCEL_ORG_ID` | Vercel project settings (`.vercel/project.json`) |
 | `VERCEL_PROJECT_ID` | Vercel project settings |
+| `RENDER_API_KEY` | render.com → Account → API Keys |
+| `RENDER_SERVICE_ID_WEBSITE` | `srv-d9mhghlbedkc73dp482g` (oncue-website) |
+| `RENDER_SERVICE_ID_LITELLM` | `srv-d9mhfn5bedkc73dp292g` (oncue-litellm) |
 | `GCP_SA_KEY` | GCP service account JSON (Cloud Run deploy) |
-| `NEXT_PUBLIC_SUPABASE_URL` | Build-time (website workflow) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Build-time (website workflow) |
+| `GCP_REGION` (repo variable) | Optional; defaults to `asia-south1` |
+
+Workflow: **Actions → Deploy production → Run workflow**. Choose `website-vercel`, `website-render`, `litellm-cloudrun`, `litellm-render`, or `all`.
+
+CI workflow (`.github/workflows/ci.yml`) runs on every push/PR to `main` and validates the website production build.
 
 ## Stripe setup (test mode)
 

@@ -53,10 +53,13 @@ echo "==> 3/4 Website on Vercel"
 need VERCEL_TOKEN
 need VERCEL_ORG_ID
 need VERCEL_PROJECT_ID
+export VERCEL_ORG_ID VERCEL_PROJECT_ID
 (
   cd "$ROOT/website"
   npm ci
-  npx vercel deploy --prod --token "$VERCEL_TOKEN" --yes
+  npx vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+  npx vercel build --prod --token "$VERCEL_TOKEN"
+  npx vercel deploy --prebuilt --prod --yes --token "$VERCEL_TOKEN"
 )
 
 echo "==> 4/4 Post-deploy checklist"

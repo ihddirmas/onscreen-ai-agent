@@ -8,45 +8,93 @@ on:
         required: true
         type: choice
         options:
-          - website
+          - website-vercel
+          - website-render
           - litellm-cloudrun
+          - litellm-render
           - all
 
+permissions:
+  contents: read
+
 jobs:
-  deploy-website:
-    if: inputs.component == 'website' || inputs.component == 'all'
+  deploy-website-vercel:
+    if: >-
+      inputs.component == 'website-vercel' ||
+      inputs.component == 'all'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: website
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: website/package-lock.json
-      - run: npm ci
-      - run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      - name: Deploy to Vercel
-        run: npx vercel deploy --prod --token "${{ secrets.VERCEL_TOKEN }}" --yes
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-  deploy-litellm:
-    if: inputs.component == 'litellm-cloudrun' || inputs.component == 'all'
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pull Vercel environment
+        run: npx vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Build for production
+        run: npx vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Deploy prebuilt output
+        run: npx vercel deploy --prebuilt --prod --yes --token="${{ secrets.VERCEL_TOKEN }}"
+
+  deploy-website-render:
+    if: >-
+      inputs.component == 'website-render' ||
+      inputs.component == 'all'
     runs-on: ubuntu-latest
     steps:
+      - name: Trigger Render website deploy
+        run: |
+          curl -sf -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache":"do_not_clear"}' \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_WEBSITE }}/deploys"
+
+  deploy-litellm-cloudrun:
+    if: >-
+      inputs.component == 'litellm-cloudrun' ||
+      inputs.component == 'all'
+    runs-on: ubuntu-latest
+    env:
+      GCP_REGION: ${{ vars.GCP_REGION != '' && vars.GCP_REGION || 'asia-south1' }}
+    steps:
       - uses: actions/checkout@v4
+
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
+
       - uses: google-github-actions/setup-gcloud@v2
+
       - name: Build and deploy LiteLLM to Cloud Run
         run: |
           gcloud builds submit --config backend/cloudbuild.yaml backend/ \
-            --substitutions=_REGION=${{ vars.GCP_REGION || 'asia-south1' }}
+            --substitutions=_REGION=${GCP_REGION}
+
+  deploy-litellm-render:
+    if: >-
+      inputs.component == 'litellm-render' ||
+      inputs.component == 'all'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render LiteLLM deploy
+        run: |
+          curl -sf -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache":"do_not_clear"}' \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_LITELLM }}/deploys"
