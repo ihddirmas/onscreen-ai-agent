@@ -82,7 +82,7 @@ QComboBox QAbstractItemView {{
     border-radius: {RADIUS['control']};
     color: {COLOR['text']};
     selection-background-color: {COLOR['accent_border']};
-    selection-color: #04120a;
+    selection-color: #0e0e16;
     padding: 2px;
     outline: none;
 }}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
+/** OnCUE variant: dual-ring orbit (not a solid sphere) — distinct from v0 Optimus sphere. */
 export function AnimatedSphere() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef(0);
@@ -13,7 +14,7 @@ export function AnimatedSphere() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const chars = "░▒▓█▀▄▌▐│─┤├┴┬╭╮╰╯";
+    const chars = "◇◆○●·∘";
     let time = 0;
 
     const resize = () => {
@@ -21,7 +22,7 @@ export function AnimatedSphere() {
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     resize();
@@ -33,55 +34,34 @@ export function AnimatedSphere() {
 
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-      const radius = Math.min(rect.width, rect.height) * 0.525;
+      const baseRadius = Math.min(rect.width, rect.height) * 0.38;
 
-      ctx.font = "12px monospace";
+      ctx.font = "11px monospace";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
-      const step = 12;
-      const points: { x: number; y: number; z: number; char: string }[] = [];
+      const rings = [
+        { radius: baseRadius, tilt: 0.35, speed: 0.45, count: 48 },
+        { radius: baseRadius * 0.72, tilt: -0.55, speed: -0.32, count: 36 },
+      ];
 
-      // Generate sphere points
-      for (let phi = 0; phi < Math.PI * 2; phi += 0.15) {
-        for (let theta = 0; theta < Math.PI; theta += 0.15) {
-          const x = Math.sin(theta) * Math.cos(phi + time * 0.5);
-          const y = Math.sin(theta) * Math.sin(phi + time * 0.5);
-          const z = Math.cos(theta);
+      rings.forEach((ring) => {
+        for (let i = 0; i < ring.count; i++) {
+          const angle = (i / ring.count) * Math.PI * 2 + time * ring.speed;
+          const x = Math.cos(angle) * ring.radius;
+          const y = Math.sin(angle) * ring.radius * Math.cos(ring.tilt);
+          const z = Math.sin(angle) * ring.radius * Math.sin(ring.tilt);
 
-          // Rotate around Y axis
-          const rotY = time * 0.3;
-          const newX = x * Math.cos(rotY) - z * Math.sin(rotY);
-          const newZ = x * Math.sin(rotY) + z * Math.cos(rotY);
-
-          // Rotate around X axis
-          const rotX = time * 0.2;
-          const newY = y * Math.cos(rotX) - newZ * Math.sin(rotX);
-          const finalZ = y * Math.sin(rotX) + newZ * Math.cos(rotX);
-
-          const depth = (finalZ + 1) / 2;
+          const depth = (z + ring.radius) / (ring.radius * 2);
+          const alpha = 0.12 + depth * 0.55;
           const charIndex = Math.floor(depth * (chars.length - 1));
 
-          points.push({
-            x: centerX + newX * radius,
-            y: centerY + newY * radius,
-            z: finalZ,
-            char: chars[charIndex],
-          });
+          ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+          ctx.fillText(chars[charIndex], centerX + x, centerY + y * 0.85);
         }
-      }
-
-      // Sort by z for depth
-      points.sort((a, b) => a.z - b.z);
-
-      // Draw points
-      points.forEach((point) => {
-        const alpha = 0.2 + (point.z + 1) * 0.4;
-        ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
-        ctx.fillText(point.char, point.x, point.y);
       });
 
-      time += 0.02;
+      time += 0.012;
       frameRef.current = requestAnimationFrame(render);
     };
 
@@ -93,11 +73,5 @@ export function AnimatedSphere() {
     };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="w-full h-full"
-      style={{ display: "block" }}
-    />
-  );
+  return <canvas ref={canvasRef} className="w-full h-full" style={{ display: "block" }} />;
 }

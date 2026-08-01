@@ -1,9 +1,11 @@
 /** OnCUE brand tokens — shared across v0-import landing sections. */
 export const ONCUE = {
-  emerald: "#34d399",
-  emeraldDark: "#059669",
+  /** Desktop HUD surface — matches oncue/ui/theme.py panel */
   surface: "#12121a",
   surfaceDeep: "#09090f",
+  hudBorder: "rgba(255, 255, 255, 0.35)",
+  hudText: "#e4e4e4",
+  hudMuted: "rgba(255, 255, 255, 0.55)",
 } as const;
 
 export const HOTKEYS = [
@@ -40,3 +42,7 @@ export const BTN_PRIMARY =
 
 /** Section eyebrow line — matches v0 landing sections */
 export const SECTION_LINE = "bg-foreground/30";
+
+/** Desktop HUD chrome — matches monochrome overlay theme */
+export const HUD_PANEL =
+  "rounded-2xl border border-white/25 bg-[#12121a]/95 shadow-2xl backdrop-blur-sm";

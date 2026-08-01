@@ -6,10 +6,11 @@ import { AnimatedWave } from "./animated-wave";
 
 const footerLinks = {
   Product: [
+    { name: "Use cases", href: "#use-cases" },
     { name: "Features", href: "#features" },
     { name: "Hotkeys", href: "#hotkeys" },
-    { name: "How it works", href: "#how-it-works" },
     { name: "Pricing", href: "#pricing" },
+    { name: "FAQ", href: "#faq" },
     { name: "Download", href: "/download" },
   ],
   Developers: [

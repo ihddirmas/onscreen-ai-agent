@@ -8,10 +8,11 @@ import { Menu, X } from "lucide-react";
 import { BTN_PRIMARY } from "@/lib/oncue-brand";
 
 const navLinks = [
+  { name: "Use cases", href: "#use-cases" },
   { name: "Features", href: "#features" },
   { name: "Hotkeys", href: "#hotkeys" },
-  { name: "How it works", href: "#how-it-works" },
   { name: "Pricing", href: "#pricing" },
+  { name: "FAQ", href: "#faq" },
 ];
 
 export function Navigation() {
