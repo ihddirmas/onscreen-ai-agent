@@ -21,7 +21,7 @@ from oncue.ui.theme import COLOR, RADIUS
 
 _DIALOG_STYLE = f"""
 QDialog {{
-    background: #12121a;
+    background: {COLOR['dialog_bg']};
     color: {COLOR['text']};
 }}
 QGroupBox {{
@@ -77,12 +77,12 @@ QComboBox::down-arrow {{
     margin-right: 6px;
 }}
 QComboBox QAbstractItemView {{
-    background: #1a1a26;
+    background: {COLOR['dialog_surface']};
     border: 1px solid {COLOR['accent_border']};
     border-radius: {RADIUS['control']};
     color: {COLOR['text']};
     selection-background-color: {COLOR['accent_border']};
-    selection-color: #0e0e16;
+    selection-color: {COLOR['dialog_bg']};
     padding: 2px;
     outline: none;
 }}

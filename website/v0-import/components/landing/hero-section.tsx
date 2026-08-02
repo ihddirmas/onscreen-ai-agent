@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { AnimatedSphere } from "./animated-sphere";
-import { HeroOverlayMockup } from "./overlay-mockup";
 import { BTN_PRIMARY, SECTION_LINE } from "@/lib/oncue-brand";
 
 const words = ["ask", "dictate", "explain", "ship"];
@@ -127,7 +127,16 @@ export function HeroSection() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            <HeroOverlayMockup />
+            <div className="relative aspect-[4/3] w-full max-w-md ml-auto rounded-xl border border-foreground/10 overflow-hidden shadow-2xl">
+              <Image
+                src="/screenshots/hero-standup.png"
+                alt="OnCUE desktop overlay summarizing a chart"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 400px"
+                priority
+              />
+            </div>
           </div>
         </div>
       </div>

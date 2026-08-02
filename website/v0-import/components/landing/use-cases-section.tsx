@@ -1,7 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { OverlayMockup } from "./overlay-mockup";
 
 const useCases = [
   {
@@ -11,23 +11,8 @@ const useCases = [
     title: "Ask about the error on screen",
     description:
       "Stack trace in VS Code? Press Ctrl+Shift+Space, ask what broke, and get a fix without alt-tabbing to a browser tab.",
-    hotkey: "Ctrl+Shift+Space",
-    question: "why is this TypeError happening on line 42?",
-    answer: (
-      <>
-        <p>
-          <span className="text-white font-medium">user.profile</span> is undefined — the API
-          returned null for guests. Add optional chaining:{" "}
-          <code className="font-mono text-xs text-white/80">user?.profile?.name</code>
-        </p>
-      </>
-    ),
-    backdrop: (
-      <div className="absolute inset-0 bg-[#1e1e1e] p-4 font-mono text-[10px] text-green-400/80 leading-relaxed">
-        <div className="text-red-400">TypeError: Cannot read properties of undefined</div>
-        <div className="text-white/40 mt-2">at renderProfile (App.tsx:42)</div>
-      </div>
-    ),
+    image: "/screenshots/use-case-debug.png",
+    alt: "OnCUE overlay explaining a TypeError in VS Code",
   },
   {
     id: "dictate",
@@ -36,18 +21,8 @@ const useCases = [
     title: "Hinglish into any text field",
     description:
       "Hold Ctrl+Shift+D and speak the way you actually talk. Text lands in WhatsApp, Gmail, or Notion — Roman Hindi supported.",
-    hotkey: "Ctrl+Shift+D",
-    question: "yaar meeting kal 4 baje shift ho gayi",
-    answer: (
-      <p className="text-white/70 italic text-xs">→ pasted into WhatsApp</p>
-    ),
-    backdrop: (
-      <div className="absolute inset-0 bg-[#0b141a] p-4">
-        <div className="ml-auto max-w-[70%] rounded-lg bg-[#005c4b] px-3 py-2 text-xs text-white/90">
-          yaar meeting kal 4 baje shift ho gayi
-        </div>
-      </div>
-    ),
+    image: "/screenshots/use-case-dictate.png",
+    alt: "OnCUE dictation overlay over a chat app",
   },
   {
     id: "standup",
@@ -56,25 +31,8 @@ const useCases = [
     title: "Summarize what you're looking at",
     description:
       "Dashboard open in a meeting? Ask OnCUE to explain the dip, suggest next steps, and talk through it on the overlay.",
-    hotkey: "Ctrl+Shift+Space",
-    question: "summarize this chart for my standup",
-    answer: (
-      <>
-        <p>
-          <span className="text-white font-medium">Weekly signups dipped 18%</span> after Tuesday.
-          Suggest shortening the OTP step for mobile users.
-        </p>
-      </>
-    ),
-    backdrop: (
-      <div className="absolute inset-0 bg-white p-4">
-        <div className="h-full rounded border border-foreground/10 flex items-end gap-1 px-2 pb-2">
-          {[40, 65, 55, 30, 48, 70, 62].map((h, i) => (
-            <div key={i} className="flex-1 bg-foreground/20 rounded-t" style={{ height: `${h}%` }} />
-          ))}
-        </div>
-      </div>
-    ),
+    image: "/screenshots/use-case-standup.png",
+    alt: "OnCUE summarizing a weekly signups chart for a standup",
   },
   {
     id: "exam",
@@ -83,20 +41,8 @@ const useCases = [
     title: "Answers grounded in your PDFs",
     description:
       "Upload notes in the dashboard. OnCUE cites your documents via RAG instead of generic web answers.",
-    hotkey: "Ctrl+Shift+H",
-    question: "explain Krebs cycle from my notes",
-    answer: (
-      <p>
-        Per your <span className="text-white font-medium">bio-chapter-7.pdf</span>: the cycle oxidizes
-        acetyl-CoA to CO₂, producing NADH and FADH₂ for the electron transport chain…
-      </p>
-    ),
-    backdrop: (
-      <div className="absolute inset-0 bg-[#fafafa] p-4 text-[10px] text-foreground/70">
-        <div className="font-display text-sm text-foreground mb-2">bio-chapter-7.pdf</div>
-        <p>The citric acid cycle begins when acetyl-CoA…</p>
-      </div>
-    ),
+    image: "/screenshots/use-case-exam.png",
+    alt: "OnCUE answering an exam question from uploaded PDF notes",
   },
   {
     id: "demo",
@@ -105,19 +51,8 @@ const useCases = [
     title: "Clients never see your buddy",
     description:
       "Toggle “Hide from screen sharing” before Zoom or Meet. You get answers; your audience only sees your deck.",
-    hotkey: "Settings",
-    question: "what should I say about Q3 pipeline?",
-    answer: (
-      <p>
-        Lead with the <span className="text-white font-medium">enterprise pilot</span> — 3 logos in
-        legal, $420k weighted pipeline. De-risk the timeline objection upfront.
-      </p>
-    ),
-    backdrop: (
-      <div className="absolute inset-0 bg-[#2d2d30] flex items-center justify-center">
-        <div className="text-white/30 text-xs font-mono">Zoom — Screen Share Active</div>
-      </div>
-    ),
+    image: "/screenshots/use-case-demo.png",
+    alt: "OnCUE overlay during a Zoom screen share — visible only to you",
   },
 ];
 
@@ -192,17 +127,18 @@ export function UseCasesSection() {
 
           <div className="relative">
             <div className="relative aspect-[4/3] rounded-xl border border-foreground/10 overflow-hidden bg-background shadow-lg">
-              {current.backdrop}
-              <div className="absolute bottom-4 right-4 w-[min(100%,280px)] scale-95 origin-bottom-right">
-                <OverlayMockup
-                  hotkey={current.hotkey}
-                  question={current.question}
-                  answer={current.answer}
-                />
-              </div>
+              <Image
+                key={current.image}
+                src={current.image}
+                alt={current.alt}
+                fill
+                className="object-cover object-center transition-opacity duration-300"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                priority={active === 0}
+              />
             </div>
             <p className="mt-3 text-center text-xs font-mono text-muted-foreground">
-              Simulated screen + OnCUE overlay
+              Real OnCUE desktop overlay · captured from Qt UI
             </p>
           </div>
         </div>
