@@ -6,27 +6,27 @@ import { Shield, Lock, Eye, FileCheck } from "lucide-react";
 const securityFeatures = [
   {
     icon: Shield,
-    title: "SOC 2 Type II",
-    description: "Independently audited security controls with continuous monitoring.",
+    title: "Hide from screen share",
+    description: "Overlay stays invisible on Zoom/Meet recordings — you see it, viewers don't.",
   },
   {
     icon: Lock,
-    title: "End-to-end encryption",
-    description: "AES-256 encryption for data at rest and TLS 1.3 in transit.",
+    title: "Local Whisper option",
+    description: "Transcribe offline with on-device speech — no audio leaves your machine.",
   },
   {
     icon: Eye,
-    title: "Zero-trust architecture",
-    description: "Every request is authenticated and authorized. No exceptions.",
+    title: "Confirm before actions",
+    description: "System tools (open files, browser) require explicit Allow/Deny in the overlay.",
   },
   {
     icon: FileCheck,
-    title: "GDPR & HIPAA",
-    description: "Full compliance with data protection and healthcare regulations.",
+    title: "Your documents, your RAG",
+    description: "Reference uploads stay in your account — answers cite your files, not the open web.",
   },
 ];
 
-const certifications = ["SOC 2", "ISO 27001", "HIPAA", "GDPR", "CCPA"];
+const certifications = ["Screen-share safe", "BYO keys", "Hosted trial", "Folder allowlist", "Esc to cancel"];
 
 export function SecuritySection() {
   const [isVisible, setIsVisible] = useState(false);
@@ -64,8 +64,8 @@ export function SecuritySection() {
               non-negotiable.
             </h2>
             <p className="text-xl text-muted-foreground leading-relaxed mb-12">
-              Enterprise-grade security isn&apos;t optional. It&apos;s built into every layer 
-              of our platform, from infrastructure to application.
+              Privacy isn&apos;t optional. Screen-share hiding, offline STT, and confirm prompts
+              are built into the desktop overlay.
             </p>
 
             {/* Certifications */}

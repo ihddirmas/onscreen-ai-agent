@@ -5,53 +5,33 @@ import { Copy, Check } from "lucide-react";
 
 const codeExamples = [
   {
-    label: "Install",
-    code: `npm install @optimus/sdk
+    label: "Connect",
+    code: `# One click from your dashboard
+oncue://connect?token=…&web=…&rag=…&backend=…
 
-# or
-yarn add @optimus/sdk
-pnpm add @optimus/sdk`,
+# Opens OnCUE desktop — auto-fills Settings`,
   },
   {
-    label: "Initialize",
-    code: `import { Optimus } from '@optimus/sdk'
+    label: "Screen Q&A",
+    code: `# Global hotkey (customizable in Settings)
+Ctrl+Shift+Space
 
-const optimus = new Optimus({
-  apiKey: process.env.OPTIMUS_KEY
-})`,
+# Ask about whatever is on screen`,
   },
   {
-    label: "Deploy",
-    code: `const app = await optimus.deploy({
-  name: 'my-app',
-  region: 'auto',
-  scaling: {
-    min: 1,
-    max: 100
-  }
-})
+    label: "Dictate",
+    code: `# Hold to transcribe at cursor
+Ctrl+Shift+D
 
-console.log('Live at:', app.url)`,
+# Set Speech → Hinglish for Roman Hindi`,
   },
 ];
 
 const features = [
-  { 
-    title: "TypeScript native", 
-    description: "Full type safety with auto-generated types."
-  },
-  { 
-    title: "Zero config", 
-    description: "Sensible defaults that just work."
-  },
-  { 
-    title: "Edge-ready", 
-    description: "Runs anywhere: Node, Deno, Bun, browsers."
-  },
-  { 
-    title: "12KB gzipped", 
-    description: "Lightweight with zero dependencies."
-  },
+  { title: "Tray-first", description: "Runs in the background — no browser tab." },
+  { title: "Deep link auth", description: "No copy-paste API keys for hosted mode." },
+  { title: "Feature guide", description: "In-app hotkey cheat sheet + tutorials." },
+  { title: "Windows + Linux", description: "Qt overlay with global hotkeys." },
 ];
 
 const codeAnimationStyles = `
@@ -122,13 +102,13 @@ export function DevelopersSection() {
               For developers
             </span>
             <h2 className="text-4xl lg:text-6xl font-display tracking-tight mb-8">
-              Built by devs.
+              Connect in
               <br />
-              <span className="text-muted-foreground">For devs.</span>
+              <span className="text-muted-foreground">one click.</span>
             </h2>
             <p className="text-xl text-muted-foreground mb-12 leading-relaxed">
-              A thoughtfully designed SDK that gets out of your way. 
-              Ship faster with intuitive APIs and exceptional documentation.
+              Deep link from the dashboard, global hotkeys, and an in-app feature guide —
+              no wrestling with API keys on first launch.
             </p>
             
             {/* Features */}
