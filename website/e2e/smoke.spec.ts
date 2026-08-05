@@ -23,6 +23,24 @@ test.describe("smoke", () => {
   });
 });
 
+test.describe("download page", () => {
+  test("Windows download link resolves to a real asset (not a 404 release)", async ({
+    page,
+    request,
+  }) => {
+    await page.goto("/download");
+    const href = await page.getByRole("link", { name: /windows/i }).getAttribute("href");
+    expect(href).toBeTruthy();
+    const res = await request.get(href!, { maxRedirects: 5 });
+    expect(
+      res.status(),
+      `Windows download button points at ${href}, which returned ${res.status()}. ` +
+        "This is the primary install CTA — if no GitHub Release has been tagged/published, " +
+        "every visitor hits a dead link."
+    ).toBe(200);
+  });
+});
+
 test.describe("documents API (unauthenticated)", () => {
   test("upload rejects without auth", async ({ request }) => {
     const res = await request.post("/api/documents/upload");
