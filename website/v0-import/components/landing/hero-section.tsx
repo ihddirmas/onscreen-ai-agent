@@ -4,15 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { AnimatedSphere } from "./animated-sphere";
-import { OverlayMockup } from "./overlay-mockup";
+import { BTN_PRIMARY, SECTION_LINE } from "@/lib/oncue-brand";
 
-const words = ["ask", "dictate", "answer", "ship"];
+const words = ["ask", "dictate", "explain", "ship"];
 
 const marqueeStats = [
-  { value: "1 hotkey", label: "replaces the alt-tab cycle", tag: "DEVELOPERS" },
-  { value: "Hinglish", label: "dictation at your cursor", tag: "STUDENTS" },
-  { value: "<1s", label: "to first token on screen", tag: "CALLS" },
+  { value: "100% free", label: "to start — no card needed", tag: "TRIAL" },
+  { value: "1 hotkey", label: "replaces the alt-tab cycle", tag: "FLOW" },
+  { value: "Hinglish", label: "dictation at your cursor", tag: "VOICE" },
   { value: "Private", label: "invisible on screen share", tag: "DEMOS" },
 ];
 
@@ -27,29 +28,22 @@ export function HeroSection() {
   useEffect(() => {
     const interval = setInterval(() => {
       setWordIndex((prev) => (prev + 1) % words.length);
-    }, 2500);
+    }, 3200);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-40 pointer-events-none">
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-35 pointer-events-none">
         <AnimatedSphere />
       </div>
 
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
-        {[...Array(8)].map((_, i) => (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-25">
+        {[...Array(6)].map((_, i) => (
           <div
             key={`h-${i}`}
             className="absolute h-px bg-foreground/10"
-            style={{ top: `${12.5 * (i + 1)}%`, left: 0, right: 0 }}
-          />
-        ))}
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={`v-${i}`}
-            className="absolute w-px bg-foreground/10"
-            style={{ left: `${8.33 * (i + 1)}%`, top: 0, bottom: 0 }}
+            style={{ top: `${16.66 * (i + 1)}%`, left: 0, right: 0 }}
           />
         ))}
       </div>
@@ -61,36 +55,34 @@ export function HeroSection() {
           }`}
         >
           <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
-            <span className="w-8 h-px bg-foreground/30" />
-            The on-screen AI copilot
+            <span className={`w-8 h-px ${SECTION_LINE}`} />
+            An AI buddy on your desktop
           </span>
         </div>
 
         <div className="mb-12">
           <h1
-            className={`text-[clamp(3rem,12vw,10rem)] font-display leading-[0.9] tracking-tight transition-all duration-1000 ${
+            className={`text-[clamp(2.75rem,11vw,9rem)] font-display leading-[0.92] tracking-tight transition-all duration-1000 ${
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <span className="block">Ask your screen.</span>
-            <span className="block">
-              <span className="text-muted-foreground">Then </span>
-              <span className="relative inline-block">
-                <span key={wordIndex} className="inline-flex">
-                  {words[wordIndex].split("").map((char, i) => (
-                    <span
-                      key={`${wordIndex}-${i}`}
-                      className="inline-block animate-char-in"
-                      style={{ animationDelay: `${i * 50}ms` }}
-                    >
-                      {char}
-                    </span>
-                  ))}
-                </span>
-                <span className="absolute -bottom-2 left-0 right-0 h-3 bg-foreground/10" />
+            <span className="block text-muted-foreground text-[0.55em] mb-2">Press a hotkey.</span>
+            <span className="block">Then </span>
+            <span className="relative inline-block">
+              <span key={wordIndex} className="inline-flex">
+                {words[wordIndex].split("").map((char, i) => (
+                  <span
+                    key={`${wordIndex}-${i}`}
+                    className="inline-block animate-word-rise"
+                    style={{ animationDelay: `${i * 40}ms` }}
+                  >
+                    {char}
+                  </span>
+                ))}
               </span>
-              <span className="text-muted-foreground">.</span>
+              <span className="absolute -bottom-1 left-0 right-0 h-2 bg-foreground/10 line-reveal" />
             </span>
+            <span className="text-muted-foreground">.</span>
           </h1>
         </div>
 
@@ -101,8 +93,8 @@ export function HeroSection() {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
             >
-              Dictate in Hinglish, ask about anything visible, and get answers grounded in your
-              documents — from a private overlay that stays off screen shares.
+              OnCUE lives on your desktop — it sees what you see, answers about anything on screen,
+              dictates in Hinglish, and stays invisible when you screen-share.
             </p>
 
             <div
@@ -110,11 +102,7 @@ export function HeroSection() {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
             >
-              <Button
-                asChild
-                size="lg"
-                className="bg-foreground hover:bg-foreground/90 text-background px-8 h-14 text-base rounded-full group"
-              >
+              <Button asChild size="lg" className={`${BTN_PRIMARY} px-8 h-14 text-base group`}>
                 <Link href="/login">
                   Start free
                   <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
@@ -126,17 +114,29 @@ export function HeroSection() {
                 variant="outline"
                 className="h-14 px-8 text-base rounded-full border-foreground/20 hover:bg-foreground/5"
               >
-                <a href="#how-it-works">See how it works</a>
+                <a href="#use-cases">See use cases</a>
               </Button>
             </div>
+            <p className="mt-6 text-sm font-mono text-muted-foreground">
+              Windows & Linux · No API key for hosted trial
+            </p>
           </div>
 
           <div
-            className={`hidden lg:block transition-all duration-700 delay-400 ${
+            className={`mt-10 lg:mt-0 transition-all duration-700 delay-400 ${
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            <OverlayMockup />
+            <div className="relative aspect-[4/3] w-full max-w-md ml-auto rounded-xl border border-foreground/10 overflow-hidden shadow-2xl">
+              <Image
+                src="/screenshots/hero-standup.png"
+                alt="OnCUE desktop overlay summarizing a chart"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 400px"
+                priority
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -146,7 +146,7 @@ export function HeroSection() {
           isVisible ? "opacity-100" : "opacity-0"
         }`}
       >
-        <div className="flex gap-16 marquee whitespace-nowrap">
+        <div className="flex gap-16 marquee-reverse whitespace-nowrap">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex gap-16">
               {marqueeStats.map((stat) => (
