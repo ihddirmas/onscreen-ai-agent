@@ -12,6 +12,7 @@ test("OnCUE homepage full scroll tour (v0-import design)", async ({ page }) => {
 
   for (const id of [
     "#features",
+    "#hotkeys",
     "#how-it-works",
     "#integrations",
     "#security",

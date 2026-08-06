@@ -5,8 +5,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
+import { BTN_PRIMARY } from "@/lib/oncue-brand";
+
 const navLinks = [
   { name: "Features", href: "#features" },
+  { name: "Hotkeys", href: "#hotkeys" },
   { name: "How it works", href: "#how-it-works" },
   { name: "Pricing", href: "#pricing" },
 ];
@@ -41,11 +44,22 @@ export function Navigation() {
         >
           <Link
             href="/"
-            className={`font-display tracking-tight transition-all duration-500 ${
-              isScrolled ? "text-xl" : "text-2xl"
-            }`}
+            className="flex items-center gap-2 group"
           >
-            OnCUE
+            <span
+              className={`font-display tracking-tight transition-all duration-500 ${
+                isScrolled ? "text-xl" : "text-2xl"
+              }`}
+            >
+              OnCUE
+            </span>
+            <span
+              className={`text-muted-foreground font-mono transition-all duration-500 ${
+                isScrolled ? "text-[10px] mt-0.5" : "text-xs mt-1"
+              }`}
+            >
+              TM
+            </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-12">
@@ -73,7 +87,7 @@ export function Navigation() {
             <Button
               asChild
               size="sm"
-              className={`bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all duration-500 ${
+              className={`${BTN_PRIMARY} transition-all duration-500 ${
                 isScrolled ? "px-4 h-8 text-xs" : "px-6"
               }`}
             >
@@ -124,7 +138,7 @@ export function Navigation() {
                 Sign in
               </Link>
             </Button>
-            <Button asChild className="flex-1 bg-foreground text-background rounded-full h-14 text-base">
+            <Button asChild className={`flex-1 ${BTN_PRIMARY} h-14 text-base`}>
               <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
                 Get started
               </Link>

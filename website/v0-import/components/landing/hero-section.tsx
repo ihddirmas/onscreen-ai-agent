@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { AnimatedSphere } from "./animated-sphere";
 import { OverlayMockup } from "./overlay-mockup";
+import { BTN_PRIMARY, SECTION_LINE } from "@/lib/oncue-brand";
 
 const words = ["ask", "dictate", "answer", "ship"];
 
@@ -61,7 +62,7 @@ export function HeroSection() {
           }`}
         >
           <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
-            <span className="w-8 h-px bg-foreground/30" />
+            <span className={`w-8 h-px ${SECTION_LINE}`} />
             The on-screen AI copilot
           </span>
         </div>
@@ -113,7 +114,7 @@ export function HeroSection() {
               <Button
                 asChild
                 size="lg"
-                className="bg-foreground hover:bg-foreground/90 text-background px-8 h-14 text-base rounded-full group"
+                className={`${BTN_PRIMARY} px-8 h-14 text-base group`}
               >
                 <Link href="/login">
                   Start free
@@ -132,7 +133,7 @@ export function HeroSection() {
           </div>
 
           <div
-            className={`hidden lg:block transition-all duration-700 delay-400 ${
+            className={`mt-10 lg:mt-0 transition-all duration-700 delay-400 ${
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >

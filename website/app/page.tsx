@@ -1,3 +1,4 @@
+import { HotkeysSection } from "@/components/landing/hotkeys-section";
 import { Navigation } from "@/components/landing/navigation";
 import { HeroSection } from "@/components/landing/hero-section";
 import { FeaturesSection } from "@/components/landing/features-section";
@@ -19,6 +20,7 @@ export default function Home() {
       <Navigation />
       <HeroSection />
       <FeaturesSection />
+      <HotkeysSection />
       <HowItWorksSection />
       <InfrastructureSection />
       <MetricsSection />

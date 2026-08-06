@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { BTN_PRIMARY } from "@/lib/oncue-brand";
 import { AnimatedTetrahedron } from "./animated-tetrahedron";
 
 export function CtaSection() {
@@ -65,7 +66,7 @@ export function CtaSection() {
                   <Button
                     asChild
                     size="lg"
-                    className="bg-foreground hover:bg-foreground/90 text-background px-8 h-14 text-base rounded-full group"
+                    className={`${BTN_PRIMARY} px-8 h-14 text-base group`}
                   >
                     <Link href="/login">
                       Start free
@@ -81,6 +82,10 @@ export function CtaSection() {
                     <Link href="/download">Download app</Link>
                   </Button>
                 </div>
+
+                <p className="text-sm text-muted-foreground mt-8 font-mono">
+                  No API key required for hosted mode
+                </p>
               </div>
 
               <div className="hidden lg:flex items-center justify-center w-[500px] h-[500px] -mr-16">

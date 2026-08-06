@@ -56,7 +56,7 @@ export function TestimonialsSection() {
         {/* Section Label */}
         <div className="flex items-center gap-4 mb-16">
           <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-            What people say
+            Use cases
           </span>
           <div className="flex-1 h-px bg-foreground/10" />
           <span className="font-mono text-xs text-muted-foreground">
@@ -138,26 +138,32 @@ export function TestimonialsSection() {
         {/* Company Logos Marquee Label */}
         <div className="mt-24 pt-12 border-t border-foreground/10">
           <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase mb-8 text-center">
-            Trusted by forward-thinking teams
+            Built for every workflow
           </p>
         </div>
       </div>
-      
-      {/* Full-width marquee outside container */}
+
       <div className="w-full">
-        <div className="flex gap-16 items-center marquee">
+        <div className="flex gap-16 items-center marquee-reverse">
           {[...Array(2)].map((_, setIdx) => (
             <div key={setIdx} className="flex gap-16 items-center shrink-0">
-              {["Meridian Labs", "Flux Systems", "Beacon AI", "Prism Analytics", "Nova Tech", "Quantum Corp", "Atlas Digital", "Vertex Labs"].map(
-                (company) => (
-                  <span
-                    key={`${setIdx}-${company}`}
-                    className="font-display text-xl md:text-2xl text-foreground/30 whitespace-nowrap hover:text-foreground transition-colors duration-300"
-                  >
-                    {company}
-                  </span>
-                )
-              )}
+              {[
+                "Screen Q&A",
+                "Hinglish dictation",
+                "Meeting audio",
+                "Document RAG",
+                "Screen-share safe",
+                "Code reviews",
+                "Exam prep",
+                "Client demos",
+              ].map((label) => (
+                <span
+                  key={`${setIdx}-${label}`}
+                  className="font-display text-xl md:text-2xl text-foreground/30 whitespace-nowrap hover:text-foreground transition-colors duration-300"
+                >
+                  {label}
+                </span>
+              ))}
             </div>
           ))}
         </div>

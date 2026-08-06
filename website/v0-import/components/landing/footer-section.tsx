@@ -1,20 +1,41 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { AnimatedWave } from "./animated-wave";
 
 const footerLinks = {
   Product: [
     { name: "Features", href: "#features" },
+    { name: "Hotkeys", href: "#hotkeys" },
     { name: "How it works", href: "#how-it-works" },
     { name: "Pricing", href: "#pricing" },
     { name: "Download", href: "/download" },
   ],
-  Account: [
-    { name: "Sign in", href: "/login" },
+  Developers: [
+    { name: "Setup guide", href: "#developers" },
+    { name: "Deep link auth", href: "#developers" },
     { name: "Dashboard", href: "/dashboard" },
+    { name: "Download app", href: "/download" },
+  ],
+  Company: [
+    { name: "About", href: "#" },
+    { name: "Blog", href: "#" },
+    { name: "Contact", href: "#" },
+    { name: "Careers", href: "#", badge: "Hiring" },
+  ],
+  Legal: [
+    { name: "Privacy", href: "#" },
+    { name: "Terms", href: "#" },
+    { name: "Security", href: "#security" },
   ],
 };
+
+const socialLinks = [
+  { name: "Twitter", href: "#" },
+  { name: "GitHub", href: "#" },
+  { name: "LinkedIn", href: "#" },
+];
 
 export function FooterSection() {
   return (
@@ -25,30 +46,48 @@ export function FooterSection() {
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12">
         <div className="py-16 lg:py-24">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-8">
-            <div className="col-span-2 md:col-span-2">
-              <Link href="/" className="font-display text-3xl tracking-tight">
-                OnCUE
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-12 lg:gap-8">
+            <div className="col-span-2">
+              <Link href="/" className="inline-flex items-center gap-2 mb-6">
+                <span className="text-2xl font-display">OnCUE</span>
+                <span className="text-xs text-muted-foreground font-mono">TM</span>
               </Link>
-              <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">
+
+              <p className="text-muted-foreground leading-relaxed mb-8 max-w-xs">
                 Your on-screen AI assistant — screenshot Q&A, Hinglish dictation, and
                 document-grounded answers without leaving your workflow.
               </p>
+
+              <div className="flex gap-6">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 group"
+                  >
+                    {link.name}
+                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  </a>
+                ))}
+              </div>
             </div>
 
-            {Object.entries(footerLinks).map(([category, links]) => (
-              <div key={category}>
-                <h4 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4">
-                  {category}
-                </h4>
-                <ul className="space-y-3">
+            {Object.entries(footerLinks).map(([title, links]) => (
+              <div key={title}>
+                <h3 className="text-sm font-medium mb-6">{title}</h3>
+                <ul className="space-y-4">
                   {links.map((link) => (
                     <li key={link.name}>
                       <Link
                         href={link.href}
-                        className="text-sm text-foreground/70 hover:text-foreground transition-colors"
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2"
                       >
                         {link.name}
+                        {"badge" in link && link.badge && (
+                          <span className="text-xs px-2 py-0.5 bg-foreground text-background rounded-full">
+                            {link.badge}
+                          </span>
+                        )}
                       </Link>
                     </li>
                   ))}
@@ -58,11 +97,20 @@ export function FooterSection() {
           </div>
         </div>
 
-        <div className="py-8 border-t border-foreground/10 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} OnCUE</p>
-          <p className="text-xs font-mono text-muted-foreground">
-            Ctrl+Shift+Space · Ctrl+Shift+D · Ctrl+Shift+H
+        <div className="py-8 border-t border-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} OnCUE. All rights reserved.
           </p>
+
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              All systems operational
+            </span>
+            <span className="hidden sm:inline font-mono text-xs">
+              Ctrl+Shift+Space · Ctrl+Shift+D · Ctrl+Shift+H
+            </span>
+          </div>
         </div>
       </div>
     </footer>
