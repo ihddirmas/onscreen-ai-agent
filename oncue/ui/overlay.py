@@ -96,9 +96,9 @@ QLineEdit {{
 QLineEdit:focus {{
     border: 1px solid {COLOR['input_focus_border']};
 }}
-QLabel#status {{ color: {COLOR['status_green']}; font-size: 12px; }}
+QLabel#status {{ color: {COLOR['status_accent']}; font-size: 12px; }}
 QLabel#question {{
-    color: {COLOR['question_purple']}; font-size: 13px; font-style: italic;
+    color: {COLOR['question_muted']}; font-size: 13px; font-style: italic;
     border-left: 2px solid {COLOR['accent_border']}; padding-left: 8px;
 }}
 QLabel#confirm {{ color: {COLOR['confirm_yellow']}; font-size: 13px; }}
@@ -137,13 +137,18 @@ class Overlay(QWidget):
         geometry: str = "",
         system_enabled: bool = True,
         content_protection: bool = True,
+        embedded: bool = False,
+        parent: QWidget | None = None,
     ):
-        super().__init__(
-            None,
-            Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.WindowStaysOnTopHint
-            | Qt.WindowType.Tool,
-        )
+        window_flags = Qt.Widget
+        if not embedded:
+            parent = None
+            window_flags = (
+                Qt.WindowType.FramelessWindowHint
+                | Qt.WindowType.WindowStaysOnTopHint
+                | Qt.WindowType.Tool
+            )
+        super().__init__(parent, window_flags)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, False)
         self._click_through = click_through

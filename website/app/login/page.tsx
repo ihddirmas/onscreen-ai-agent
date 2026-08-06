@@ -1,17 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { browserClient } from "@/lib/supabase-browser";
+import { getAuthCallbackUrl } from "@/lib/site-url";
 
 export default function LoginPage() {
   const supabase = browserClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"in" | "up">("in");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const err = searchParams.get("error");
+    if (err === "auth") {
+      const detail = searchParams.get("message");
+      setMsg(
+        detail ||
+          "Sign-in failed. If you used Google, ask the admin to add this site URL to Supabase Auth redirect URLs and Google OAuth redirect URIs."
+      );
+    }
+  }, [searchParams]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,10 +48,18 @@ export default function LoginPage() {
   }
 
   async function google() {
-    await supabase.auth.signInWithOAuth({
+    setBusy(true);
+    setMsg("");
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${location.origin}/dashboard` },
+      options: {
+        redirectTo: getAuthCallbackUrl("/dashboard"),
+      },
     });
+    if (error) {
+      setBusy(false);
+      setMsg(error.message);
+    }
   }
 
   return (
@@ -55,7 +76,7 @@ export default function LoginPage() {
             {busy ? "…" : mode === "in" ? "Log in" : "Sign up"}
           </button>
         </form>
-        <button className="btn secondary" style={{ width: "100%", marginTop: 10 }} onClick={google}>
+        <button className="btn secondary" style={{ width: "100%", marginTop: 10 }} onClick={google} disabled={busy}>
           Continue with Google
         </button>
         {msg && <p className="muted" style={{ marginTop: 12 }}>{msg}</p>}

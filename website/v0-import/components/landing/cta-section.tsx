@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { BTN_PRIMARY } from "@/lib/oncue-brand";
 import { AnimatedTetrahedron } from "./animated-tetrahedron";
 
 export function CtaSection() {
@@ -51,21 +52,21 @@ export function CtaSection() {
             <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
               <div className="flex-1">
                 <h2 className="text-4xl lg:text-7xl font-display tracking-tight mb-8 leading-[0.95]">
-                  Ready to stay
+                  Your desktop buddy
                   <br />
-                  in flow?
+                  is one hotkey away.
                 </h2>
 
                 <p className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-xl">
-                  Download the desktop app, sign in once, and press your first hotkey. No API key
-                  required for hosted mode.
+                  Download OnCUE, sign in once, and press Ctrl+Shift+Space. Ask about anything on
+                  screen — no browser tab, no alt-tab.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-start gap-4">
                   <Button
                     asChild
                     size="lg"
-                    className="bg-foreground hover:bg-foreground/90 text-background px-8 h-14 text-base rounded-full group"
+                    className={`${BTN_PRIMARY} px-8 h-14 text-base group`}
                   >
                     <Link href="/login">
                       Start free
@@ -81,6 +82,10 @@ export function CtaSection() {
                     <Link href="/download">Download app</Link>
                   </Button>
                 </div>
+
+                <p className="text-sm text-muted-foreground mt-8 font-mono">
+                  No API key required for hosted mode
+                </p>
               </div>
 
               <div className="hidden lg:flex items-center justify-center w-[500px] h-[500px] -mr-16">

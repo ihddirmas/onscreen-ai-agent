@@ -21,9 +21,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Optimus - Platform to Create',
-  description: 'The creative platform for teams who ship. Build, deploy, and scale with unprecedented velocity.',
-  generator: 'v0.app',
+  title: 'OnCUE — your on-screen AI assistant',
+  description: 'Ask about anything on your screen, dictate in Hinglish, and get answers grounded in your documents.',
 }
 
 export default function RootLayout({
