@@ -1,0 +1,33 @@
+# Render Blueprint for the OnCUE LiteLLM proxy.
+# In Render: New + → Blueprint → connect this repo. Render builds the image from
+# backend/Dockerfile (you never build or upload an image yourself).
+#
+# Fill the values marked "sync: false" in the Render dashboard after it imports.
+
+services:
+  - type: web
+    name: oncue-litellm
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health/liveliness
+    plan: free
+    envVars:
+      # Provider key(s) the proxy uses — held server-side, never in the app.
+      - key: GROQ_API_KEY
+        sync: false
+      # Optional production providers (uncomment the matching model in
+      # litellm-config.yaml to use them):
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      # Admin key to mint per-user virtual keys + read spend. Generate a strong one.
+      - key: LITELLM_MASTER_KEY
+        generateValue: true
+      # Postgres for virtual keys + spend tracking. You can reuse Supabase's
+      # connection string (Supabase → Settings → Database → Connection string).
+      - key: DATABASE_URL
+        sync: false

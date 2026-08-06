@@ -1,0 +1,8 @@
+# Supabase project config (relevant bits for the RAG edge function).
+
+project_id = "oncue"
+
+# The rag function does its own auth (OnCUE key / shared secret), so it must
+# NOT require a Supabase JWT. Deploy with: supabase functions deploy rag --no-verify-jwt
+[functions.rag]
+verify_jwt = false
