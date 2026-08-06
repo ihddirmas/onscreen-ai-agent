@@ -1,3 +1,0 @@
-Place webapp/webapp/assets/demo.mp4 here — a screen recording of the overlay
-in actual use (hotkey press -> answer appears). Reflex serves everything
-under assets/ at the site root, so hero.py references it as /demo.mp4.

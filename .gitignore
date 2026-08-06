@@ -1,74 +1,27 @@
-# ---- Secrets (NEVER commit) ----
-.env
-.env.*
-config.env
-# keep example templates tracked
-!.env.example
-!**/.env.example
-!**/.env.local.example
-!.env.deploy.example
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# ---- Python (desktop app) ----
-__pycache__/
-*.py[cod]
-*.egg-info/
-.eggs/
-.venv/
-venv/
-env/
-.pytest_cache/
-.mypy_cache/
+# dependencies
+/node_modules
 
-# ---- PyInstaller build output ----
-build/
-dist/
-*.manifest
+# next.js
+/.next/
+/out/
 
-# ---- Node / Next.js (website) ----
-node_modules/
-.next/
-out/
-next-env.d.ts
+# production
+/build
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env*
+
+# vercel
+.vercel
+
+# typescript
 *.tsbuildinfo
-.vercel/
-
-# ---- Supabase local ----
-.branches/
-.temp/
-supabase/.temp/
-
-# ---- Superpowers brainstorming companion ----
-.superpowers/
-
-# ---- Agent / skill tooling ----
-.agents/
-agent/
-skills-lock.json
-.claude/skills/
-.claude/worktrees/
-.claude/TDD-QUICKSTART.md
-.claude/plugins/
-
-# ---- Dev / analysis artifacts ----
-claudeanalysis.md
-nul
-
-# ---- E2E testing ----
-.playwright-mcp/
-website/test-results/
-website/playwright-report/
-website/blob-report/
-
-# ---- Screenshot files (root level) ----
-*.png
-
-# ---- Process stderr logs ----
-*_stderr.log
-
-# ---- OS / editor ----
-.DS_Store
-Thumbs.db
-.idea/
-.vscode/
-*.log
-playwright-report
+next-env.d.ts
