@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { serverClient, adminClient } from "@/lib/supabase";
 import { extractText } from "@/lib/extract";
@@ -7,6 +8,17 @@ export const maxDuration = 60;
 
 const ALLOWED_EXTENSIONS = new Set([".pdf", ".docx", ".txt", ".md", ".csv", ".json"]);
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
+
+// Storage content-type is derived from this allowlist, never from the
+// client-supplied file.type — the browser controls that value freely.
+const CONTENT_TYPE_BY_EXT: Record<string, string> = {
+  ".pdf": "application/pdf",
+  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ".txt": "text/plain",
+  ".md": "text/markdown",
+  ".csv": "text/csv",
+  ".json": "application/json",
+};
 
 export async function POST(req: Request) {
   const supabase = serverClient();
@@ -38,10 +50,14 @@ export async function POST(req: Request) {
 
   const admin = adminClient();
   const buffer = Buffer.from(await file.arrayBuffer());
-  const storagePath = `${user.id}/${Date.now()}-${file.name}`;
+  // The storage key is derived only from server-controlled values (user.id,
+  // a random UUID, the validated extension) — file.name never touches it, so
+  // there's no path-traversal surface via "/" or ".." in a crafted filename.
+  // The original name is preserved separately in documents.filename for display.
+  const storagePath = `${user.id}/${Date.now()}-${randomUUID()}${ext}`;
 
   await admin.storage.from("documents").upload(storagePath, buffer, {
-    contentType: file.type || "application/octet-stream",
+    contentType: CONTENT_TYPE_BY_EXT[ext] || "application/octet-stream",
     upsert: false,
   });
 
