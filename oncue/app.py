@@ -27,6 +27,8 @@ from oncue.ui.overlay import Overlay
 from oncue.ui.pointer import PointingWidget, parse_point_tags
 from oncue.ui.settings import SettingsDialog
 from oncue.tts import TTSManager
+from oncue.interview_mode import INTERVIEW_CONFIRMATION, InterviewSession
+from oncue.meeting_memory import record_turn
 from oncue.parakeet import PARAKEET_CONFIRMATION, ParakeetSession
 from oncue.usage import check_session, report_inference, report_session_start
 
@@ -119,6 +121,7 @@ class OnCUEApp(QObject):
         # thread_id is unchanged.
         self._checkpointer = MemorySaver()
         self._parakeet = ParakeetSession()
+        self._interview = InterviewSession()
         self._agent_stt = False  # STT from instant agent hotkey (not hold-to-talk)
 
         cfg = get_config()
@@ -213,6 +216,10 @@ class OnCUEApp(QObject):
         self._tray_parakeet_action.setCheckable(True)
         self._tray_parakeet_action.toggled.connect(self._set_parakeet_mode)
 
+        self._tray_interview_action = QAction("Interview & Meeting mode (session)", menu)
+        self._tray_interview_action.setCheckable(True)
+        self._tray_interview_action.toggled.connect(self._set_interview_mode)
+
         # System-actions toggle + timed pause
         self._tray_system_action = QAction("Allow system actions", menu)
         self._tray_system_action.setCheckable(True)
@@ -228,6 +235,7 @@ class OnCUEApp(QObject):
         quit_action.triggered.connect(self._qapp.quit)
         menu.addAction(ask)
         menu.addAction(self._tray_parakeet_action)
+        menu.addAction(self._tray_interview_action)
         menu.addAction(settings)
         menu.addAction(reset_pos)
         menu.addSeparator()
@@ -306,6 +314,27 @@ class OnCUEApp(QObject):
             self._tray_parakeet_action.setChecked(False)
         self.indicator.flash("Parakeet mode off", 1600)
 
+    def _set_interview_mode(self, enabled: bool) -> None:
+        if enabled:
+            self._enable_interview_mode()
+        else:
+            self._disable_interview_mode()
+
+    def _enable_interview_mode(self) -> None:
+        self._interview.lock()
+        self._enable_parakeet()
+        self.overlay.set_interview_active(True)
+        if hasattr(self, "_tray_interview_action"):
+            self._tray_interview_action.setChecked(True)
+        self.indicator.flash("🎤 Interview & Meeting mode", 2400)
+
+    def _disable_interview_mode(self) -> None:
+        self._interview.unlock()
+        self.overlay.set_interview_active(False)
+        if hasattr(self, "_tray_interview_action"):
+            self._tray_interview_action.setChecked(False)
+        self.indicator.flash("Interview mode off", 1600)
+
     def _stream_static_answer(self, answer: str, question: str = "") -> None:
         self.overlay.begin_answer("")
         if question:
@@ -313,8 +342,38 @@ class OnCUEApp(QObject):
         self.overlay.append_token(answer)
         self.overlay.finish()
 
+    def _consume_interview_commands(self, text: str) -> str | None:
+        if self._interview.wants_unlock(text):
+            self._disable_interview_mode()
+            self._stream_static_answer("Interview & Meeting mode off for this session.")
+            return None
+        if self._interview.wants_lock(text):
+            self._enable_interview_mode()
+            remainder = re.sub(
+                r"interview\s*(?:&|and)\s*meeting\s*mode[^.]*\.?",
+                "",
+                text,
+                flags=re.I,
+            ).strip()
+            remainder = re.sub(
+                r"switch\s+to\s+interview[^.]*\.?",
+                "",
+                remainder,
+                flags=re.I,
+            ).strip()
+            if len(remainder) < 28:
+                self._stream_static_answer(
+                    INTERVIEW_CONFIRMATION, question="Interview & Meeting"
+                )
+                return None
+            return remainder
+        return text
+
     def _consume_parakeet_commands(self, text: str) -> str | None:
         """Handle lock/unlock voice or typed commands. None = stop processing."""
+        text = self._consume_interview_commands(text)
+        if text is None:
+            return None
         if self._parakeet.wants_unlock(text):
             self._disable_parakeet()
             self._stream_static_answer("Parakeet mode disabled for this session.")
@@ -541,6 +600,14 @@ class OnCUEApp(QObject):
     def _ask(self, question: str, display: str | None = None) -> None:
         """Run the agent. A generation counter tags every turn so that
         out-of-order / stale worker completions are silently discarded."""
+        if self._interview.enabled and not self._interview.should_invoke_agent(
+            question
+        ):
+            self._stream_static_answer(
+                self._interview.filler_acknowledgment(),
+                question=display or question,
+            )
+            return
         if not self._ensure_agent():
             return
         if self._parakeet.enabled:
@@ -549,6 +616,8 @@ class OnCUEApp(QObject):
             if self._pending_png is None:
                 self._pending_png = screenshot_png()
                 self._pending_png_gen = self._capture_gen
+        if self._interview.enabled:
+            question = self._interview.enrich_question(question)
         self._capture_gen += 1
         gen = self._capture_gen
         cfg = get_config()
@@ -594,6 +663,13 @@ class OnCUEApp(QObject):
                 model_used=cfg.hosted_model,
                 tokens_out=len(answer) // 4,
             )
+        if self._interview.enabled:
+            from oncue.ui.pointer import strip_point_tags
+
+            q = self._interview.last_question
+            a = strip_point_tags(self.overlay._answer_buffer).strip()
+            if q and a:
+                record_turn(q, a)
         if self._tts_enabled:
             from oncue.ui.pointer import strip_point_tags
 
