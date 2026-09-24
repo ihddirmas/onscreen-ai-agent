@@ -37,6 +37,7 @@ _ENV_MAP = {
     "dictate_hotkey": "DICTATE_HOTKEY",
     "chat_hotkey": "CHAT_HOTKEY",
     "meeting_hotkey": "MEETING_HOTKEY",
+    "agent_hotkey": "AGENT_HOTKEY",
     "allowed_dirs": "ALLOWED_DIRS",
     "confirm_actions": "CONFIRM_ACTIONS",
     "system_tools_enabled": "SYSTEM_TOOLS_ENABLED",
@@ -84,6 +85,7 @@ class Config:
     dictate_hotkey: str = "<ctrl>+<shift>+d"
     chat_hotkey: str = "<ctrl>+<shift>+h"  # chat agent, no screenshot; toggles
     meeting_hotkey: str = "<ctrl>+<shift>+m"  # hold: record system + mic audio
+    agent_hotkey: str = ""  # Parakeet instant agent (default filled at load)
     allowed_dirs: str = "Documents,Downloads,Desktop"
     confirm_actions: bool = True
     system_tools_enabled: bool = True  # open apps/files/browser + file search
@@ -140,6 +142,8 @@ def _parse_env_file(path: Path) -> dict[str, str]:
 
 
 def load_config() -> Config:
+    from oncue.parakeet import default_agent_hotkey
+
     cfg = Config()
     file_values = _parse_env_file(CONFIG_FILE)
     # also honor a local .env when running from a source checkout
@@ -152,6 +156,8 @@ def load_config() -> Config:
             setattr(cfg, attr, raw.strip().lower() in ("1", "true", "yes", "on"))
         else:
             setattr(cfg, attr, raw)
+    if not cfg.agent_hotkey.strip():
+        cfg.agent_hotkey = default_agent_hotkey()
     return cfg
 
 

@@ -40,6 +40,49 @@ def _com_uninit() -> None:
             pass
 
 
+from oncue.ring_buffer import RingAudioBuffer
+
+
+class AlwaysOnRecorder:
+    """Microphone stream that never stops while Parakeet mode is active."""
+
+    def __init__(self, max_seconds: float = 30.0) -> None:
+        self._ring = RingAudioBuffer(max_seconds=max_seconds)
+        self._stream: sd.InputStream | None = None
+        self._lock = threading.Lock()
+
+    @property
+    def active(self) -> bool:
+        return self._stream is not None
+
+    def start(self) -> None:
+        with self._lock:
+            if self._stream is not None:
+                return
+
+            def _callback(indata, frames, time, status):
+                self._ring.append(indata)
+
+            self._stream = sd.InputStream(
+                samplerate=SAMPLE_RATE,
+                channels=1,
+                dtype="float32",
+                callback=_callback,
+            )
+            self._stream.start()
+
+    def stop(self) -> None:
+        with self._lock:
+            if self._stream is None:
+                return
+            self._stream.stop()
+            self._stream.close()
+            self._stream = None
+
+    def snapshot(self, seconds: float = 18.0) -> np.ndarray:
+        return self._ring.snapshot(seconds)
+
+
 class Recorder:
     def __init__(self) -> None:
         self._chunks: list[np.ndarray] = []
