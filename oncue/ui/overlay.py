@@ -163,6 +163,8 @@ class Overlay(QWidget):
         self._content_protection = content_protection
         self._trial_remaining = 0
         self._tts_speaking = False
+        self._parakeet_active = False
+        self._interview_active = False
         self.setMouseTracking(True)
         self._save_timer = QTimer(self)
         self._save_timer.setSingleShot(True)
@@ -324,8 +326,20 @@ class Overlay(QWidget):
         self._tts_speaking = speaking
         self._update_title()
 
+    def set_parakeet_active(self, active: bool) -> None:
+        self._parakeet_active = active
+        self._update_title()
+
+    def set_interview_active(self, active: bool) -> None:
+        self._interview_active = active
+        self._update_title()
+
     def _update_title(self) -> None:
         parts = ["OnCUE"]
+        if self._interview_active:
+            parts.append("Interview · teleprompter")
+        if self._parakeet_active:
+            parts.append("Parakeet · always on")
         if self._tts_speaking:
             parts.append("🔊 Speaking...")
         if self._trial_remaining > 0:

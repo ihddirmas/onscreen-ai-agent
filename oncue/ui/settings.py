@@ -221,6 +221,7 @@ class SettingsDialog(QDialog):
         self.voice_hotkey = QLineEdit(cfg.voice_hotkey)
         self.dictate_hotkey = QLineEdit(cfg.dictate_hotkey)
         self.meeting_hotkey = QLineEdit(cfg.meeting_hotkey)
+        self.agent_hotkey = QLineEdit(cfg.agent_hotkey)
         self.allowed_dirs = QLineEdit(cfg.allowed_dirs)
         self.browser = QComboBox()
         self.browser.setEditable(True)  # allows a custom .exe path too
@@ -243,6 +244,7 @@ class SettingsDialog(QDialog):
         behavior.addRow("Voice hotkey (hold)", self.voice_hotkey)
         behavior.addRow("Dictation hotkey (hold)", self.dictate_hotkey)
         behavior.addRow("Meeting audio hotkey (hold)", self.meeting_hotkey)
+        behavior.addRow("Agent hotkey (tap — Parakeet)", self.agent_hotkey)
         behavior.addRow("Allowed folders", self.allowed_dirs)
         behavior.addRow("", self.content_protection)
         behavior.addRow("", self.system_tools_enabled)
@@ -289,6 +291,7 @@ class SettingsDialog(QDialog):
             dictate_hotkey=self.dictate_hotkey.text().strip() or old.dictate_hotkey,
             chat_hotkey=self.chat_hotkey.text().strip() or old.chat_hotkey,
             meeting_hotkey=self.meeting_hotkey.text().strip() or old.meeting_hotkey,
+            agent_hotkey=self.agent_hotkey.text().strip() or old.agent_hotkey,
             allowed_dirs=self.allowed_dirs.text().strip() or old.allowed_dirs,
             confirm_actions=self.confirm_actions.isChecked(),
             system_tools_enabled=self.system_tools_enabled.isChecked(),

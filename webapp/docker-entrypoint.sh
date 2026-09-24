@@ -25,6 +25,10 @@ if [ -z "${REFLEX_REDIS_URL}" ] || [ "${REFLEX_REDIS_URL}" = "redis://localhost"
   fi
 fi
 
-caddy start --config /app/Caddyfile
+APP_ROOT="$(cd "$(dirname "$0")" && pwd)"
+export APP_ROOT
+export PATH="${APP_ROOT}/.venv/bin:${PATH}"
+
+caddy start --config "${APP_ROOT}/Caddyfile"
 
 exec reflex run --env prod --backend-only --loglevel debug
