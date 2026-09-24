@@ -1,6 +1,8 @@
+import { HotkeysSection } from "@/components/landing/hotkeys-section";
 import { Navigation } from "@/components/landing/navigation";
 import { HeroSection } from "@/components/landing/hero-section";
 import { FeaturesSection } from "@/components/landing/features-section";
+import { UseCasesSection } from "@/components/landing/use-cases-section";
 import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 import { InfrastructureSection } from "@/components/landing/infrastructure-section";
 import { MetricsSection } from "@/components/landing/metrics-section";
@@ -9,16 +11,19 @@ import { SecuritySection } from "@/components/landing/security-section";
 import { DevelopersSection } from "@/components/landing/developers-section";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { PricingSection } from "@/components/landing/pricing-section";
+import { FaqSection } from "@/components/landing/faq-section";
 import { CtaSection } from "@/components/landing/cta-section";
 import { FooterSection } from "@/components/landing/footer-section";
 
-/** Marketing homepage — composes all sections from `website/v0-import/`. */
+/** Marketing homepage — desktop buddy positioning + v0 editorial aesthetic. */
 export default function Home() {
   return (
     <main className="relative min-h-screen overflow-x-hidden noise-overlay">
       <Navigation />
       <HeroSection />
+      <UseCasesSection />
       <FeaturesSection />
+      <HotkeysSection />
       <HowItWorksSection />
       <InfrastructureSection />
       <MetricsSection />
@@ -27,6 +32,7 @@ export default function Home() {
       <DevelopersSection />
       <TestimonialsSection />
       <PricingSection />
+      <FaqSection />
       <CtaSection />
       <FooterSection />
     </main>

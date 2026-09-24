@@ -95,7 +95,7 @@ function OverlayMockup() {
         <span className="ml-auto">Ctrl+Shift+Space</span>
       </div>
       <p className="text-sm text-white/50">summarize this chart for my standup</p>
-      <p className="mt-2 text-sm leading-relaxed text-[#8fd48f]">
+      <p className="mt-2 text-sm leading-relaxed text-[#e4e4e4]">
         Signups dipped 18% after Tuesday — mostly mobile onboarding at the verify-phone step.
         Consider shortening OTP or adding WhatsApp login.
       </p>

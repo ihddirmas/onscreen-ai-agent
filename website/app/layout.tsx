@@ -5,6 +5,11 @@ import {
   Instrument_Serif,
   JetBrains_Mono,
 } from "next/font/google";
+import {
+  defaultMetadata,
+  faqPageJsonLd,
+  softwareApplicationJsonLd,
+} from "@/lib/seo";
 
 const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
@@ -22,19 +27,26 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
 });
 
-export const metadata: Metadata = {
-  title: "OnCUE — your on-screen AI assistant",
-  description:
-    "Ask about anything on your screen, dictate in Hinglish, and get answers grounded in your documents. Private overlay, no alt-tab.",
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const jsonLd = [softwareApplicationJsonLd(), faqPageJsonLd()];
+
   return (
     <html
       lang="en"
       className={`${instrumentSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        {jsonLd.map((schema, i) => (
+          <script
+            key={i}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        ))}
+        {children}
+      </body>
     </html>
   );
 }

@@ -61,6 +61,7 @@ website/blob-report/
 
 # ---- Screenshot files (root level) ----
 *.png
+!website/public/screenshots/*.png
 
 # ---- Process stderr logs ----
 *_stderr.log

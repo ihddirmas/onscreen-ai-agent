@@ -4,6 +4,7 @@ test.describe("smoke", () => {
   test("landing page loads and shows key sections", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("h1")).toBeVisible();
+    await expect(page.getByText(/AI buddy on your desktop/i)).toBeVisible();
     await expect(page.getByRole("link", { name: "Get started", exact: true })).toBeVisible();
   });
 

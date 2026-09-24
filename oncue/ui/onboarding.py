@@ -11,6 +11,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
 from oncue.config import get_config
+from oncue.ui.theme import DIALOG_STYLESHEET
 
 
 class OnboardingDialog(QDialog):
@@ -23,11 +24,12 @@ class OnboardingDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Welcome to OnCUE")
         self.setMinimumWidth(440)
+        self.setStyleSheet(DIALOG_STYLESHEET)
 
         root = QVBoxLayout(self)
+        root.setSpacing(12)
 
-        title = QLabel("How do you want to get started?")
-        title.setStyleSheet("font-size: 15px; font-weight: 600;")
+        title = QLabel("How do you want to get started?", objectName="title")
         root.addWidget(title)
 
         body = QLabel(
@@ -38,14 +40,13 @@ class OnboardingDialog(QDialog):
         body.setWordWrap(True)
         root.addWidget(body)
 
-        self._status = QLabel("")
+        self._status = QLabel("", objectName="status")
         self._status.setWordWrap(True)
-        self._status.setStyleSheet("color: #a06a2c;")
         self._status.hide()
         root.addWidget(self._status)
 
         buttons = QHBoxLayout()
-        self._trial_btn = QPushButton("Sign in for a free hosted trial")
+        self._trial_btn = QPushButton("Sign in for a free hosted trial", objectName="primary")
         self._trial_btn.clicked.connect(self._start_trial)
         key_btn = QPushButton("I have my own API key")
         key_btn.clicked.connect(self._use_own_key)
@@ -56,9 +57,6 @@ class OnboardingDialog(QDialog):
     def _start_trial(self) -> None:
         cfg = get_config()
         if not cfg.web_url:
-            # A packaged build should set ONCUE_WEB_URL so this always has
-            # somewhere real to send a first-time user (see .env.example) —
-            # don't guess a domain here.
             self._status.setText(
                 "This build doesn't have a website URL configured yet. "
                 "Use your own API key below for now."
